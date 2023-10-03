@@ -1,0 +1,129 @@
+<script setup lang="ts">
+import Size from './components/Size.vue'
+import Pizza from './components/Pizza.vue'
+import Base from './components/Base.vue'
+import Sidebar from './components/Sidebar.vue'
+import { inject } from 'vue'
+const graph: any = inject("graph")
+</script>
+
+<template>
+  <div id="content">
+    <div class="flex-container">
+      <div style="height:400px; margin:30px">
+        <img class="main" :src="graph.state.pizza.selectedValue?.imageUrl" />
+      </div>
+    </div>
+    <div class="flex-container">
+      <Size></Size>
+      <Base>
+      </Base>
+    </div>
+    <div class="flex-container">
+      <Pizza></Pizza>
+    </div>
+  </div>
+  <Sidebar></Sidebar>
+  <img src="./assets/octopus-photo.png" id="octo" />
+</template>
+
+<style>
+@import "../.mirrorful/theme.css";
+
+#octo {
+  position: absolute;
+  height: 100px;
+  bottom: 0;
+  right: 0;
+}
+
+#content {
+  align-self: center;
+  flex: 3 3 3px;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: center;
+}
+
+img.main {
+  height: 400px;
+}
+
+.option-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  border: 1px solid;
+  padding: 20px;
+  margin: 15px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.container-title {
+  position: absolute;
+  top: -14px;
+  left: 50px;
+  font-size: 18px;
+  background-color: white;
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 0px 8px;
+}
+.container-error{
+  position: absolute;
+  bottom: -14px;
+  right: 50px;
+  max-width: 0px;
+  white-space:nowrap;
+  overflow: hidden;
+  transition: max-width 500ms ease-in-out;
+}
+.container-error.active{
+  max-width:500px
+}
+.container-error div{
+  background-color: white;
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 0px 8px;
+  line-height:26px;
+}
+
+.container-title div {
+  position: relative;
+  top: -3px;
+}
+
+.button {
+  border: 3px solid;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.button.hide {
+  
+  filter: saturate(30%) brightness(120%) !important;
+}
+
+.button.selected {
+  background-color: currentColor;
+  border-color: currentColor;
+}
+
+.button.selected div {
+  color: white;
+}
+
+.button:hover {
+  filter: brightness(150%);
+}
+
+.button:hover:active {
+  filter: brightness(80%);
+}
+</style>

@@ -1,0 +1,44 @@
+{
+  "type": "module",
+  "name": "octopus-state-graph",
+  "version": "1.0.2",
+  "description": "Directed acyclic graph for managing application state",
+  "keywords": [
+    "state management",
+    "store",
+    "typescript",
+    "pinia",
+    "vuex",
+    "redux",
+    "mobx"
+  ],
+  "homepage": "https://github.com/bbsimonbb/octopus-state-graph",
+  "bugs": {
+    "url": "https://github.com/bbsimonbb/octopus-state-graph/issues",
+    "email": "simon@queryfirst.net"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bbsimonbb/octopus-state-graph"
+  },
+  "author": "Simon Boddy <simon@queryfirst.net> (https://queryfirst.net)",
+  "main": "lib/index.mjs",
+  "types": "lib/index.d.mts",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
+    "@typescript-eslint/parser": "^5.48.1",
+    "eslint": "^8.31.0",
+    "typescript": "^4.9.4",
+    "vitest": "^0.27.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "esbuild-browser": "esbuild src/index.ts --bundle --outfile=lib/browser.js",
+    "build-all": "npm run build && npm run esbuild-browser",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "esbuild": "0.16.16",
+    "typescript-graph": "^0.2.1"
+  }
+}

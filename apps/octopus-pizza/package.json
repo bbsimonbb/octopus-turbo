@@ -1,0 +1,23 @@
+{
+  "name": "@sby/octopus-pizza",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --force",
+    "build": "vite build",
+    "lint": "vue-tsc",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "octopus-state-graph": "workspace:*",
+    "vue": "^3.2.47"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.1.0",
+    "mirrorful": "^5.0.6",
+    "typescript": "^4.9.3",
+    "vite": "^4.2.0",
+    "vue-tsc": "^1.2.0"
+  }
+}
