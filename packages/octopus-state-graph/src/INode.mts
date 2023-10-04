@@ -3,7 +3,7 @@
 export interface INode<Shape = any> {
   val?: Shape
   recalculate?: (...args: any[]) => boolean | void
-  methods: any
+  methods?: any
   options?: INodeOptions
 }
 

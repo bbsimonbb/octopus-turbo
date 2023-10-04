@@ -28,6 +28,9 @@ export function addBaseNode(graph: IGraph) {
         });
         this.selectedValue = this.optionValues[index];
       },
+    },
+    methods:{
+      
     }
   }
   graph.addNode("base", node);
