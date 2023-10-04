@@ -18,7 +18,7 @@
     <br>
     <div class="option-container" style="justify-content:flex-end">
       <div class="container-title">total</div>
-      <div class="amount">{{ graph.state.totalPrice.total.toFixed(2) }}&nbsp;€</div>
+      <div class="amount">{{ totalPrice.total.toFixed(2) }}&nbsp;€</div>
       <br>
       <br>
 
@@ -33,9 +33,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, ref } from 'vue'
+import { ComputedRef, computed, inject, ref } from 'vue'
 import Tip from "./Tip.vue"
 const graph: any = inject("graph")
+
+const totalPrice : ComputedRef<any> = computed(()=>graph.state.totalPrice)
 
 const deliveryCheckbox = computed({
   get() { return graph.state.delivery.checked },

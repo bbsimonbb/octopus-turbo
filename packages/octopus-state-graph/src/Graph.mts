@@ -34,8 +34,8 @@ export function createGraph(
   // we pass in Vue.reactive(). Best solution I found for using the output in Vue. Should also work for mobx-react observable.
 
   // radically simple, we need get the reactive proxy in first. This is way to simple unfortunately.
-  const state: any = stateWrappingFunction({})
-  //const state = {};
+  //const state: any = stateWrappingFunction({})
+  const state = {};
 
   // Create the graph https://segfaultx64.github.io/typescript-graph/
   //const graph = new DirectedGraph<INode|ISource>((n: INode|ISource) => n.name)
@@ -95,9 +95,9 @@ export function createGraph(
     // about mutations
     node.val = stateWrappingFunction(node.val);
 
-    if (typeof node.val === "object") {
+    if (node.methods) {
       // If a top level property is a function, bind it to the target
-      node.val = new Proxy(node.val, {
+      node.methods = new Proxy(node.methods, {
         get(target, property, receiver) {
           if (typeof target[property] === "function") {
             return target[property].bind(target);
@@ -108,12 +108,12 @@ export function createGraph(
       });
 
       // here, we automate calling recalculate after any method called on node
-      for (const prop in node.val) {
+      for (const prop in node.methods) {
         if (
           Object.prototype.hasOwnProperty.call(node.val, prop) &&
           typeof node.val[prop] === "function"
         ) {
-          node.val[prop] = new Proxy(node.val[prop], {
+          node.methods[prop] = new Proxy(node.methods[prop], {
             apply: function (target, thisArg, argArray) {
               //let recalculateDirty: boolean|void = false
               const handlerDirty = target(...argArray);
