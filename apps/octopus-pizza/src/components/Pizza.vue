@@ -24,7 +24,7 @@ const errorMsg = computed(()=>{
             'button': true,
             selected: option.selected,
             hide: option.hide
-        }" @click="graph.methods.pizza.selectItem(index)"><div>{{ option.valueName }} €{{ option.price?.toFixed(2) }}</div></div>
+        }" @click="graph.state.pizza.selectItem(index)"><div>{{ option.valueName }} €{{ option.price?.toFixed(2) }}</div></div>
         <div class="container-title"><div>choose your pizza</div></div>
         <div :class="{'container-error':true, active: errorActive}"><div>{{ errorMsg }}</div></div>
     </div>

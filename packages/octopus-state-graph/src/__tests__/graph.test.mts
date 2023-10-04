@@ -61,7 +61,7 @@ test("a downstream node adds 2 to an upstream", async () => {
 //   })
 //   graph.build()
 
-//   await graph.methods.upstream.setVal(14)
+//   await graph.state.upstream.setVal(14)
 //   expect(graph.state.downstream).toBe(16)
 //   // downstream has an initial value, so should be present in the state
 //   expect(Object.entries(graph.state).length).toBe(2)
@@ -127,7 +127,7 @@ test("a reporting node picks up its input", async () => {
 //   })
 //   graph.build()
 
-//   await graph.methods.upstream.setVal(14)
+//   await graph.state.upstream.setVal(14)
 //   expect(sideEffect).toBe(16)
 //   // downstream is a sink, so should not be present in the state
 //   expect(Object.entries(graph.state).length).toBe(1)

@@ -9,7 +9,7 @@ const graph: any = inject("graph")
     <div class="option-container">
         <div v-for="(option, index) in graph.state.size.optionValues"
             :class="['button',option.selected?'selected':'']"
-            @click="graph.methods.size.selectItem(index)"
+            @click="graph.state.size.selectItem(index)"
         ><div>{{ option.valueName }}</div></div>
         <div class="container-title"><div>size</div></div>
         <div :class="{'container-error':true, active:(graph.state.doOrder.submitBlocked || graph.state.size.touched) && !graph.state.size.valid}"><div>Please choose</div></div>

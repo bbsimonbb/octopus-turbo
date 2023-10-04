@@ -62,13 +62,13 @@ const amountInput = computed({
         _rawUI.value = newVal
         const parsedUI = parseFloat(newVal)
         // keyup handler ensures only numbers are entered
-        graph.methods.tip.tipAmountOnChange(isNaN(parsedUI)? null: parsedUI)
+        graph.state.tip.tipAmountOnChange(isNaN(parsedUI)? null: parsedUI)
     }
 })
 
 const tipAsPct = computed({
     get() { return graph.state.tip.tipAsPct },
-    set(newVal) { graph.methods.tip.setTipAsPct(newVal) }
+    set(newVal) { graph.state.tip.setTipAsPct(newVal) }
 })
 
 </script>

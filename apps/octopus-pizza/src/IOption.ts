@@ -10,4 +10,6 @@ export interface IOption<OfType extends IOptionValue = IOptionValue> {
   hide?: boolean
   valid?: boolean
   touched:boolean
+  canChoose?:boolean
+  selectItem:(index:number)=>void
 }

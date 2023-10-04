@@ -38,7 +38,7 @@ test("a graph can be serialized and rehydrated", async () => {
   // // before it's used for the first time a graph must be built...
   // freshGraph.build()
   // // after building, the graph is useable
-  // await freshGraph.methods.upstream.setVal(14)
+  // await freshgraph.state.upstream.setVal(14)
   // expect(freshGraph.state.downstream).toBe(16)
 
   // // then we can save its state

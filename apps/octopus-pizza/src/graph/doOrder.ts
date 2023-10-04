@@ -13,26 +13,21 @@ class Output {
 export function addDoOrder(graph: IGraph) {
   let canSubmit = false
   let submitBlocked = false
-  const node: INode<Inputs,Output> = {
-    initialValue: new Output(true),
-    publicMethods: {
+  const node = {
+    val: {
+      submitBlocked:false,
       go() {
         if(canSubmit){
           alert("Excellent choice! Enjoy your pizza.")
-          submitBlocked = false
         }
         else {
           alert("There are some problems with your order.")
-          submitBlocked = true
         }
-        publishChange(new Output(submitBlocked))
-      },
+      }
     },
-    dependsOn: new Inputs(),
-    onUpstreamChange(inputs) {
-      canSubmit = inputs.allValid
-      return new Output(submitBlocked)
+    recalculate(allValid: any) {
+      this.val.submitBlocked = allValid
     },
   }
-  const publishChange = graph.addNode("doOrder", node)
+  graph.addNode("doOrder", node)
 }

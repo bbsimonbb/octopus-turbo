@@ -28,7 +28,6 @@ const graph: any = inject("graph")
 </template>
 
 <style>
-@import "../.mirrorful/theme.css";
 
 #octo {
   position: absolute;

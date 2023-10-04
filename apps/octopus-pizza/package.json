@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.1.0",
-    "mirrorful": "^5.0.6",
     "typescript": "^4.9.3",
     "vite": "^4.2.0",
     "vue-tsc": "^1.2.0"

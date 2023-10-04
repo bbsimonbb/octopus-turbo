@@ -1,44 +1,29 @@
-import { IGraph, INode, ISource } from "octopus-state-graph"
+import { IGraph, INode } from "octopus-state-graph";
 
-export interface IDelivery {
-  checked: boolean
-  optionPrice: number
-  deliveryAddress: string|null
-   valid: boolean
-   touched:boolean
-}
+
 export function addDelivery(graph: IGraph) {
-  var returnVal: IDelivery = {
-    checked: false,
-    optionPrice: 0,
-    deliveryAddress:null,
-    valid: true,
-    touched:false
-  }
-  function recalculate() {
-    returnVal.optionPrice = returnVal.checked ? 5 : 0
-    returnVal.valid = !returnVal.checked || !!returnVal.deliveryAddress
-  }
-  const node: ISource<IDelivery> = {
-    initialValue: returnVal,
-    publicMethods: {
-      setChecked(newVal:boolean) {
-        returnVal.checked = newVal
-        recalculate()
-        publishChange(returnVal)
+  const node = {
+    val: {
+      checked: false,
+      optionPrice: 0,
+      deliveryAddress: '',
+      valid: true,
+      touched: false,
+      setChecked(newVal: boolean) {
+        this.checked = newVal
       },
-      setDeliveryAddress(newVal:string){
-        returnVal.deliveryAddress = newVal
-        returnVal.touched = true
-        recalculate()
-        publishChange(returnVal)
+      setDeliveryAddress(newVal: string) {
+        this.deliveryAddress = newVal;
+        this.touched = true
       },
       deliveryOn() {
-        returnVal.checked = true
-        recalculate()
-        publishChange(returnVal)
+        this.checked = true;
       },
     },
-  }
-  const publishChange = graph.addNode("delivery", node)
+    recalculate() {
+      this.val.optionPrice = this.val.checked ? 5 : 0;
+      this.val.valid = !this.val.checked || !!this.val.deliveryAddress;
+    }
+  };
+  graph.addNode("delivery", node);
 }

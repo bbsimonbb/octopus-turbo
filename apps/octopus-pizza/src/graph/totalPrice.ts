@@ -1,15 +1,16 @@
-import { IGraph, INode } from "octopus-state-graph"
-import { IReportingNode } from "octopus-state-graph/lib/INode.mjs"
+import { IGraph, INode } from "octopus-state-graph";
+import { IReportingNode } from "octopus-state-graph/lib/INode.mjs";
+import { IOption } from "../IOption";
 
 interface IPricedOption {
-  optionPrice: number
-  valid: boolean
+  optionPrice: number;
+  valid: boolean;
 }
 interface IInputs {
-  [key: string]: IPricedOption
+  [key: string]: IPricedOption;
 }
 function isPricedOption(someObject: any) {
-  return someObject.optionPrice !== undefined
+  return someObject.optionPrice !== undefined;
 }
 
 /* --------------- Reporting Node -----------------------
@@ -18,19 +19,21 @@ Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
 export function addTotalPrice(graph: IGraph) {
-  const node: IReportingNode<IInputs, number> = {
-    initialValue: 0,
-    dependsOn(nodeName, publishedVal) {
-      return isPricedOption(publishedVal)
-    },
-    onUpstreamChange(inputs: IInputs) {
-      var totalPrice = 0
+  const node: IReportingNode<any> = {
+    val: {total:0},
+    recalculate(inputs) {
+      var totalPrice = 0;
 
       for (const [key, val] of Object.entries(inputs)) {
-        totalPrice += val.valid ? (val.optionPrice || 0) : 0
+        totalPrice += (val as IOption).valid ? (val as IOption).optionPrice || 0 : 0;
       }
-      return totalPrice
+      this.val.total = totalPrice;
     },
-  }
-  graph.addNode("totalPrice", node)
+    options: {
+      dependsOn(nodeName, publishedVal) {
+        return isPricedOption(publishedVal);
+      },
+    },
+  };
+  graph.addNode("totalPrice", node);
 }
