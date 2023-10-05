@@ -1,7 +1,7 @@
 import { IGraph, INode } from "octopus-state-graph"
 import { IReportingNode } from "octopus-state-graph/lib/INode.mjs"
 
-interface IValid {
+export interface IValid {
   valid: boolean
 }
 function isIValid(someObject: any) {
@@ -14,8 +14,9 @@ Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
 export function addAllValid(graph: IGraph) {
+  const val : IValid = {valid:false}
   const node: IReportingNode<IValid> = {
-    val: {valid:false},
+    val,
     options:{
       dependsOn(nodeName, publishedVal) {
       return isIValid(publishedVal)
@@ -23,9 +24,9 @@ export function addAllValid(graph: IGraph) {
     recalculate(nodes){
       var allValid = true
       for (const [key, val] of Object.entries(nodes)) {
-        allValid = allValid && !!(val as any).valid
+        allValid = allValid && !! (val as IValid).valid
       }
-      this.val.valid = allValid
+      val.valid = allValid
     },
   }
   graph.addNode("allValid", node)
