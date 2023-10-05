@@ -19,15 +19,16 @@ Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
 export function addTotalPrice(graph: IGraph) {
+  const val =  {total:0}
   const node: IReportingNode<any> = {
-    val: {total:0},
+    val,
     recalculate(inputs) {
       var totalPrice = 0;
 
       for (const [key, val] of Object.entries(inputs)) {
         totalPrice += (val as IOption).valid ? (val as IOption).optionPrice || 0 : 0;
       }
-      this.val.total = totalPrice;
+      val.total = totalPrice;
     },
     options: {
       dependsOn(nodeName, publishedVal) {

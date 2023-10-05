@@ -3,34 +3,34 @@ import { IOption } from "../IOption.js";
 
 // size
 export function addBaseNode(graph: IGraph) {
+  const val : IOption =  {
+    optionValues: [
+      {
+        valueName: "bianca",
+        selected: false,
+      },
+      {
+        valueName: "rossa",
+        selected: false,
+      },
+    ],
+    selectedIndex: 0,
+    selectedValue: undefined,
+    valid: false,
+    touched: false,
+  }
   let node: INode<IOption> = {
-    val: {
-      optionValues: [
-        {
-          valueName: "bianca",
-          selected: false,
-        },
-        {
-          valueName: "rossa",
-          selected: false,
-        },
-      ],
-      selectedIndex: 0,
-      selectedValue: undefined,
-      valid: false,
-      touched: false,
+    val,
+    methods:{
       selectItem(index: number) {
-        this.selectedIndex = index;
-        this.touched = true;
-        this.valid = true;
-        this.optionValues.forEach((el, i) => {
+        val.selectedIndex = index;
+        val.touched = true;
+        val.valid = true;
+        val.optionValues.forEach((el, i) => {
           el.selected = i === index;
         });
-        this.selectedValue = this.optionValues[index];
-      },
-    },
-    methods:{
-      
+        val.selectedValue = val.optionValues[index];
+      },      
     }
   }
   graph.addNode("base", node);

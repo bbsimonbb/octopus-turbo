@@ -7,7 +7,7 @@
       <div>
         <div>delivery address</div>
         <div id="deliveryAddressTextArea" class="text-area" @input="deliveryAddressOnChange" style="height:60px"
-          contenteditable @focus="graph.state.delivery.deliveryOn()"></div>
+          contenteditable @focus="graph.methods.delivery.deliveryOn()"></div>
       </div>
 
       <div :class="{ 'container-error': true, active: (graph.state.delivery.touched || graph.state.doOrder.submitBlocked) && !graph.state.delivery.valid }">
@@ -27,7 +27,7 @@
       <div :class="{
         button: true,
         hide: !graph.state.allValid.valid
-      }" @click="graph.state.doOrder.go()">Place order</div>
+      }" @click="graph.methods.doOrder.go()">Place order</div>
     </div>
   </div>
 </template>
@@ -41,11 +41,11 @@ const totalPrice : ComputedRef<any> = computed(()=>graph.state.totalPrice)
 
 const deliveryCheckbox = computed({
   get() { return graph.state.delivery.checked },
-  set(newVal) { graph.state.delivery.setChecked(newVal) }
+  set(newVal) { graph.methods.delivery.setChecked(newVal) }
 })
 function deliveryAddressOnChange(e: Event) {
   const textArea = e.target as HTMLElement
-  graph.state.delivery.setDeliveryAddress(textArea.innerText)
+  graph.methods.delivery.setDeliveryAddress(textArea.innerText)
 }
 
 </script>

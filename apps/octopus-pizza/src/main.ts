@@ -4,5 +4,6 @@ import App from './App.vue'
 import buildGraph from './graph/graph.js'
 
 const app = createApp(App)
-app.provide("graph",buildGraph())
+const graph = buildGraph()
+app.provide("graph",graph)
 app.mount('#app')

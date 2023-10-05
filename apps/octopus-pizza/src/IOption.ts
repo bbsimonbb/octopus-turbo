@@ -11,5 +11,4 @@ export interface IOption<OfType extends IOptionValue = IOptionValue> {
   valid?: boolean
   touched:boolean
   canChoose?:boolean
-  selectItem:(index:number)=>void
 }

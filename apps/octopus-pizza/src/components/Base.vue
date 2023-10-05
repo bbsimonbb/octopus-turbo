@@ -8,7 +8,7 @@ const graph: any = inject("graph")
 <template>
     <div class="option-container">
         <div v-for="(option, index) in graph.state.base.optionValues" :class="['button', option.selected ? 'selected' : '']"
-            @click="graph.state.base.selectItem(index)">
+            @click="graph.methods.base.selectItem(index)">
             <div>{{ option.valueName }}</div>
         </div>
         <div class="container-title">

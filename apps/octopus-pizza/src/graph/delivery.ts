@@ -1,29 +1,32 @@
 import { IGraph, INode } from "octopus-state-graph";
 
-
 export function addDelivery(graph: IGraph) {
+  const val = {
+    checked: false,
+    optionPrice: 0,
+    deliveryAddress: "",
+    valid: true,
+    touched: false,
+  };
   const node = {
-    val: {
-      checked: false,
-      optionPrice: 0,
-      deliveryAddress: '',
-      valid: true,
-      touched: false,
+    val,
+    recalculate() {
+      val.optionPrice = this.val.checked ? 5 : 0;
+      val.valid = !this.val.checked || !!this.val.deliveryAddress;
+    },
+    methods: {
       setChecked(newVal: boolean) {
-        this.checked = newVal
+        val.checked = newVal;
       },
       setDeliveryAddress(newVal: string) {
-        this.deliveryAddress = newVal;
-        this.touched = true
+        val.deliveryAddress = newVal;
+        val.touched = true;
+        if (newVal) val.checked = true;
       },
       deliveryOn() {
-        this.checked = true;
+        val.checked = true;
       },
     },
-    recalculate() {
-      this.val.optionPrice = this.val.checked ? 5 : 0;
-      this.val.valid = !this.val.checked || !!this.val.deliveryAddress;
-    }
   };
   graph.addNode("delivery", node);
 }

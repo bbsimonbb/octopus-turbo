@@ -3,37 +3,40 @@ import { IOption } from "../IOption.js";
 
 // size
 export function addSizeNode(graph: IGraph) {
+  const val = {
+    optionValues: [
+      {
+        valueName: "small",
+        coef: 1,
+        selected: false,
+      },
+      {
+        valueName: "medium",
+        coef: 1.2,
+        selected: false,
+      },
+      {
+        valueName: "large",
+        coef: 1.4,
+        selected: false,
+      },
+    ],
+    selectedIndex: 0,
+    touched: false,
+    valid: false,
+  };
   let node: INode<IOption> = {
-    val: {
-      optionValues: [
-        {
-          valueName: "small",
-          coef: 1,
-          selected: false,
-        },
-        {
-          valueName: "medium",
-          coef: 1.2,
-          selected: false,
-        },
-        {
-          valueName: "large",
-          coef: 1.4,
-          selected: false,
-        },
-      ],
-      selectedIndex: 0,
-      touched: false,
-      valid: false,
+    val,
+    methods: {
       selectItem(index: number) {
-        this.selectedIndex = index;
-        this.touched = true;
-        this.valid = true;
-        this.optionValues.forEach((el, i) => {
+        val.selectedIndex = index;
+        val.touched = true;
+        val.valid = true;
+        val.optionValues.forEach((el, i) => {
           el.selected = i === index;
         });
       },
     },
-  }
+  };
   graph.addNode("size", node);
 }

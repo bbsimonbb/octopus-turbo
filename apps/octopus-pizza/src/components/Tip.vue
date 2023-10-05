@@ -1,8 +1,9 @@
 <template>
     <div class="option-container" style="display:block; margin-top:50px;">
         <div class="container-title">tip</div>
-        <input type="radio" id="tipAsPct" name="tipPercent" :value="true" v-model="tipAsPct"> <label
-            for="tipAsPct">10%</label>
+        <input type="radio" id="tipAsPct" name="tipPercent" :value="true" v-model="tipAsPct"> 
+        <label for="tipAsPct">10%</label>
+        <span v-if="tipAsPct" style="font-size: smaller; padding-left: 10px;">({{graph.state.tip.optionPrice.toFixed(2)}} €)</span>
         <br>
         <br>
         <input type="radio" name="tipPercent" :value="false" v-model="tipAsPct">&nbsp;
@@ -62,13 +63,13 @@ const amountInput = computed({
         _rawUI.value = newVal
         const parsedUI = parseFloat(newVal)
         // keyup handler ensures only numbers are entered
-        graph.state.tip.tipAmountOnChange(isNaN(parsedUI)? null: parsedUI)
+        graph.methods.tip.tipAmountOnChange(isNaN(parsedUI)? null: parsedUI)
     }
 })
 
 const tipAsPct = computed({
     get() { return graph.state.tip.tipAsPct },
-    set(newVal) { graph.state.tip.setTipAsPct(newVal) }
+    set(newVal) { graph.methods.tip.setTipAsPct(newVal) }
 })
 
 </script>

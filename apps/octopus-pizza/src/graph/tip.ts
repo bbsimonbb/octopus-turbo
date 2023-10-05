@@ -7,46 +7,46 @@ export interface ITip {
   valid: boolean;
   touched: boolean;
   parsedUserInput: number | null;
-  setTipAsPct: (val: boolean) => void;
-  tipAmountOnChange(newVal: number | null): void;
 }
 class Inputs {
   pizza: IOption | null = null;
 }
 export function addTip(graph: IGraph) {
+  const val: ITip = {
+    tipAsPct: true,
+    optionPrice: 0,
+    valid: true,
+    touched: false,
+    parsedUserInput: null,
+  };
   const node: INode<ITip> = {
-    val: {
-      tipAsPct: true,
-      optionPrice: 0,
-      valid: true,
-      touched: false,
-      parsedUserInput: null,
-      setTipAsPct(val: boolean): void {
-        this.tipAsPct = val;
-      },
-      tipAmountOnChange(newVal: number | null): void {
-        this.parsedUserInput = newVal;
-        this.tipAsPct = false;
-        this.touched = true;
-      },
-    },
+    val,
     recalculate(pizza: IOption) {
-      if (this?.val) {
-        if (this.val.tipAsPct) {
-          this.val.optionPrice = pizza?.valid
-            ? (pizza?.optionPrice || 0) * 0.1
-            : 0;
-          this.val.valid = true;
+      if (val) {
+        if (val.tipAsPct) {
+          val.optionPrice = pizza?.valid ? (pizza?.optionPrice || 0) * 0.1 : 0;
+          val.valid = true;
         } else {
-          if (this.val.parsedUserInput === null) {
-            this.val.optionPrice = 0;
-            this.val.valid = false;
+          if (val.parsedUserInput === null) {
+            val.optionPrice = 0;
+            val.valid = false;
           } else {
-            this.val.optionPrice = this.val.parsedUserInput || 0;
-            this.val.valid = true;
+            val.optionPrice = val.parsedUserInput || 0;
+            val.valid = true;
           }
         }
       }
+    },
+    methods: {
+      setTipAsPct(tipAsPct: boolean): void {
+        val.tipAsPct = tipAsPct;
+        val.touched = true
+      },
+      tipAmountOnChange(newVal: number | null): void {
+        val.parsedUserInput = newVal;
+        val.tipAsPct = false;
+        val.touched = true;
+      },
     },
   };
   graph.addNode("tip", node);
