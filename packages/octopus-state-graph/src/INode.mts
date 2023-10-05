@@ -1,9 +1,9 @@
 // https://en.wikipedia.org/wiki/Glossary_of_graph_theory
 
-export interface INode<Shape = any> {
-  val?: Shape
+export interface INode<ValShape = any, MethodsShape = any> {
+  val?: ValShape
   recalculate?: (...args: any[]) => boolean | void
-  methods?: any
+  methods?: MethodsShape
   options?: INodeOptions
 }
 
@@ -15,8 +15,8 @@ interface IReportingNodeOptions extends INodeOptions {
   dependsOn: (nodeName: string, nodeValue: any) => boolean | object
 }
 
-export type IReportingNode<Shape = any> = INode<Shape> & {
-  val: Shape
+export type IReportingNode<ValShape = any, MethodsShape = any> = INode<ValShape, MethodsShape> & {
+  val: ValShape
   recalculate: (nodeArray: any[]) => boolean | void
   options: INodeOptions
 }

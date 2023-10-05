@@ -5,7 +5,7 @@ import { ISerializedGraph } from "./ISerializedGraph.mjs"
 export interface IGraph {
   state: { [nodeName: string]: any }
   methods: any
-  addNode: <Shape>(nodeName: string, node: INode<Shape>) => Shape
+  addNode: <ValShape,MethodsShape>(nodeName: string, node: INode<ValShape,MethodsShape>) => INode<ValShape,MethodsShape>
   wrapNode: (nodeToWrap: string, wrapper: INodeWrapper) => (publish: any) => void
   build: () => void
   fullTraversal: () => Promise<void>

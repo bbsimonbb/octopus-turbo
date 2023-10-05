@@ -7,10 +7,11 @@
       <div>
         <div>delivery address</div>
         <div id="deliveryAddressTextArea" class="text-area" @input="deliveryAddressOnChange" style="height:60px"
-          contenteditable @focus="graph.methods.delivery.deliveryOn()"></div>
+          contenteditable @focus="delivery.methods?.deliveryOn()"></div>
       </div>
 
-      <div :class="{ 'container-error': true, active: (graph.state.delivery.touched || graph.state.doOrder.submitBlocked) && !graph.state.delivery.valid }">
+      <div
+        :class="{ 'container-error': true, active: (delivery.val?.touched || doOrder.val?.submitBlocked) && !delivery.val?.valid }">
         <div>Please provide a delivery address.</div>
       </div>
     </div>
@@ -18,34 +19,37 @@
     <br>
     <div class="option-container" style="justify-content:flex-end">
       <div class="container-title">total</div>
-      <div class="amount">{{ totalPrice.total.toFixed(2) }}&nbsp;€</div>
+      <div class="amount">{{ totalPrice.val?.total.toFixed(2) }}&nbsp;€</div>
       <br>
       <br>
 
     </div>
+      <div>{{ totalPrice }}</div>
     <div class="order-container">
       <div :class="{
         button: true,
-        hide: !graph.state.allValid.valid
-      }" @click="graph.methods.doOrder.go()">Place order</div>
+        hide: !allValid.val?.valid,
+      }" @click="doOrder.methods?.go()">Place order</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ComputedRef, computed, inject, ref } from 'vue'
+import {allValid} from "../graph/allValid"
+import {delivery} from "../graph/delivery"
+import {doOrder} from "../graph/doOrder"
+import {totalPrice} from "../graph/totalPrice"
 import Tip from "./Tip.vue"
-const graph: any = inject("graph")
-
-const totalPrice : ComputedRef<any> = computed(()=>graph.state.totalPrice)
+//const graph: any = inject("graph")
 
 const deliveryCheckbox = computed({
-  get() { return graph.state.delivery.checked },
-  set(newVal) { graph.methods.delivery.setChecked(newVal) }
+  get() { return delivery.val?.checked },
+  set(newVal) { delivery.methods?.setChecked(newVal || false) }
 })
 function deliveryAddressOnChange(e: Event) {
   const textArea = e.target as HTMLElement
-  graph.methods.delivery.setDeliveryAddress(textArea.innerText)
+  delivery.methods?.setDeliveryAddress(textArea.innerText)
 }
 
 </script>
@@ -59,7 +63,7 @@ function deliveryAddressOnChange(e: Event) {
 
 .order-container .button {
   border-color: turquoise;
-  color:white;
+  color: white;
   background-color: turquoise;
 }
 
@@ -90,4 +94,5 @@ function deliveryAddressOnChange(e: Event) {
   padding: 10px 16px;
   resize: none;
   background-color: white;
-}</style>
+}
+</style>

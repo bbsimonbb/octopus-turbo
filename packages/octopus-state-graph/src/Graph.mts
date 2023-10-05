@@ -130,7 +130,7 @@ export function createGraph(
       const newMethods = node.methods;
       methods[nodeName] = { ...methods[nodeName], ...newMethods };
     }
-    return node.val;
+    return {val: node.val, methods: node.methods};
   }
 
   const build = () => {

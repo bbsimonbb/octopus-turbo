@@ -1,3 +1,4 @@
+import graph from "./bareReactiveGraph";
 import { IGraph, INode } from "octopus-state-graph";
 import { IReportingNode } from "octopus-state-graph/lib/INode.mjs";
 import { IOption } from "../IOption";
@@ -18,23 +19,24 @@ dependsOn is a function that will examine each node already added and return tru
 Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
-export function addTotalPrice(graph: IGraph) {
-  const val =  {total:0}
-  const node: IReportingNode<any> = {
-    val,
-    recalculate(inputs) {
-      var totalPrice = 0;
 
-      for (const [key, val] of Object.entries(inputs)) {
-        totalPrice += (val as IOption).valid ? (val as IOption).optionPrice || 0 : 0;
-      }
-      val.total = totalPrice;
+const val = { total: 0 };
+const node: IReportingNode<any> = {
+  val,
+  recalculate(inputs) {
+    var totalPrice = 0;
+
+    for (const [key, val] of Object.entries(inputs)) {
+      totalPrice += (val as IOption).valid
+        ? (val as IOption).optionPrice || 0
+        : 0;
+    }
+    val.total = totalPrice;
+  },
+  options: {
+    dependsOn(nodeName, publishedVal) {
+      return isPricedOption(publishedVal);
     },
-    options: {
-      dependsOn(nodeName, publishedVal) {
-        return isPricedOption(publishedVal);
-      },
-    },
-  };
-  graph.addNode("totalPrice", node);
-}
+  },
+};
+export const totalPrice = graph.addNode("totalPrice", node);
