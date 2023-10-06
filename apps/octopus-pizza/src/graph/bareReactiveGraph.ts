@@ -1,6 +1,5 @@
 import { createGraph } from "octopus-state-graph"
-import { reactive } from "vue"
 
-var graph = createGraph(reactive)
+var graph = createGraph()
 
 export default graph
