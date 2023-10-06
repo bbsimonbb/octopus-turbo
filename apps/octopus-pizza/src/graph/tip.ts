@@ -1,6 +1,7 @@
 import { IGraph, INode } from "octopus-state-graph";
 import { IOption } from "../IOption";
-
+import graph from "./bareReactiveGraph"
+import { reactive } from "vue";
 export interface ITip {
   tipAsPct: boolean;
   optionPrice: number;
@@ -11,14 +12,13 @@ export interface ITip {
 class Inputs {
   pizza: IOption | null = null;
 }
-export function addTip(graph: IGraph) {
-  const val: ITip = {
+  const val: ITip = reactive({
     tipAsPct: true,
     optionPrice: 0,
     valid: true,
     touched: false,
     parsedUserInput: null,
-  };
+  });
   const node: INode<ITip> = {
     val,
     recalculate(pizza: IOption) {
@@ -49,5 +49,4 @@ export function addTip(graph: IGraph) {
       },
     },
   };
-  graph.addNode("tip", node);
-}
+  export const tip = graph.addNode("tip", node);

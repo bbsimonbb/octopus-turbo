@@ -1,8 +1,9 @@
 import graph from "./bareReactiveGraph";
 import { INode } from "octopus-state-graph";
 import { IOption, IOptionMethods } from "../IOption.js";
+import { reactive } from "vue";
 
-const val: IOption = {
+const val: IOption = reactive({
   optionValues: [
     {
       valueName: "bianca",
@@ -17,7 +18,7 @@ const val: IOption = {
   selectedValue: undefined,
   valid: false,
   touched: false,
-};
+});
 
 let node: INode<IOption, IOptionMethods> = {
   val,

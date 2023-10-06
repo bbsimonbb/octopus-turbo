@@ -1,9 +1,10 @@
 import { IGraph, INode } from "octopus-state-graph";
 import { IOption } from "../IOption.js";
+import { reactive } from "vue";
+import graph from "./bareReactiveGraph.js"
 
 // size
-export function addSizeNode(graph: IGraph) {
-  const val = {
+  const val = reactive({
     optionValues: [
       {
         valueName: "small",
@@ -24,7 +25,7 @@ export function addSizeNode(graph: IGraph) {
     selectedIndex: 0,
     touched: false,
     valid: false,
-  };
+  });
   let node: INode<IOption> = {
     val,
     methods: {
@@ -38,5 +39,4 @@ export function addSizeNode(graph: IGraph) {
       },
     },
   };
-  graph.addNode("size", node);
-}
+  export const size = graph.addNode("size", node);

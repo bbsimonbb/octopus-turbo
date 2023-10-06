@@ -1,3 +1,4 @@
+import { reactive } from "vue";
 import graph from "./bareReactiveGraph";
 import { IReportingNode } from "octopus-state-graph";
 
@@ -13,7 +14,7 @@ dependsOn is a function that will examine each node already added and return tru
 Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
-const val: IValid = { valid: false };
+const val: IValid = reactive( { valid: false });
 
 const node: IReportingNode<IValid,null> = {
   val,

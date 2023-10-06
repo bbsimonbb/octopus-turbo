@@ -3,16 +3,15 @@ import Size from './components/Size.vue'
 import Pizza from './components/Pizza.vue'
 import Base from './components/Base.vue'
 import Sidebar from './components/Sidebar.vue'
-import { inject } from 'vue'
 import {totalPrice} from "./graph/totalPrice"
-const graph: any = inject("graph")
+import {pizza} from "./graph/Pizza"
 </script>
 
 <template>
   <div id="content">
     <div class="flex-container">
       <div style="height:400px; margin:30px">
-        <img class="main" :src="graph.state.pizza.selectedValue?.imageUrl" />
+        <img class="main" :src="pizza.val?.selectedValue?.imageUrl" />
       </div>
     </div>
     <div class="flex-container">
@@ -20,7 +19,6 @@ const graph: any = inject("graph")
       <Base>
       </Base>
     </div>
-    <div>{{ totalPrice }}</div>
     <div class="flex-container">
       <Pizza></Pizza>
     </div>

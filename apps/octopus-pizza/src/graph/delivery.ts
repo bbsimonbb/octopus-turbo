@@ -1,13 +1,14 @@
+import { reactive } from "vue";
 import graph from "./bareReactiveGraph";
 import { IGraph, INode } from "octopus-state-graph";
 
-const val = {
+const val = reactive({
   checked: false,
   optionPrice: 0,
   deliveryAddress: "",
   valid: true,
   touched: false,
-};
+});
 const node = {
   val,
   recalculate() {

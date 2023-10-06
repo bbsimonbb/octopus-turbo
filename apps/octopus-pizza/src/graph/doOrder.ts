@@ -1,12 +1,13 @@
 import graph from "./bareReactiveGraph";
 import { IGraph, INode } from "octopus-state-graph";
 import { IValid } from "./allValid";
+import { reactive } from "vue";
 
 let canGo = false;
-const val = {
+const val = reactive({
   // this force displaying of error messages
   submitBlocked: false,
-};
+});
 const node = {
   val,
   recalculate(allValid: IValid) {

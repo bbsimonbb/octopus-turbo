@@ -1,13 +1,14 @@
 import { INode } from "octopus-state-graph";
 import { IGraph } from "octopus-state-graph/lib/IGraph.mjs";
 import { IOption } from "../IOption.js";
+import graph from "./bareReactiveGraph.js"
+import { reactive } from "vue";
 
 export interface IPizza extends IOption {
   canChoose: boolean;
 }
 
-export function addPizzaNode(graph: IGraph) {
-  const val: IOption = {
+  const val: IOption = reactive({
     optionValues: [
       {
         valueName: "4 Stagioni",
@@ -52,7 +53,7 @@ export function addPizzaNode(graph: IGraph) {
     valid: false,
     touched: false,
     canChoose: false,
-  };
+  });
   const node: INode<IOption> = {
     val,
     recalculate(size: IOption, base: IOption) {
@@ -81,5 +82,4 @@ export function addPizzaNode(graph: IGraph) {
       },
     },
   };
-  graph.addNode("pizza", node);
-}
+  export const pizza = graph.addNode("pizza", node);

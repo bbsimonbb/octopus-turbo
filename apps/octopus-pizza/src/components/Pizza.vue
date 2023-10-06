@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { ComputedRef, computed, inject, ref } from 'vue'
-import { IPizza } from '../graph/Pizza';
+import { computed } from 'vue'
+import { doOrder} from '../graph/doOrder'
+import {pizza} from '../graph/Pizza'
 
-const graph: any = inject("graph")
+
 const errorActive = computed(()=>{
-    return myNode.value.canChoose && !myNode.value.valid && (graph.state.doOrder.submitBlocked || myNode.value.touched)
+    return pizza.val?.canChoose && !pizza.val?.valid && (doOrder.val?.submitBlocked || pizza.val?.touched)
 })
-const myNode : ComputedRef<IPizza> = computed(()=>graph.state.pizza)
+
 const errorMsg = computed(()=>{
-    if(myNode.value.valid)
+    if(pizza.val?.valid)
     return ""
-    else if(!!myNode.value.selectedValue)
+    else if(!!pizza.val?.selectedValue)
     return "Your choice is not compatible with your base"
     else
     return "Please choose"
@@ -20,11 +21,11 @@ const errorMsg = computed(()=>{
 
 <template>
     <div class="option-container">
-        <div v-for="(option, index) in myNode.optionValues" :class="{
+        <div v-for="(option, index) in pizza.val?.optionValues" :class="{
             'button': true,
             selected: option.selected,
             hide: option.hide
-        }" @click="graph.methods.pizza.selectItem(index)"><div>{{ option.valueName }} €{{ option.price?.toFixed(2) }}</div></div>
+        }" @click="pizza.methods.selectItem(index)"><div>{{ option.valueName }} €{{ option.price?.toFixed(2) }}</div></div>
         <div class="container-title"><div>choose your pizza</div></div>
         <div :class="{'container-error':true, active: errorActive}"><div>{{ errorMsg }}</div></div>
     </div>

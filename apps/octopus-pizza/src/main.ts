@@ -5,5 +5,4 @@ import buildGraph from './graph/graph.js'
 
 const app = createApp(App)
 const graph = buildGraph()
-app.provide("graph",graph)
 app.mount('#app')

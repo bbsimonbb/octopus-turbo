@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue'
-
-const graph: any = inject("graph")
+import {size} from "../graph/Size"
+import {doOrder} from "../graph/doOrder"
 
 </script>
 
 <template>
     <div class="option-container">
-        <div v-for="(option, index) in graph.state.size.optionValues"
+        <div v-for="(option, index) in size.val?.optionValues"
             :class="['button',option.selected?'selected':'']"
-            @click="graph.methods.size.selectItem(index)"
+            @click="size.methods?.selectItem(index)"
         ><div>{{ option.valueName }}</div></div>
         <div class="container-title"><div>size</div></div>
-        <div :class="{'container-error':true, active:(graph.state.doOrder.submitBlocked || graph.state.size.touched) && !graph.state.size.valid}"><div>Please choose</div></div>
+        <div :class="{'container-error':true, active:(doOrder.val?.submitBlocked || size.val?.touched) && !size.val?.valid}"><div>Please choose</div></div>
     </div>
 </template>
 

@@ -24,7 +24,6 @@
       <br>
 
     </div>
-      <div>{{ totalPrice }}</div>
     <div class="order-container">
       <div :class="{
         button: true,
@@ -41,7 +40,6 @@ import {delivery} from "../graph/delivery"
 import {doOrder} from "../graph/doOrder"
 import {totalPrice} from "../graph/totalPrice"
 import Tip from "./Tip.vue"
-//const graph: any = inject("graph")
 
 const deliveryCheckbox = computed({
   get() { return delivery.val?.checked },

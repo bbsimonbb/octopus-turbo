@@ -2,7 +2,7 @@ import graph from "./bareReactiveGraph";
 import { IGraph, INode } from "octopus-state-graph";
 import { IReportingNode } from "octopus-state-graph/lib/INode.mjs";
 import { IOption } from "../IOption";
-
+import {ref, reactive} from 'vue'
 interface IPricedOption {
   optionPrice: number;
   valid: boolean;
@@ -20,7 +20,7 @@ Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
 
-const val = { total: 0 };
+const val = reactive({ total: 0 });
 const node: IReportingNode<any> = {
   val,
   recalculate(inputs) {

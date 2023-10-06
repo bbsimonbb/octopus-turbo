@@ -3,7 +3,7 @@
         <div class="container-title">tip</div>
         <input type="radio" id="tipAsPct" name="tipPercent" :value="true" v-model="tipAsPct"> 
         <label for="tipAsPct">10%</label>
-        <span v-if="tipAsPct" style="font-size: smaller; padding-left: 10px;">({{graph.state.tip.optionPrice.toFixed(2)}} €)</span>
+        <span v-if="tipAsPct" style="font-size: smaller; padding-left: 10px;">({{tip.val?.optionPrice.toFixed(2)}} €)</span>
         <br>
         <br>
         <input type="radio" name="tipPercent" :value="false" v-model="tipAsPct">&nbsp;
@@ -13,21 +13,21 @@
             @keypress="tipAmountInputOnKeypress($event)" id="tipAmountText"
             size="5"
         >&nbsp;€
-    <div :class="{'container-error':true, active:(graph.state.doOrder.submitBlocked || graph.state.tip.touched) && !graph.state.tip.valid}"><div>Must not be empty</div></div>
+    <div :class="{'container-error':true, active:(doOrder.val?.submitBlocked || tip.val?.touched) && !tip.val?.valid}"><div>Must not be empty</div></div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue';
-
-const graph: any = inject("graph")
+import {tip} from "../graph/tip"
+import {doOrder} from "../graph/doOrder"
 // tipUI has an inner loop. User input is backed by a local variable in the vue component.
 // Only if it parses to a number will we update the graph.
 var _rawUI = ref("")
 var amountActive = ref(false)
 function tipAmountInputOnFocus() {
-    if (graph.state.tip.parsedUserInput)
-        _rawUI.value = graph.state.tip.parsedUserInput?.toFixed(2)
+    if (tip.val?.parsedUserInput)
+        _rawUI.value = tip.val?.parsedUserInput?.toFixed(2)
     amountActive.value = true
 }
 function tipAmountInputOnBlur() {
@@ -56,20 +56,20 @@ const amountInput = computed({
             if (!_rawUI.value)
                 return _rawUI.value
             else
-                return graph.state.tip.parsedUserInput?.toFixed(2)
+                return tip.val?.parsedUserInput?.toFixed(2)
         }
     },
     set(newVal) {
-        _rawUI.value = newVal
-        const parsedUI = parseFloat(newVal)
+        _rawUI.value = newVal || ''
+        const parsedUI = parseFloat(newVal || '0')
         // keyup handler ensures only numbers are entered
-        graph.methods.tip.tipAmountOnChange(isNaN(parsedUI)? null: parsedUI)
+        tip.methods.tipAmountOnChange(isNaN(parsedUI)? null: parsedUI)
     }
 })
 
 const tipAsPct = computed({
-    get() { return graph.state.tip.tipAsPct },
-    set(newVal) { graph.methods.tip.setTipAsPct(newVal) }
+    get() { return tip.val?.tipAsPct },
+    set(newVal) { tip.methods.setTipAsPct(newVal) }
 })
 
 </script>
