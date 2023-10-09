@@ -1,0 +1,14 @@
+@import "../.mirrorful/theme.css";
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0px;
+}
+#app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
