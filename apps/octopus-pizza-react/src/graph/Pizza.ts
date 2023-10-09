@@ -1,7 +1,7 @@
 import { INode } from "octopus-state-graph";
 import { IOption } from "../IOption.js";
 import graph from "./bareReactiveGraph.js";
-import { makeAutoObservable } from "mobx";
+import { action, makeAutoObservable } from "mobx";
 
 export interface IPizza extends IOption {
   canChoose: boolean;
@@ -55,20 +55,22 @@ const val: IOption = makeAutoObservable({
 });
 const node: INode<IOption> = {
   val,
-  recalculate(size: IOption, base: IOption){
-    if (val) {
-      val.optionValues.forEach((val) => {
-        val.price =
-          val.basePrice * size?.optionValues[size?.selectedIndex || 0].coef;
-        val.hide = val.base !== base?.selectedValue?.valueName;
-      });
-      val.canChoose = !!size?.valid && !!base?.valid;
-      val.optionPrice = val.selectedValue?.price;
-      val.valid = !!val.selectedValue && !val.selectedValue?.hide;
-    }
+  recalculate(size: IOption, base: IOption) {
+    (action(() => {
+      if (val) {
+        val.optionValues.forEach((val) => {
+          val.price =
+            val.basePrice * size?.optionValues[size?.selectedIndex || 0].coef;
+          val.hide = val.base !== base?.selectedValue?.valueName;
+        });
+        val.canChoose = !!size?.valid && !!base?.valid;
+        val.optionPrice = val.selectedValue?.price;
+        val.valid = !!val.selectedValue && !val.selectedValue?.hide;
+      }
+    }))();
   },
   methods: {
-    selectItem(index: number){
+    selectItem(index: number) {
       // can't select pizzas that are hidden
       if (!val.optionValues[index].hide) {
         val.selectedIndex = index;

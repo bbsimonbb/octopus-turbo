@@ -25,7 +25,7 @@ export const Pizza = observer(
               className={`button ${option.selected ? "selected" : ""} ${
                 option.hide ? "hide" : ""
               }`}
-              onClick={action(() => pizza.methods?.selectItem(index))}
+              onClick={action('pickSize',() => pizza.methods?.selectItem(index))}
               key={option.valueName}
             >
               <div>

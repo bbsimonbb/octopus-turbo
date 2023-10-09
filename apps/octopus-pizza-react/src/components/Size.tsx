@@ -10,7 +10,7 @@ export function Size() {
         {size.val?.optionValues.map((s: IOptionValue, index: number) => (
           <div
             className="['button',option.selected?'selected':'']"
-            onClick={action(()=>size.methods?.selectItem(index))}
+            onClick={action('pickSize',()=>size.methods?.selectItem(index))}
             key={s.valueName}
           >
             <div>{s.valueName}</div>
