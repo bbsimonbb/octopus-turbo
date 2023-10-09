@@ -4,6 +4,7 @@ import { IOption, IOptionMethods } from "../IOption";
 import { INode } from "octopus-state-graph";
 import { action } from "mobx";
 
+
 export const Pizza = observer(
   ({ pizza }: { pizza: INode<IOption, IOptionMethods> }) => {
     const errorActive =
@@ -19,7 +20,7 @@ export const Pizza = observer(
 
     return (
       <>
-        <div className="option-container">
+        <div className="option-container pizza">
           {pizza.val?.optionValues.map((option, index) => (
             <div
               className={`button ${option.selected ? "selected" : ""} ${

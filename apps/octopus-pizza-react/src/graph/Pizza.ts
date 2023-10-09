@@ -56,7 +56,7 @@ const val: IOption = makeAutoObservable({
 const node: INode<IOption> = {
   val,
   recalculate(size: IOption, base: IOption) {
-    (action(() => {
+    action(() => {
       if (val) {
         val.optionValues.forEach((val) => {
           val.price =
@@ -67,7 +67,7 @@ const node: INode<IOption> = {
         val.optionPrice = val.selectedValue?.price;
         val.valid = !!val.selectedValue && !val.selectedValue?.hide;
       }
-    }))();
+    })();
   },
   methods: {
     selectItem(index: number) {

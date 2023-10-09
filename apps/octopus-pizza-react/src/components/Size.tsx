@@ -2,14 +2,15 @@ import { action } from "mobx";
 import { IOptionValue } from "../IOptionValue";
 import { size } from "../graph/Size";
 import { doOrder } from "../graph/doOrder";
+import { observer } from "mobx-react-lite";
 
-export function Size() {
+export const Size = observer(()=> {
   return (
     <>
-      <div className="option-container">
+      <div className="option-container size">
         {size.val?.optionValues.map((s: IOptionValue, index: number) => (
           <div
-            className="['button',option.selected?'selected':'']"
+            className={`button ${s.selected?'selected':''}`}
             onClick={action('pickSize',()=>size.methods?.selectItem(index))}
             key={s.valueName}
           >
@@ -33,10 +34,4 @@ export function Size() {
       </div>
     </>
   );
-
-  // <style scoped>
-  // .option-container{
-  //     color: var(--color-purple)
-  // }
-  // </style>
-}
+})

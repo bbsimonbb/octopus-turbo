@@ -1,42 +1,102 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+#octo {
+  position: absolute;
+  height: 100px;
+  bottom: 0;
+  right: 0;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+#content {
+  align-self: center;
+  flex: 3 3 3px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.flex-container {
+  display: flex;
+  justify-content: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+img.main {
+  height: 400px;
 }
 
-.card {
-  padding: 2em;
+.option-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  border: 1px solid;
+  padding: 20px;
+  margin: 15px;
+  border-radius: 10px;
+  position: relative;
+}
+.option-container.size{
+  color: var(--color-purple)
+}
+.option-container.pizza {
+    color: var(--color-orange)
 }
 
-.read-the-docs {
-  color: #888;
+.container-title {
+  position: absolute;
+  top: -14px;
+  left: 50px;
+  font-size: 18px;
+  background-color: white;
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 0px 8px;
+}
+.container-error{
+  position: absolute;
+  bottom: -14px;
+  right: 50px;
+  max-width: 0px;
+  white-space:nowrap;
+  overflow: hidden;
+  transition: max-width 500ms ease-in-out;
+}
+.container-error.active{
+  max-width:500px
+}
+.container-error div{
+  background-color: white;
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 0px 8px;
+  line-height:26px;
+}
+
+.container-title div {
+  position: relative;
+  top: -3px;
+}
+
+.button {
+  border: 3px solid;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.button.hide {
+  
+  filter: saturate(30%) brightness(120%) !important;
+}
+
+.button.selected {
+  background-color: currentColor;
+  border-color: currentColor;
+}
+
+.button.selected div {
+  color: white;
+}
+
+.button:hover {
+  filter: brightness(150%);
+}
+
+.button:hover:active {
+  filter: brightness(80%);
 }

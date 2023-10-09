@@ -1,7 +1,7 @@
 import { INode } from "octopus-state-graph";
 import { IOption } from "../IOption";
 import graph from "./bareReactiveGraph";
-import { makeAutoObservable } from "mobx";
+import { action, makeAutoObservable } from "mobx";
 
 export interface ITip {
   tipAsPct: boolean;
@@ -20,21 +20,23 @@ const val: ITip = makeAutoObservable({
 });
 const node: INode<ITip> = {
   val,
-  recalculate(pizza: IOption){
-    if (val) {
-      if (val.tipAsPct) {
-        val.optionPrice = pizza?.valid ? (pizza?.optionPrice || 0) * 0.1 : 0;
-        val.valid = true;
-      } else {
-        if (val.parsedUserInput === null) {
-          val.optionPrice = 0;
-          val.valid = false;
-        } else {
-          val.optionPrice = val.parsedUserInput || 0;
+  recalculate(pizza: IOption) {
+    action(() => {
+      if (val) {
+        if (val.tipAsPct) {
+          val.optionPrice = pizza?.valid ? (pizza?.optionPrice || 0) * 0.1 : 0;
           val.valid = true;
+        } else {
+          if (val.parsedUserInput === null) {
+            val.optionPrice = 0;
+            val.valid = false;
+          } else {
+            val.optionPrice = val.parsedUserInput || 0;
+            val.valid = true;
+          }
         }
       }
-    }
+    })();
   },
   methods: {
     setTipAsPct(tipAsPct: boolean): void {

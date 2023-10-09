@@ -1,12 +1,12 @@
 import graph from "./bareReactiveGraph";
 import { IReportingNode } from "octopus-state-graph";
-import {makeAutoObservable} from "mobx"
+import { action, makeAutoObservable } from "mobx";
 
 export interface IValid {
   valid: boolean;
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isIValid(someObject: any) {
+
+function isIValid(someObject: IValid) {
   return someObject.valid !== undefined;
 }
 
@@ -15,9 +15,9 @@ dependsOn is a function that will examine each node already added and return tru
 Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
-const val: IValid = makeAutoObservable( { valid: false });
+const val: IValid = makeAutoObservable({ valid: false });
 
-const node: IReportingNode<IValid,null> = {
+const node: IReportingNode<IValid, null> = {
   val,
   options: {
     dependsOn(nodeName, publishedVal) {
@@ -25,12 +25,14 @@ const node: IReportingNode<IValid,null> = {
     },
   },
   recalculate(nodes) {
-    let allValid = true;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for (const [key, val] of Object.entries(nodes)) {
-      allValid = allValid && !!(val as IValid).valid;
-    }
-    val.valid = allValid;
+    action(() => {
+      let allValid = true;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const [_, val] of Object.entries(nodes)) {
+        allValid = allValid && !!(val as IValid).valid;
+      }
+      val.valid = allValid;
+    })();
   },
 };
 const allValid = graph.addNode("allValid", node);

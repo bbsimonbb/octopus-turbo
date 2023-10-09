@@ -2,6 +2,7 @@
 import {Size} from  "./components/Size"
 import { Pizza } from './components/Pizza'
 import {pizza} from './graph/Pizza'
+import './App.css'
 
 function App() {
   return (

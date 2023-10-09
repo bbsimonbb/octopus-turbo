@@ -1,5 +1,5 @@
 import graph from "./bareReactiveGraph";
-import {makeAutoObservable} from "mobx"
+import { action, makeAutoObservable } from "mobx";
 
 const val = makeAutoObservable({
   checked: false,
@@ -10,20 +10,22 @@ const val = makeAutoObservable({
 });
 const node = {
   val,
-  recalculate(){
-    val.optionPrice = val.checked ? 5 : 0;
-    val.valid = !val.checked || !!val.deliveryAddress;
+  recalculate() {
+    action(() => {
+      val.optionPrice = val.checked ? 5 : 0;
+      val.valid = !val.checked || !!val.deliveryAddress;
+    })();
   },
   methods: {
-    setChecked(newVal: boolean){
+    setChecked(newVal: boolean) {
       val.checked = newVal;
     },
-    setDeliveryAddress(newVal: string){
+    setDeliveryAddress(newVal: string) {
       val.deliveryAddress = newVal;
       val.touched = true;
       if (newVal) val.checked = true;
     },
-    deliveryOn(){
+    deliveryOn() {
       val.checked = true;
     },
   },
