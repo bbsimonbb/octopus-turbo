@@ -2,7 +2,7 @@
 import graph from "./bareReactiveGraph";
 import { IReportingNode } from "octopus-state-graph/lib/INode.mjs";
 import { IOption } from "../IOption";
-import {action, makeAutoObservable} from "mobx"
+import { makeAutoObservable} from "mobx"
 
 interface IPricedOption {
   optionPrice: number;
@@ -22,7 +22,7 @@ Here, everything that has an optionPrice is a dependency
 const val = makeAutoObservable({ total: 0 });
 const node: IReportingNode<any> = {
   val,
-  recalculate: action((inputs:IPricedOption[]) =>{
+  recalculate(inputs:IPricedOption[]) {
     let totalPrice = 0;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,7 +32,7 @@ const node: IReportingNode<any> = {
         : 0;
     }
     val.total = totalPrice;
-  }),
+  },
   options: {
     dependsOn(nodeName, publishedVal) {
       return isPricedOption(publishedVal);

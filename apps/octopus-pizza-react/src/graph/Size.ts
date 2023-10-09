@@ -1,7 +1,7 @@
 import { INode } from "octopus-state-graph";
 import { IOption } from "../IOption.js";
 import graph from "./bareReactiveGraph.js"
-import {action, makeAutoObservable} from "mobx"
+import { makeAutoObservable} from "mobx"
 
 // size
   const val = makeAutoObservable({
@@ -29,14 +29,14 @@ import {action, makeAutoObservable} from "mobx"
   const node: INode<IOption> = {
     val,
     methods: {
-      selectItem: action((index: number)=>{
+      selectItem(index: number){
         val.selectedIndex = index;
         val.touched = true;
         val.valid = true;
         val.optionValues.forEach((el, i) => {
           el.selected = i === index;
         });
-      }),
+      },
     },
   };
   export const size = graph.addNode("size", node);

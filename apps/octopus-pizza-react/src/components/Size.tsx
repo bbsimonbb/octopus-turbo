@@ -1,3 +1,4 @@
+import { action } from "mobx";
 import { IOptionValue } from "../IOptionValue";
 import { size } from "../graph/Size";
 import { doOrder } from "../graph/doOrder";
@@ -9,7 +10,7 @@ export function Size() {
         {size.val?.optionValues.map((s: IOptionValue, index: number) => (
           <div
             className="['button',option.selected?'selected':'']"
-            onClick={()=>size.methods?.selectItem(index)}
+            onClick={action(()=>size.methods?.selectItem(index))}
             key={s.valueName}
           >
             <div>{s.valueName}</div>

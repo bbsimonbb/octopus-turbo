@@ -2,6 +2,7 @@ import { doOrder } from "../graph/doOrder";
 import { observer } from "mobx-react-lite";
 import { IOption, IOptionMethods } from "../IOption";
 import { INode } from "octopus-state-graph";
+import { action } from "mobx";
 
 export const Pizza = observer(
   ({ pizza }: { pizza: INode<IOption, IOptionMethods> }) => {
@@ -24,7 +25,7 @@ export const Pizza = observer(
               className={`button ${option.selected ? "selected" : ""} ${
                 option.hide ? "hide" : ""
               }`}
-              onClick={() => pizza.methods?.selectItem(index)}
+              onClick={action(() => pizza.methods?.selectItem(index))}
               key={option.valueName}
             >
               <div>

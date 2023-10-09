@@ -1,7 +1,7 @@
 import { INode } from "octopus-state-graph";
 import { IOption } from "../IOption.js";
 import graph from "./bareReactiveGraph.js";
-import { action, makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "mobx";
 
 export interface IPizza extends IOption {
   canChoose: boolean;
@@ -55,7 +55,7 @@ const val: IOption = makeAutoObservable({
 });
 const node: INode<IOption> = {
   val,
-  recalculate: action((size: IOption, base: IOption) => {
+  recalculate(size: IOption, base: IOption){
     if (val) {
       val.optionValues.forEach((val) => {
         val.price =
@@ -66,9 +66,9 @@ const node: INode<IOption> = {
       val.optionPrice = val.selectedValue?.price;
       val.valid = !!val.selectedValue && !val.selectedValue?.hide;
     }
-  }),
+  },
   methods: {
-    selectItem: action((index: number) => {
+    selectItem(index: number){
       // can't select pizzas that are hidden
       if (!val.optionValues[index].hide) {
         val.selectedIndex = index;
@@ -78,7 +78,7 @@ const node: INode<IOption> = {
         });
         val.touched = true;
       }
-    }),
+    },
   },
 };
 export const pizza = graph.addNode("pizza", node);
