@@ -4,7 +4,17 @@
   bottom: 0;
   right: 0;
 }
-
+#framework-logo {
+  position: absolute;
+  height: 100px;
+  bottom: 0;
+  right: 180px;
+}
+#root  {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
 #content {
   align-self: center;
   flex: 3 3 3px;
@@ -34,6 +44,10 @@ img.main {
 }
 .option-container.pizza {
     color: var(--color-orange)
+}
+
+.option-container.base {
+  color: var(--color-khaki)
 }
 
 .container-title {

@@ -1,0 +1,41 @@
+
+.order-container {
+    display: flex;
+    justify-content: flex-end;
+    padding: 15px;
+  }
+  
+  .order-container .button {
+    border-color: turquoise;
+    color: white;
+    background-color: turquoise;
+  }
+  
+  .amount {
+    font-size: 50px;
+  }
+  
+  #sidebar-right {
+    background-color: rgb(218, 203, 203);
+    flex: 1 1 1px;
+    padding: 30px;
+    color: var(--color-purple);
+  }
+  
+  .option-container {
+    color: var(--color-purple)
+  }
+  
+  .text-area {
+    border: none;
+    border-left: 2px solid var(--color-purple);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px 0 rgba(67, 120, 198, .06);
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 20px;
+    outline: none;
+    padding: 10px 16px;
+    resize: none;
+    background-color: white;
+  }
