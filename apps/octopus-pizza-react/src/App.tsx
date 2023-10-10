@@ -23,7 +23,8 @@ function App() {
         </div>
       </div>
       <Sidebar></Sidebar>
-      <img src="./react.svg" id="framework-logo" />
+      <img src="./react.svg" id="react-logo" />
+      <img src="./mobx.png" id="mobx-logo" />
       <img src="./octopus-photo.png" id="octo" />
     </>
   );

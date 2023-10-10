@@ -4,10 +4,16 @@
   bottom: 0;
   right: 0;
 }
-#framework-logo {
+#react-logo {
   position: absolute;
-  height: 100px;
-  bottom: 0;
+  height: 60px;
+  bottom: 22px;
+  right: 260px;
+}
+#mobx-logo {
+  position: absolute;
+  height: 60px;
+  bottom: 22px;
   right: 180px;
 }
 #root  {

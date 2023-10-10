@@ -24,7 +24,7 @@ import {pizza} from "./graph/Pizza"
     </div>
   </div>
   <Sidebar></Sidebar>
-      <img src="./assets/vue.svg" id="framework-logo" />
+      <img src="./assets/vue.svg" id="vue-logo" />
   <img src="./assets/octopus-photo.png" id="octo" />
 </template>
 
@@ -36,10 +36,10 @@ import {pizza} from "./graph/Pizza"
   bottom: 0;
   right: 0;
 }
-#framework-logo {
+#vue-logo {
   position: absolute;
-  height: 100px;
-  bottom: 0;
+  height: 60px;
+  bottom: 22px;
   right: 180px;
 }
 
