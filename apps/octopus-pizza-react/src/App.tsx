@@ -12,7 +12,7 @@ const App = observer(() => {
       <div id="content">
         <div className="flex-container">
           <div style={{ height: "400px", margin: "30px" }}>
-            <img className="main" src={pizza.val?.selectedValue?.imageUrl} />
+            <img className={`main ${pizza.val?.valid?"":"veil"}`} src={pizza.val?.selectedValue?.imageUrl} />
           </div>
         </div>
         <div className="flex-container">

@@ -11,7 +11,7 @@ import {pizza} from "./graph/Pizza"
   <div id="content">
     <div class="flex-container">
       <div style="height:400px; margin:30px">
-        <img class="main" :src="pizza.val?.selectedValue?.imageUrl" />
+        <img :class="{main:true, veil:pizza.val?.valid}" :src="pizza.val?.selectedValue?.imageUrl" />
       </div>
     </div>
     <div class="flex-container">
@@ -55,6 +55,10 @@ import {pizza} from "./graph/Pizza"
 
 img.main {
   height: 400px;
+  transition: opacity ease-in-out 500ms;
+}
+img.main.veil{
+  opacity: 30%;
 }
 
 .option-container {
@@ -81,7 +85,7 @@ img.main {
 .container-error{
   position: absolute;
   bottom: -14px;
-  right: 50px;
+  right: 8%;
   max-width: 0px;
   white-space:nowrap;
   overflow: hidden;
@@ -98,6 +102,12 @@ img.main {
   line-height:26px;
 }
 
+.container-error div::before {
+  content: '⚠';
+  color:red;
+  font-size: larger;
+  padding:0px 8px;
+}
 .container-title div {
   position: relative;
   top: -3px;
