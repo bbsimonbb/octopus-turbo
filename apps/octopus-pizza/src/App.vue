@@ -11,7 +11,7 @@ import {pizza} from "./graph/Pizza"
   <div id="content">
     <div class="flex-container">
       <div style="height:400px; margin:30px">
-        <img :class="{main:true, veil:pizza.val?.valid}" :src="pizza.val?.selectedValue?.imageUrl" />
+        <img :class="{main:true, veil:!pizza.val?.valid}" :src="pizza.val?.selectedValue?.imageUrl" />
       </div>
     </div>
     <div class="flex-container">
