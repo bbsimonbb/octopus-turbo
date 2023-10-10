@@ -4,14 +4,15 @@ import { pizza } from "./graph/Pizza";
 import "./App.css";
 import { Base } from "./components/Base";
 import { Sidebar } from "./components/Sidebar";
+import { observer } from "mobx-react-lite";
 
-function App() {
+const App = observer(() => {
   return (
     <>
       <div id="content">
         <div className="flex-container">
           <div style={{ height: "400px", margin: "30px" }}>
-            <img className="main" src={pizza.val?.selectedValue?.imageUrl}/>
+            <img className="main" src={pizza.val?.selectedValue?.imageUrl} />
           </div>
         </div>
         <div className="flex-container">
@@ -28,6 +29,6 @@ function App() {
       <img src="./octopus-photo.png" id="octo" />
     </>
   );
-}
+});
 
 export default App;

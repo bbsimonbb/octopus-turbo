@@ -14,9 +14,10 @@ const node = {
     canGo = allValid.valid;
   },
   methods: {
-    go() {
+    async go() {
       if (canGo) {
-        alert("Excellent choice! Enjoy your pizza.");
+        await alert("Excellent choice! Enjoy your pizza.")
+        window.location.reload()
         // reset submit blocked when everything has worked
         val.submitBlocked = false;
       } else {

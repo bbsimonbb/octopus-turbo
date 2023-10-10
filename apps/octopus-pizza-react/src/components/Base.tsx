@@ -12,6 +12,7 @@ export const Base = observer(() => {
           <div
             className={`button ${b.selected ? "selected" : ""}`}
             onClick={action(() => base.methods?.selectItem(index))}
+            key={b.valueName}
           >
             <div>{b.valueName}</div>
           </div>

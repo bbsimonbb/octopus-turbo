@@ -71,15 +71,17 @@ const node: INode<IOption> = {
   },
   methods: {
     selectItem(index: number) {
-      // can't select pizzas that are hidden
-      if (!val.optionValues[index].hide) {
-        val.selectedIndex = index;
-        val.selectedValue = val.optionValues[index];
-        val.optionValues.forEach((el, i) => {
-          el.selected = i === index;
-        });
-        val.touched = true;
-      }
+      action(() => {
+        // can't select pizzas that are hidden
+        if (!val.optionValues[index].hide) {
+          val.selectedIndex = index;
+          val.selectedValue = val.optionValues[index];
+          val.optionValues.forEach((el, i) => {
+            el.selected = i === index;
+          });
+          val.touched = true;
+        }
+      })();
     },
   },
 };
