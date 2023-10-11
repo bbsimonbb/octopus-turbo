@@ -3,8 +3,10 @@ import { base } from "../graph/base";
 import { action } from "mobx";
 import { IOptionValue } from "../IOptionValue";
 import { doOrder } from "../graph/doOrder";
+import { ToastyError } from "./ToastyError";
 
 export const Base = observer(() => {
+  const errorActive = (!!doOrder.val?.submitBlocked || !!base.val?.touched) && !base.val?.valid
   return (
     <>
       <div className="option-container base">
@@ -20,15 +22,7 @@ export const Base = observer(() => {
         <div className="container-title">
           <div>base</div>
         </div>
-        <div 
-          className={`container-error ${
-            (doOrder.val?.submitBlocked || base.val?.touched) &&
-            !base.val?.valid
-              ? "active"
-              : ""
-          }`}>
-          <div>Please choose</div>
-        </div>
+        <ToastyError errorMsg="Please choose" active={errorActive}></ToastyError>
       </div>
     </>
   );

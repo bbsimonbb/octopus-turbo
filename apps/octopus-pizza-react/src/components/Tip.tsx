@@ -1,15 +1,17 @@
 
-import {tip} from "../graph/tip"
-import {doOrder} from "../graph/doOrder"
+import { tip } from "../graph/tip"
+import { doOrder } from "../graph/doOrder"
 import { observer } from "mobx-react-lite"
 import { useState } from "react"
 import { action } from "mobx"
+import { ToastyError } from "./ToastyError"
 // tipUI has an inner loop. User input is backed by a local variable in the vue component.
 // Only if it parses to a number will we update the graph.
 
-export const Tip = observer(()=>{
+export const Tip = observer(() => {
     const [rawUi, setRawUi] = useState("")
     const [amountActive, setAmountActive] = useState(false)
+    const tipErrorActive = (!!doOrder.val?.submitBlocked || !!tip.val?.touched) && !tip.val?.valid
     function tipAmountInputOnFocus() {
         if (tip.val?.parsedUserInput)
             setRawUi(tip.val?.parsedUserInput?.toFixed(2))
@@ -45,36 +47,35 @@ export const Tip = observer(()=>{
                     return tip.val?.parsedUserInput?.toFixed(2)
             }
         },
-        set value(newVal:string|undefined) {
+        set value(newVal: string | undefined) {
             setRawUi(newVal || '')
-            const parsedUI = parseFloat(newVal||'')
+            const parsedUI = parseFloat(newVal || '')
             // keyup handler ensures only numbers are entered
-            tip.methods.tipAmountOnChange(isNaN(parsedUI)? null: parsedUI)
+            tip.methods.tipAmountOnChange(isNaN(parsedUI) ? null : parsedUI)
         }
     }
-    
+
     return (
-    <>
-        <div className="option-container" style={{display:"block", marginTop:"50px"}}>
-            <div className="container-title">tip</div>
-            <input type="radio" id="tipAsPct" name="tipPercent" checked={tip.val?.tipAsPct} onChange={action(()=>{ tip.methods.setTipAsPct(true) })}/> 
-            <label htmlFor="tipAsPct">10%</label>
-            {tip.val?.tipAsPct?(<span style={{fontSize:"smaller", paddingLeft:"10px"}}>({tip.val?.optionPrice.toFixed(2)} €)</span>):null}
-            <br/>
-            <br/>
-            <input type="radio" name="tipPercent" checked={!tip.val?.tipAsPct} onChange={action(()=>{ tip.methods.setTipAsPct(false) })}/>&nbsp;
-            <input type="text"
-                onInput={action((event)=>{amountInput.value = ((event as React.FormEvent<HTMLInputElement>).currentTarget.value )})}
-                value={amountInput.value}
-                onFocus={action(()=>{tipAmountInputOnFocus()})}
-                onBlur={action(()=>{tipAmountInputOnBlur()})}
-                onKeyPress={action((event)=>{tipAmountInputOnKeypress(event)})}
-                id="tipAmountText"
-                size={5}
-            />&nbsp;€
-        <div className={`container-error ${(doOrder.val?.submitBlocked || tip.val?.touched) && !tip.val?.valid ? "active":""}`}
-        ><div>Must not be empty</div></div>
-        </div>
-    </>
+        <>
+            <div className="option-container" style={{ display: "block", marginTop: "50px" }}>
+                <div className="container-title">tip</div>
+                <input type="radio" id="tipAsPct" name="tipPercent" checked={tip.val?.tipAsPct} onChange={action(() => { tip.methods.setTipAsPct(true) })} />
+                <label htmlFor="tipAsPct">10%</label>
+                {tip.val?.tipAsPct ? (<span style={{ fontSize: "smaller", paddingLeft: "10px" }}>({tip.val?.optionPrice.toFixed(2)} €)</span>) : null}
+                <br />
+                <br />
+                <input type="radio" name="tipPercent" checked={!tip.val?.tipAsPct} onChange={action(() => { tip.methods.setTipAsPct(false) })} />&nbsp;
+                <input type="text"
+                    onInput={action((event) => { amountInput.value = ((event as React.FormEvent<HTMLInputElement>).currentTarget.value) })}
+                    value={amountInput.value}
+                    onFocus={action(() => { tipAmountInputOnFocus() })}
+                    onBlur={action(() => { tipAmountInputOnBlur() })}
+                    onKeyPress={action((event) => { tipAmountInputOnKeypress(event) })}
+                    id="tipAmountText"
+                    size={5}
+                />&nbsp;€
+                <ToastyError errorMsg="Must not be empty" active={tipErrorActive}></ToastyError>
+            </div>
+        </>
     )
 })

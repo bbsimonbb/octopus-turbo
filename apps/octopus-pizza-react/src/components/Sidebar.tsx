@@ -7,12 +7,14 @@ import { FormEvent } from "react";
 import { action } from "mobx";
 import { Tip } from "./Tip";
 import "./Sidebar.css";
+import { ToastyError } from "./ToastyError";
 
 export const Sidebar = observer(() => {
   const deliveryAddressOnChange = action((e: FormEvent<HTMLDivElement>) => {
     const textArea = e.target as HTMLElement;
     delivery.methods?.setDeliveryAddress(textArea.innerText);
   });
+  const deliveryErrorActive = (!!delivery.val?.touched || !!doOrder.val?.submitBlocked) && !delivery.val?.valid
   return (
     <>
       <div id="sidebar-right">
@@ -39,17 +41,7 @@ export const Sidebar = observer(() => {
               onFocus={action(() => delivery.methods?.deliveryOn())}
             ></div>
           </div>
-
-          <div
-            className={`container-error ${
-              (delivery.val?.touched || doOrder.val?.submitBlocked) &&
-              !delivery.val?.valid
-                ? "active"
-                : ""
-            }`}
-          >
-            <div>Please provide a delivery address.</div>
-          </div>
+          <ToastyError errorMsg="Please provide a delivery address." active={deliveryErrorActive}></ToastyError>
         </div>
         <Tip></Tip>
         <br />
