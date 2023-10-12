@@ -1,0 +1,73 @@
+#root {
+  width: 100vw;
+  height: 100vh;
+  margin: 0 auto;
+  overflow-y: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.an-option {
+  border: 1px solid lightgrey;
+  padding: 4px;
+  margin: 8px;
+  border-radius: 8px;
+  position: relative;
+  width: 900px;
+}
+
+.an-option.active {
+  font-weight: 700;
+}
+
+.option-values {
+  position: absolute;
+  right: 10px;
+  z-index: 10;
+  font-weight: 500;
+  width: 450px;
+  background-color: white;
+}
+
+.option-value {
+  height: 32px !important;
+  padding: 0px 10px;
+}
+
+.curr-option-value {
+  font-weight: 700;
+  border: 1px solid grey;
+  border-radius: 8px;
+}

@@ -2,10 +2,11 @@
 import { computed } from 'vue'
 import { doOrder} from '../graph/doOrder'
 import {pizza} from '../graph/Pizza'
+import ToastyError from './ToastyError.vue'
 
 
 const errorActive = computed(()=>{
-    return pizza.val?.canChoose && !pizza.val?.valid && (doOrder.val?.submitBlocked || pizza.val?.touched)
+    return !!pizza.val?.canChoose && !pizza.val?.valid && (doOrder.val?.submitBlocked || pizza.val?.touched)
 })
 
 const errorMsg = computed(()=>{
@@ -27,7 +28,7 @@ const errorMsg = computed(()=>{
             hide: option.hide
         }" @click="pizza.methods.selectItem(index)"><div>{{ option.valueName }} €{{ option.price?.toFixed(2) }}</div></div>
         <div class="container-title"><div>choose your pizza</div></div>
-        <div :class="{'container-error':true, active: errorActive}"><div>{{ errorMsg }}</div></div>
+        <ToastyError :error-msg="errorMsg" :active="errorActive"></ToastyError>
     </div>
 </template>
 

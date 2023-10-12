@@ -2,6 +2,7 @@
 import { inject, ref } from 'vue'
 import {size} from "../graph/Size"
 import {doOrder} from "../graph/doOrder"
+import ToastyError from "./ToastyError.vue"
 
 </script>
 
@@ -12,7 +13,7 @@ import {doOrder} from "../graph/doOrder"
             @click="size.methods?.selectItem(index)"
         ><div>{{ option.valueName }}</div></div>
         <div class="container-title"><div>size</div></div>
-        <div :class="{'container-error':true, active:(doOrder.val?.submitBlocked || size.val?.touched) && !size.val?.valid}"><div>Please choose</div></div>
+        <ToastyError error-msg="Please choose" :active="(!!doOrder.val?.submitBlocked || !!size.val?.touched) && !size.val?.valid"></ToastyError>
     </div>
 </template>
 
