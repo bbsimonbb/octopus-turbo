@@ -46,6 +46,8 @@
   border-radius: 8px;
   position: relative;
   width: 900px;
+  display:flex;
+  justify-content: space-between;
 }
 
 .an-option.active {

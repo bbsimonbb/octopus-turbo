@@ -1,4 +1,6 @@
-export const options = [
+import { IOption } from "./App";
+
+export default [
     {
         optionName: "film",
         optionText: "Choose your favourite film",
