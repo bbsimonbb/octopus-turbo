@@ -166,7 +166,11 @@ const App = observer(() => {
         count is {count}
       </button>
       <div>{JSON.stringify(ptrs)}</div>
-      {/* <input type="text"
+      {/* 
+      Got so far then stopped. Everything was keyed on ptrs.val, but when we filter, we need the filtered index for calculating the position
+      of the div, the original for setting selected index of the option, everything gets more complicated.      
+      
+      <input type="text"
         name="searchString"
         value={ptrs.searchString}
         onInput={action((e) => searchTextOnInput(e))}
