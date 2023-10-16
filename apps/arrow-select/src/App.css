@@ -3,11 +3,15 @@
   height: 100vh;
   margin: 0 auto;
   overflow-y: hidden;
+}
+.app{
+  width: 100vw;
+  height: 100vh;  
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
-
 .logo {
   height: 6em;
   padding: 1.5em;

@@ -20,9 +20,11 @@ interface IHasHistory { history: string[] }
 const ptrs = makeAutoObservable({
   opt: -1,
   val: -1,
+  searchString: ''
 });
 // put all properties in testData
 const withProps: IOption[] = testData.map((o) => {
+  o.optionValues.forEach((v: IOptionValue, index) => v.originalIndex = index)
   return {
     ...o,
     selectedIndex: undefined,
@@ -36,7 +38,6 @@ const state: { options: IOption[] } = makeAutoObservable({
 const App = observer(() => {
   const [count, setCount] = useState(0);
 
-  // using the current value of one useState inside the set of another picks up stale values, so we need to keep all this together
   const keyPressInComponent = action((e: KeyboardEvent) => {
     console.log(e.keyCode);
     if ([37, 38, 39, 40].includes(e.keyCode)) e.preventDefault();
@@ -50,7 +51,7 @@ const App = observer(() => {
             state.options[ptrs.opt].optionValues[ptrs.val];
         }
         ptrs.opt = (ptrs.opt + 1) % state.options.length;
-        ptrs.val = -1;
+        resetActiveOption();
         break;
       }
       // LEFT ARROW
@@ -61,7 +62,7 @@ const App = observer(() => {
           ptrs.opt = (opt + state.options.length - 1) % state.options.length;
         } else {
           // option active, just return it to inactive
-          ptrs.val = -1;
+          resetActiveOption();
         }
         break;
       }
@@ -99,6 +100,9 @@ const App = observer(() => {
         }
         break;
       }
+      // default:
+      //   if ((e.keyCode >= 65 && e.keyCode <= 90) || (e.keyCode >= 48 && e.keyCode <= 57) || e.keyCode === 32) {
+      //   }
     }
   });
   function withHistory<TargetShape>(target: any): TargetShape & IHasHistory {
@@ -106,6 +110,12 @@ const App = observer(() => {
       (target as IHasHistory).history = []
     }
     return target
+  }
+  function topLevelClick(e: React.MouseEvent<HTMLDivElement, MouseEvent> & IHasHistory) {
+    if (!e.history.length) {
+      resetActiveOption()
+      ptrs.searchString = ''
+    }
   }
   const optionOnClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent> & IHasHistory, oIndex: number) => {
     if (!e.history.includes('valueOnClick')) {
@@ -115,34 +125,53 @@ const App = observer(() => {
     }
   }
   const valueOnClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent> & IHasHistory, vIndex: number) => {
-    ptrs.val = -1;
+    resetActiveOption();
     console.log(JSON.stringify(ptrs));
     state.options[ptrs.opt].selectedIndex = vIndex;
     state.options[ptrs.opt].selectedValue =
       state.options[ptrs.opt].optionValues[vIndex];
     e.history.push('valueOnClick')
   };
+  function searchTextOnInput(e: React.FormEvent<HTMLInputElement>) {
+    if (ptrs.opt !== -1) {
+      ptrs.searchString = e.currentTarget.value
+      let indexOfFirstResult = 0
+      state.options[ptrs.opt].optionValues.forEach((v, index) => { v.hide = !v.title.toLowerCase().includes(ptrs.searchString.toLowerCase()); indexOfFirstResult = indexOfFirstResult || index })
+      ptrs.val = indexOfFirstResult
+    }
+  }
+  function searchTextOnClick(e: React.MouseEvent<HTMLDivElement, MouseEvent> & IHasHistory) {
+    // we want to click into the search input without then deactivating the option
+    e.history.push('searchTextOnClick')
+  }
+  function resetActiveOption() {
+    state.options[ptrs.opt].optionValues.forEach(o => o.hide = false)
+    ptrs.val = -1
+    ptrs.searchString = ''
+  }
 
   useEffect(() => {
-    function handleKeyPress(e: KeyboardEvent) {
-      console.log(e.keyCode);
-      keyPressInComponent(e);
-    }
+    document.addEventListener("keydown", keyPressInComponent);
 
-    document.addEventListener("keydown", handleKeyPress);
 
     // Don't forget to clean up
     return function cleanup() {
-      document.removeEventListener("keydown", handleKeyPress);
+      document.removeEventListener("keydown", keyPressInComponent);
     };
   }, []);
 
   return (
-    <div className="app">
+    <div className="app" onClick={action((e) => topLevelClick(withHistory(e)))}>
       <button onClick={() => setCount((count) => count + 1)}>
         count is {count}
       </button>
       <div>{JSON.stringify(ptrs)}</div>
+      {/* <input type="text"
+        name="searchString"
+        value={ptrs.searchString}
+        onInput={action((e) => searchTextOnInput(e))}
+        onClick={action((e) => searchTextOnClick(withHistory(e)))}
+      ></input> */}
       {state.options.map((o, oIndex) => (
         <div
           className={`an-option ${oIndex === ptrs.opt ? "active" : ""}`}
@@ -156,12 +185,12 @@ const App = observer(() => {
               className="option-values"
               style={{ top: ptrs.val * -32 - 0.5 + "px" }}
             >
-              {o.optionValues.map((v, vIndex) => (
+              {o.optionValues.filter(v => !v.hide).map((v) => (
                 <div
-                  className={`option-value ${ptrs.val === vIndex ? "curr-option-value" : ""
+                  className={`option-value ${ptrs.val === v.originalIndex ? "curr-option-value" : ""
                     }`}
                   key={v.title}
-                  onClick={action((e) => valueOnClick(withHistory(e), vIndex))}
+                  onClick={action((e) => valueOnClick(withHistory(e), v.originalIndex as number))}
                 >
                   {v.title}
                 </div>
