@@ -21,7 +21,7 @@ class Inputs {
   });
   const node: INode<ITip> = {
     val,
-    recalculate(pizza: IOption) {
+    reup(pizza: IOption) {
       if (val) {
         if (val.tipAsPct) {
           val.optionPrice = pizza?.valid ? (pizza?.optionPrice || 0) * 0.1 : 0;

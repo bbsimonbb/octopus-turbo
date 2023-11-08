@@ -10,7 +10,7 @@ const val = makeAutoObservable({
 });
 const node = {
   val,
-  recalculate() {
+  reup() {
     action(() => {
       val.optionPrice = val.checked ? 5 : 0;
       val.valid = !val.checked || !!val.deliveryAddress;

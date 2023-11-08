@@ -22,7 +22,7 @@ Here, everything that has an optionPrice is a dependency
 const val = makeAutoObservable({ total: 0 });
 const node: IReportingNode<any> = {
   val,
-  recalculate(inputs: IPricedOption[]) {
+  reup(inputs: IPricedOption[]) {
     action(() => {
       let totalPrice = 0;
 

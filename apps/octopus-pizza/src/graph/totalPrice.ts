@@ -23,7 +23,7 @@ Here, everything that has an optionPrice is a dependency
 const val = reactive({ total: 0 });
 const node: IReportingNode<any> = {
   val,
-  recalculate(inputs) {
+  reup(inputs) {
     var totalPrice = 0;
 
     for (const [key, val] of Object.entries(inputs)) {

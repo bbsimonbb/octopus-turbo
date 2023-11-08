@@ -11,7 +11,7 @@ const val = reactive({
 });
 const node = {
   val,
-  recalculate() {
+  reup() {
     val.optionPrice = this.val.checked ? 5 : 0;
     val.valid = !this.val.checked || !!this.val.deliveryAddress;
   },

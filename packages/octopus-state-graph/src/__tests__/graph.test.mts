@@ -5,132 +5,101 @@ import { INode } from "../INode.mjs"
 export { }
 
 test("a downstream node adds 2 to an upstream", async () => {
-  return true
-  // const graph = createGraph()
-  // const upstreamNode = graph.addNode("upstream", {
-  //   val: {
-  //     anInteger: 0,
-  //     setVal(newVal: number) {
-  //       this.anInteger = newVal
-  //     }
-  //   }
-  // })
+  const graph = createGraph()
+  const val = {
+    anInteger: 0,
+  }
+  const upstreamNode = graph.addNode("upstream", {
+    val,
+    methods: {
+      setVal(newVal: number) {
+        val.anInteger = newVal
+      }
+    }
+  })
 
-  // const downstreamNode = graph.addNode("downstream", {
-  //   val: {
-  //     downstreamInt: 5
-  //   },
-  //   recalculate(upstream) {
-  //     this.val.downstreamInt = upstream.anInteger + 2
-  //     return true
-  //   }
-  // })
-  // graph.build()
+  const downstreamNode = graph.addNode("downstream", {
+    val: {
+      downstreamInt: 5
+    },
+    reup(upstream) {
+      this.val.downstreamInt = upstream.anInteger + 2
+      return true
+    }
+  })
+  graph.build()
 
-  // await upstreamNode.setVal(14)
-  // expect(graph.state.downstream.downstreamInt).toBe(16)
+  await upstreamNode.methods.setVal(14)
+  expect(graph.state.downstream.downstreamInt).toBe(16)
 })
-
-// test("a graph can be serialized and rehydrated", async () => {
-//   const graph = createGraph()
-//   {
-//     let upstreamVal = 0
-//     const node = {
-//       initialValue: upstreamVal,
-//       publicMethods: {
-//         setVal(val) {
-//           upstreamVal = val
-//           publishChanges(upstreamVal)
-//         },
-//       },
-//       saveState: function (): { [key: string]: any } {
-//         return { upstreamVal }
-//       },
-//       loadState: function (state: { [key: string]: any }) {
-//         upstreamVal = state.upstreamVal
-//       },
-//     } as ISource & IStateful
-//     const publishChanges = graph.addNode("upstream", node)
-//   }
-
-//   graph.addNode("downstream", {
-//     dependsOn: { upstream: undefined },
-//     onUpstreamChange(deps: any): number {
-//       return deps.upstream + 2
-//     },
-//     initialValue: 0,
-//   })
-//   graph.build()
-
-//   await graph.state.upstream.setVal(14)
-//   expect(graph.state.downstream).toBe(16)
-//   // downstream has an initial value, so should be present in the state
-//   expect(Object.entries(graph.state).length).toBe(2)
-// })
 
 test("a reporting node picks up its input", async () => {
-  return true
-  // const graph = createGraph()
-  // let targetNodesCount = 0
-  // const upstream = graph.addNode("upstream", {
-  //   val: {
-  //     anInt: 0,
-  //     setInt(newVal) { this.anInt = newVal }
-  //   }
-  // })
+  const graph = createGraph()
+  let targetNodesCount = 0
+  let upstream: INode
+  {
+    const val = {
+      anInt: 0,
+    }
+    upstream = graph.addNode("upstream", {
+      val,
+      methods: {
+        setInt(newVal) { val.anInt = newVal }
+      }
+    })
+  }
+  {
+    const val = {
+      anInt: 0
+    }
+    graph.addNode("downstream", {
+      val,
+      reup(nodeArray) {
+        targetNodesCount = nodeArray.length
+      },
+      options: {
+        dependsOn(nodeName, nodeVal) {
+          return true // grab everything
+        }
+      }
+    })
+  }
+  graph.build()
 
-  // graph.addNode("downstream", {
-  //   val: {
-  //     anInt: 0
-  //   },
-  //   recalculate(nodeArray) {
-  //     targetNodesCount = nodeArray.length
-  //   },
-  //   options: {
-  //     dependsOn(nodeName, nodeVal) {
-  //       return true // grab everything
-  //     }
-  //   }
-  // })
-  // graph.build()
+  await upstream.methods.setInt(14)
 
-  // await upstream.setInt(14)
-
-  // expect(targetNodesCount).toBe(1)
+  expect(targetNodesCount).toBe(1)
 })
 
-// test("sinks mustn't put anything in state", async () => {
-//   const graph = createGraph()
-//   {
-//     let upstreamVal = 0
-//     const node = {
-//       initialValue: upstreamVal,
-//       publicMethods: {
-//         setVal(val) {
-//           upstreamVal = val
-//           publishChanges(upstreamVal)
-//         },
-//       },
-//       saveState: function (): { [key: string]: any } {
-//         return { upstreamVal }
-//       },
-//       loadState: function (state: { [key: string]: any }) {
-//         upstreamVal = state.upstreamVal
-//       },
-//     } as ISource & IStateful
-//     const publishChanges = graph.addNode("upstream", node)
-//   }
-//   let sideEffect = 0
-//   graph.addNode("downstream", {
-//     dependsOn: { upstream: undefined },
-//     onUpstreamChange(deps: any): void {
-//       sideEffect = deps.upstream + 2
-//     }
-//   })
-//   graph.build()
+test("sinks mustn't put anything in state", async () => {
+  const graph = createGraph()
+  const upstreamVal = { anInt: 0 }
+  const node = {
+    val: upstreamVal,
+    methods: {
+      setVal(newVal) {
+        upstreamVal.anInt = newVal
+      },
+    },
+    saveState: function (): { [key: string]: any } {
+      return { upstreamVal }
+    },
+    loadState: function (state: { [key: string]: any }) {
+      Object.assign(upstreamVal, state.upstreamVal)
+    },
+  } as INode & IStateful
+  const upstreamNode = graph.addNode("upstream", node)
 
-//   await graph.state.upstream.setVal(14)
-//   expect(sideEffect).toBe(16)
-//   // downstream is a sink, so should not be present in the state
-//   expect(Object.entries(graph.state).length).toBe(1)
-// })
+  let sideEffect = 0
+  graph.addNode("downstream", {
+    reup(upstream: any): void {
+      sideEffect = upstream.anInt + 2
+    }
+  })
+  graph.build()
+
+  await upstreamNode.methods.setVal(14)
+  expect(sideEffect).toBe(16)
+  // downstream is a sink, so should not be present in the state
+  expect(Object.entries(graph.state).length).toBe(1)
+})

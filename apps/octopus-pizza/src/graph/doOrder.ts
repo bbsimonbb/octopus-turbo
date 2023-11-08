@@ -10,7 +10,7 @@ const val = reactive({
 });
 const node = {
   val,
-  recalculate(allValid: IValid) {
+  reup(allValid: IValid) {
     canGo = allValid.valid;
   },
   methods: {

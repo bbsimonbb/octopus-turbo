@@ -23,7 +23,7 @@ const node: IReportingNode<IValid,null> = {
       return isIValid(publishedVal);
     },
   },
-  recalculate(nodes) {
+  reup(nodes) {
     var allValid = true;
     for (const [key, val] of Object.entries(nodes)) {
       allValid = allValid && !!(val as IValid).valid;

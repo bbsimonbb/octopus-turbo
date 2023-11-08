@@ -132,18 +132,19 @@ const App = observer(() => {
       state.options[ptrs.opt].optionValues[vIndex];
     e.history.push('valueOnClick')
   };
-  function searchTextOnInput(e: React.FormEvent<HTMLInputElement>) {
-    if (ptrs.opt !== -1) {
-      ptrs.searchString = e.currentTarget.value
-      let indexOfFirstResult = 0
-      state.options[ptrs.opt].optionValues.forEach((v, index) => { v.hide = !v.title.toLowerCase().includes(ptrs.searchString.toLowerCase()); indexOfFirstResult = indexOfFirstResult || index })
-      ptrs.val = indexOfFirstResult
-    }
-  }
-  function searchTextOnClick(e: React.MouseEvent<HTMLDivElement, MouseEvent> & IHasHistory) {
-    // we want to click into the search input without then deactivating the option
-    e.history.push('searchTextOnClick')
-  }
+  // in comments for typescript error
+  // function searchTextOnInput(e: React.FormEvent<HTMLInputElement>) {
+  //   if (ptrs.opt !== -1) {
+  //     ptrs.searchString = e.currentTarget.value
+  //     let indexOfFirstResult = 0
+  //     state.options[ptrs.opt].optionValues.forEach((v, index) => { v.hide = !v.title.toLowerCase().includes(ptrs.searchString.toLowerCase()); indexOfFirstResult = indexOfFirstResult || index })
+  //     ptrs.val = indexOfFirstResult
+  //   }
+  // }
+  // function searchTextOnClick(e: React.MouseEvent<HTMLDivElement, MouseEvent> & IHasHistory) {
+  //   // we want to click into the search input without then deactivating the option
+  //   e.history.push('searchTextOnClick')
+  // }
   function resetActiveOption() {
     state.options[ptrs.opt].optionValues.forEach(o => o.hide = false)
     ptrs.val = -1

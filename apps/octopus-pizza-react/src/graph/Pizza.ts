@@ -55,7 +55,7 @@ const val: IOption = makeAutoObservable({
 });
 const node: INode<IOption> = {
   val,
-  recalculate(size: IOption, base: IOption) {
+  reup(size: IOption, base: IOption) {
     action(() => {
       if (val) {
         val.optionValues.forEach((val) => {

@@ -24,7 +24,7 @@ const node: IReportingNode<IValid, null> = {
       return isIValid(publishedVal);
     },
   },
-  recalculate(nodes) {
+  reup(nodes) {
     action(() => {
       let allValid = true;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

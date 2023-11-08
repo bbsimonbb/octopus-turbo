@@ -9,7 +9,7 @@ const val = makeAutoObservable({
 });
 const node = {
   val,
-  recalculate(allValid: IValid) {
+  reup(allValid: IValid) {
     action(() => {
       canGo = allValid.valid;
     })();

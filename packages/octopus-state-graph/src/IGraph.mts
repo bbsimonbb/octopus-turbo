@@ -9,6 +9,6 @@ export interface IGraph {
   wrapNode: (nodeToWrap: string, wrapper: INodeWrapper) => (publish: any) => void
   build: () => void
   fullTraversal: () => Promise<void>
-  loadState: (storedState: ISerializedGraph) => Promise<void> /*IGraph*/
+  loadState: (storedState: ISerializedGraph) => Promise<IGraph> /*IGraph*/
   saveState: () => ISerializedGraph
 }

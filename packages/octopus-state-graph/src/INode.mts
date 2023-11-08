@@ -1,10 +1,14 @@
 // https://en.wikipedia.org/wiki/Glossary_of_graph_theory
 
-export interface INode<ValShape = any, MethodsShape = any> {
+import { IGraph } from "./IGraph.mjs"
+
+export interface INode<ValShape = any, MethodsShape = any, SerializedShape = any> {
   val?: ValShape
-  recalculate?: (...args: any[]) => boolean | void
+  reup?: (...args: any[]) => boolean | void
   methods?: MethodsShape
   options?: INodeOptions
+  saveState?: () => SerializedShape
+  loadState?: (state: SerializedShape) => void
 }
 
 export interface INodeOptions {
@@ -17,7 +21,7 @@ interface IReportingNodeOptions extends INodeOptions {
 
 export type IReportingNode<ValShape = any, MethodsShape = any> = INode<ValShape, MethodsShape> & {
   val: ValShape
-  recalculate: (nodeArray: any[]) => boolean | void
+  reup: (nodeArray: any[]) => boolean | void
   options: INodeOptions
 }
 

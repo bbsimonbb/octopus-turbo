@@ -20,7 +20,7 @@ const val: ITip = makeAutoObservable({
 });
 const node: INode<ITip> = {
   val,
-  recalculate(pizza: IOption) {
+  reup(pizza: IOption) {
     action(() => {
       if (val) {
         if (val.tipAsPct) {

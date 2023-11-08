@@ -56,7 +56,7 @@ export interface IPizza extends IOption {
   });
   const node: INode<IOption> = {
     val,
-    recalculate(size: IOption, base: IOption) {
+    reup(size: IOption, base: IOption) {
       if (val) {
         val.optionValues.forEach((val) => {
           val.price =

@@ -107,7 +107,7 @@ export function createGraph(
         },
       });
 
-      // here, we automate calling recalculate after any method called on node
+      // here, we automate calling reup after any method called on node
       for (const prop in node.methods) {
         if (
           Object.prototype.hasOwnProperty.call(node.methods, prop) &&
@@ -130,7 +130,7 @@ export function createGraph(
       const newMethods = node.methods;
       methods[nodeName] = { ...methods[nodeName], ...newMethods };
     }
-    return {val: node.val, methods: node.methods};
+    return { val: node.val, methods: node.methods };
   }
 
   const build = () => {
@@ -150,9 +150,9 @@ export function createGraph(
     for (const nodeName in plainNodes) {
       // for each node, we'll store in the graph the list of dependency names
       const node = plainNodes[nodeName];
-      if (node.recalculate) {
+      if (node.reup) {
         // radically simple !
-        resolvedPredecessors[nodeName] = getParamNames(node.recalculate);
+        resolvedPredecessors[nodeName] = getParamNames(node.reup);
         resolvedPredecessors[nodeName].forEach((predecessor) => {
           graph.addEdge(predecessor, nodeName);
           edges.push({ from: predecessor, to: nodeName });
@@ -163,7 +163,7 @@ export function createGraph(
     for (const nodeName in nodes) {
       const currNode = nodes[nodeName];
       // radically simple. We need to give framework a chance to observe the changes, we don't want framework's proxy on the "node's" copy of it's value, which it will continue to modify directly.
-      assignValueToOutput(nodeName,currNode.val)
+      assignValueToOutput(nodeName, currNode.val)
     }
     // reporting nodes. One day we might like to sort these?
     for (const nodeName in reportingNodes) {
@@ -189,14 +189,16 @@ export function createGraph(
     if (wrappersWithoutNodes.length)
       console.warn(
         "While building the graph, we can't help but notice that wrappers have been supplied for the following nodes that don't exist... " +
-          wrappersWithoutNodes.join(", ")
+        wrappersWithoutNodes.join(", ")
       );
   };
+  // what do we think about this? It makes a copy. Since radically simple, user code mutates val directly, then pass a reference to this object???
   function assignValueToOutput(nodeName: string, value: any): void {
-    if (typeof value === "object") 
+    if (typeof value === "object")
       //state[nodeName] = Object.assign({}, value)
       state[nodeName] = JSON.parse(JSON.stringify(value))
-    else state[nodeName] = value
+    // sinks don't put anything in state
+    else if (state[nodeName] !== undefined && value !== undefined) state[nodeName] = value
   }
   const wrapNode = (nodeToWrap: string, wrapper: INodeWrapper) => {
     // save wrapping function
@@ -227,7 +229,7 @@ export function createGraph(
   const executeOneNode = async (currNodeName: string) => {
     const currNode = nodes[currNodeName];
     let predecessorOutput: any = null;
-    // radically simple, recalculate now takes an array. For plain nodes, order will be important!
+    // radically simple, reup now takes an array. For plain nodes, order will be important!
     predecessorOutput = [];
     if (
       resolvedPredecessors[currNodeName] &&
@@ -241,14 +243,14 @@ export function createGraph(
       /******************************       CALL THE NODE        ***********************************/
 
       if (!isReportingNode(currNode)) {
-        await currNode.recalculate(...predecessorOutput);
+        await currNode.reup(...predecessorOutput);
       }
       // radically simple, reporting nodes don't know or care about the names of their inputs, we'll give them an array they can iterate over
-      else{ 
-        await currNode.recalculate(predecessorOutput);   
+      else {
+        await currNode.reup(predecessorOutput);
 
       }
-       /******************************      CALL THE WRAPPER      ***********************************/
+      /******************************      CALL THE WRAPPER      ***********************************/
       // radically simple. We used to pass the newVal. Now we just pass the node val for modification
       if (nodeWrappers[currNodeName])
         await nodeWrappers[currNodeName].wrappingFunction(currNode.val);
@@ -276,9 +278,9 @@ export function createGraph(
     for (let i = startingFrom; i < sortedNodeNames.length; i++) {
       const currNodeName = sortedNodeNames[i];
       //console.log(`traversing ${i} - ${currNode}`)
-      // radically simple, a full traversal starts with the node which has just changed. It needs to recalculate whether or not it has inputs. The others, only if they have inputs.
+      // radically simple, a full traversal starts with the node which has just changed. It needs to reup whether or not it has inputs. The others, only if they have inputs.
       if (
-        nodes[currNodeName].recalculate &&
+        nodes[currNodeName].reup &&
         (i === startingFrom ||
           (resolvedPredecessors[currNodeName] &&
             resolvedPredecessors[currNodeName].length > 0))
@@ -344,9 +346,20 @@ export function createGraph(
       if (currNode.val) state[nodeName] = currNode.val;
     }
     // after state has been loaded, we traverse. Everything will
-    // recalculate, taking account of loaded values. Recalculation
+    // reup, taking account of loaded values. Recalculation
     // needs to be async
     await fullTraversal();
+
+    return {
+      state,
+      methods,
+      build,
+      addNode,
+      wrapNode,
+      fullTraversal: publicFullTraversal,
+      loadState,
+      saveState,
+    };
   }
   function saveState(): ISerializedGraph {
     const returnVal = {
