@@ -3,7 +3,6 @@ import { observer } from "mobx-react-lite";
 import { IOption, IOptionMethods } from "../IOption";
 import { INode } from "octopus-state-graph";
 import { action } from "mobx";
-import { useState } from "react";
 import { ToastyError } from "./ToastyError";
 
 

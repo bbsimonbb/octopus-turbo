@@ -298,7 +298,7 @@ export function createGraph(
             edges,
             state,
             methods,
-            initiator: sortedNodeNames[startingFrom - 1],
+            initiator: sortedNodeNames[startingFrom],
           },
         };
         //console.log("graph emitting message")
@@ -308,6 +308,7 @@ export function createGraph(
             methods[node]
           );
         }
+        console.log(messageCopy)
         window.postMessage(messageCopy, "*");
       }
     }
