@@ -308,7 +308,7 @@ export function createGraph(
             methods[node]
           );
         }
-        console.log(messageCopy)
+        //console.log(messageCopy)
         window.postMessage(messageCopy, "*");
       }
     }

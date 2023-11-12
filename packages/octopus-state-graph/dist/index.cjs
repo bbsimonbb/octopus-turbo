@@ -252,7 +252,6 @@ function createGraph(stateWrappingFunction = (x) => x) {
             methods[node]
           );
         }
-        console.log(messageCopy);
         window.postMessage(messageCopy, "*");
       }
     }
