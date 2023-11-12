@@ -9,7 +9,7 @@ turbo dev
 ```
 
 ## What am I looking at here?
-<img src="./images/devtools.png" style="width:100%">
+<img src="./images/devtools2.png" style="width:100%">
 
 Not totally sure myself, but...
 
