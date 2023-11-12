@@ -9,6 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: pnpm/action-setup@v2
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
@@ -24,6 +25,7 @@ jobs:
       packages: write
       contents: read
     steps:
+      - uses: pnpm/action-setup@v2
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
