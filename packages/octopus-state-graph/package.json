@@ -12,14 +12,17 @@
     "redux",
     "mobx"
   ],
-  "homepage": "https://github.com/bbsimonbb/octopus-state-graph",
+  "homepage": "https://github.com/bbsimonbb/octopus-turbo",
   "bugs": {
-    "url": "https://github.com/bbsimonbb/octopus-state-graph/issues",
+    "url": "https://github.com/bbsimonbb/octopus-turbo/issues",
     "email": "simon@queryfirst.net"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bbsimonbb/octopus-state-graph"
+    "url": "https://github.com/bbsimonbb/octopus-turbo"
+  },
+  "publishConfig": {
+    "@bbsimonbb:registry": "https://npm.pkg.github.com"
   },
   "author": "Simon Boddy <simon@queryfirst.net> (https://queryfirst.net)",
   "main": "lib/index.mjs",
