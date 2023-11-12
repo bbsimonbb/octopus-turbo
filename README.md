@@ -41,7 +41,7 @@ graph.addNode("nodeName", aNode)
 if(/* you're starting afresh */)
     graph.build()
 else
-    graph.loadState( savedState )
+    graph.loadState( JSON.parse(savedState) )
 
 // your UI is live, then when you're finished...
 
