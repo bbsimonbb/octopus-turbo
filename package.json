@@ -1,4 +1,8 @@
 {
   "name": "octopus-turbo",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "publishConfig": {
+    "directory": "packages/octopus-state-graph"
+  }
+
 }
