@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "publishConfig": {
     "directory": "packages/octopus-state-graph"
-  }
-
+  },
+  "packageManager": "pnpm@6.32.4"
 }
