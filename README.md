@@ -19,7 +19,7 @@ Most computer programs, and all user interfaces, are directed acyclic graphs. Th
 
 Octopus' role is simple: Firstly, on `build()`, it builds the graph based on the call signatures of all the `reup()` functions, checking that the requested dependencies exist, and that no cycles are created. 
 
-Secondly, octopus ensures that when a node's `val` changes (when a method returns), the graph will be traversed, and all the `reup()` functions, starting with that of the changed node, will be called sequentially. (The sequence is determined by the topological sort of the graph.) As such, for any given input, a node only recalculates if it is downstream of the change, and it only reacalculates once, after it's predecessors have updated.
+Secondly, octopus ensures that when a node's `val` changes (when a method returns), the graph will be traversed, and all the `reup()` functions, starting with that of the changed node, will be called sequentially. (The sequence is determined by the topological sort of the graph.) As such, for any given external change, a node only recalculates if it is downstream of the change, and it only reacalculates once, after it's predecessors have updated.
 
 (There is obviously a ton of scope for optimising traversals. Methods could report if they effected a change, or we could detect this. Nodes would then be reupped only if necessary. Going further, a tricky implementation with promises could let different branches of a traversal proceed independently, such that a slow node only delayed downstream branches that depend on it. Stay tuned!)
 
