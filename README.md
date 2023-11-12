@@ -17,7 +17,9 @@ Most computer programs, and all user interfaces, are directed acyclic graphs. Th
 
 Octopus' role is simple: Firstly, on `build()`, it builds the graph based on the call signatures of all the `reup()` functions, checking that the requested dependencies exist, and that no cycles are created. 
 
-Secondly, octopus ensures that when a node's `val` changes (when a method returns), the graph will be traversed, and all the `reup()` functions, starting with that of the changed node, will be called sequentially. (The sequence is determined by the topological sort of the graph.)
+Secondly, octopus ensures that when a node's `val` changes (when a method returns), the graph will be traversed, and all the `reup()` functions, starting with that of the changed node, will be called sequentially. (The sequence is determined by the topological sort of the graph.) As such, for any given input, a node only recalculates if it is downstream of the change, and it only reacalculates once, after it's predecessors have updated.
+
+(There is obviously a ton of scope for optimising traversals. Methods could report if they effected a change, or we could detect this. Nodes would then be reupped only if necessary. Going further, a tricky implementation with promises could let different branches of a traversal proceed independently, such that a slow node only delayed downstream branches that depend on it. Stay tuned!)
 
 Nodes can fetch data.  In many situations, it will make much more sense to fetch your data into this persistent, reactive structure, rather than fetching from your UI components that come and go as the user navigates. Unlike a reducer, a graph traversal will happily wait while a network call completes, and downstream nodes will then recalculate taking account of the fresh context. Alternatively, a node can launch a network request and return immediately. Antecedent nodes might go into a waiting state, which you can use to control spinners etc. Then when the fetch returns, a node method handles the return and a new traversal is initiated, clearing the spinners and displaying the fresh data and any cascading effects.
 
@@ -48,7 +50,7 @@ else
 const savedState = JSON.stringify(graph.saveState())
 ```
 ## Integration with front-end frameworks
-To integrate with a front-end framework, we just need the framework to observe `val`. In Vue, this is easily accomplished by wrapping `val` in `reactive()`. For react we need to grab mobx, and wrap `val` in `observable()`, and our react components with `observer()`. Additionally, mobx likes you to tag state-modifying functions as actions, so that all actions can complete before the DOM is modified. You should do this at the outermost level, wrapping in your handlers with `action()` in your react components. You should also wrap any callbacks you create inside `reup()` and `methods`.
+To integrate with a front-end framework, we just need the framework to observe `val`. In Vue, this is easily accomplished by wrapping `val` in `reactive()`. For react we need to grab mobx, and wrap `val` in `observable()`, and our react components with `observer()`. Additionally, mobx likes you to tag state-modifying functions as actions, so that all actions can complete before the DOM is modified. You should do this at the outermost level, wrapping in your handlers with `action()` in your react components. You should also wrap any callbacks you create inside `reup()` and `methods`. All this is demonstrated in the React sample.
 
 ## devtools
 DO NOT MISS the devtools extension. You can visualise the graph of your UI, see in real time what nodes you're interacting with, what value they publish, and navigate directly to the source. It's not in the Chrome store yet, so you'll need to download and build [the project](https://github.com/bbsimonbb/octopus-devtools), then Extensions => Pack extension
