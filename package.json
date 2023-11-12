@@ -4,5 +4,8 @@
   "publishConfig": {
     "directory": "packages/octopus-state-graph"
   },
-  "packageManager": "pnpm@6.32.4"
+  "packageManager": "pnpm@6.32.4",
+  "devDependencies": {
+    "turbo": "^1.10.16"
+  }
 }
