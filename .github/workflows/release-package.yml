@@ -13,7 +13,7 @@ jobs:
       - uses: pnpm/action-setup@v2.4.0
       - uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 19
       - run: pnpm install
       - run: turbo build
       - run: turbo test
