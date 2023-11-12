@@ -14,6 +14,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - run: pnpm install
       - run: turbo build
       - run: turbo test
 
@@ -30,6 +31,7 @@ jobs:
         with:
           node-version: 20.x
           registry-url: 'https://registry.npmjs.org'
+      - run: pnpm install
       - run: pnpm ci
       - run: pnpm publish --dry-run
         env:
