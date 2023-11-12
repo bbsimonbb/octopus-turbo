@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import graph from "./bareReactiveGraph";
-import { IReportingNode } from "octopus-state-graph/lib/INode.mjs";
+import { IReportingNode } from "octopus-state-graph";
 import { IOption } from "../IOption";
 import { action, makeAutoObservable } from "mobx";
 

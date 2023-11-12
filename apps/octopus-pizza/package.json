@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "octopus-state-graph": "workspace:*",
+    "octopus-state-graph": "workspace:^",
     "vue": "^3.2.47"
   },
   "devDependencies": {

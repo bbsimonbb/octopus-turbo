@@ -1,6 +1,6 @@
-import { INode } from "./INode.mjs"
-import { INodeWrapper } from "./INodeWrapper.mjs"
-import { ISerializedGraph } from "./ISerializedGraph.mjs"
+import { INode } from "./INode.js"
+import { INodeWrapper } from "./INodeWrapper.js"
+import { ISerializedGraph } from "./ISerializedGraph.js"
 
 export interface IGraph {
   state: { [nodeName: string]: any }

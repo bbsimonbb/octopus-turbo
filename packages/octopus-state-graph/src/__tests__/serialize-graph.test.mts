@@ -1,6 +1,6 @@
-import { createGraph } from "../Graph.mjs"
+import { createGraph } from "../Graph.js"
 import { test, expect } from "vitest"
-import { IStateful } from "../IStateful.mjs"
+import { IStateful } from "../IStateful.js"
 export { }
 
 test("a graph can be serialized and rehydrated", async () => {

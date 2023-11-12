@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "octopus-state-graph",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Directed acyclic graph for managing application state",
   "keywords": [
     "state management",
@@ -25,19 +25,22 @@
     "@bbsimonbb:registry": "https://npm.pkg.github.com"
   },
   "author": "Simon Boddy <simon@queryfirst.net> (https://queryfirst.net)",
-  "main": "lib/index.mjs",
-  "types": "lib/index.d.mts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
     "eslint": "^8.31.0",
+    "tsup": "^7.2.0",
     "typescript": "^4.9.4",
     "vite-tsconfig-paths": "^4.2.1",
     "vitest": "^0.34.6"
   },
   "scripts": {
-    "build": "tsc",
-    "esbuild-browser": "esbuild src/index.ts --bundle --outfile=lib/browser.js",
+    "dev": "pnpm run build -- --watch",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "tsc": "tsc",
+    "esbuild-browser": "esbuild src/index.ts --bundle --outfile=dist/browser.js",
     "build-all": "npm run build && npm run esbuild-browser",
     "test": "vitest"
   },

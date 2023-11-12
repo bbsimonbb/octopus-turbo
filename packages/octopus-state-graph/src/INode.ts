@@ -1,6 +1,6 @@
 // https://en.wikipedia.org/wiki/Glossary_of_graph_theory
 
-import { IGraph } from "./IGraph.mjs"
+import { IGraph } from "./IGraph.js"
 
 export interface INode<ValShape = any, MethodsShape = any, SerializedShape = any> {
   val?: ValShape

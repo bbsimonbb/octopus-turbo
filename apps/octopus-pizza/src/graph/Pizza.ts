@@ -1,5 +1,4 @@
-import { INode } from "octopus-state-graph";
-import { IGraph } from "octopus-state-graph/lib/IGraph.mjs";
+import {INode} from "octopus-state-graph"
 import { IOption } from "../IOption.js";
 import graph from "./bareReactiveGraph.js"
 import { reactive } from "vue";

@@ -1,10 +1,10 @@
 /* eslint-disable no-debugger */
-import { IGraph } from "./IGraph.mjs";
-import { INamed, INode, isReportingNode } from "./INode.mjs";
-import { INodeWrapper } from "./INodeWrapper.mjs";
+import { IGraph } from "./IGraph.js";
+import { INamed, INode, isReportingNode } from "./INode.js";
+import { INodeWrapper } from "./INodeWrapper.js";
 import { DirectedAcyclicGraph } from "typescript-graph";
-import { ISerializedGraph } from "./ISerializedGraph.mjs";
-import { isStateful, IStateful } from "./IStateful.mjs";
+import { ISerializedGraph } from "./ISerializedGraph.js";
+import { isStateful, IStateful } from "./IStateful.js";
 
 interface INodeContainer {
   [nodeName: string]: INode;

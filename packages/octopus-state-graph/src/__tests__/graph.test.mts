@@ -1,7 +1,7 @@
-import { createGraph } from "../Graph.mjs"
+import { createGraph } from "../Graph.js"
 import { test, expect } from "vitest"
-import { IStateful } from "../IStateful.mjs"
-import { INode } from "../INode.mjs"
+import { IStateful } from "../IStateful.js"
+import { INode } from "../INode.js"
 export { }
 
 test("a downstream node adds 2 to an upstream", async () => {
