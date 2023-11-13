@@ -5,11 +5,17 @@ import Base from './components/Base.vue'
 import Sidebar from './components/Sidebar.vue'
 import { pizza } from "./graph/Pizza"
 import graph from "./graph/bareReactiveGraph";
+import { reactive } from 'vue'
 
+let devtools: undefined | null | Window
 function popDevtools() {
-  let devtools = window.open("http://localhost:7768", "_blank")
-  if (devtools)
-    graph.registerDevtools(devtools)
+  if (devtools && !devtools.closed) {
+    devtools.focus()
+  } else {
+    devtools = window.open("http://localhost:7768", "_blank","popup")
+    if (devtools)
+      graph.registerDevtools(devtools)
+  }
 }
 </script>
 
@@ -152,4 +158,5 @@ img.main.veil {
 
 .button:hover:active {
   filter: brightness(80%);
-}</style>
+}
+</style>

@@ -303,15 +303,15 @@ export function createGraph(
         };
         //console.log("graph emitting message")
         const messageCopy = JSON.parse(JSON.stringify(message));
-        for (const node in methods) {
-          messageCopy.data.methods[node] = Object.getOwnPropertyNames(
-            methods[node]
-          );
-        }
         //console.log(messageCopy)
         window.postMessage(messageCopy, "*");
         if (standAloneDevtools) {
           const newCopy = JSON.parse(JSON.stringify(message));
+          for (const node in methods) {
+            newCopy.data.methods[node] = Object.getOwnPropertyNames(
+              methods[node]
+            );
+          }
           standAloneDevtools.postMessage(newCopy, "*")
         }
       }

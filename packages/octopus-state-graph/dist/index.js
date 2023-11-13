@@ -225,14 +225,14 @@ function createGraph(stateWrappingFunction = (x) => x) {
           }
         };
         const messageCopy = JSON.parse(JSON.stringify(message));
-        for (const node in methods) {
-          messageCopy.data.methods[node] = Object.getOwnPropertyNames(
-            methods[node]
-          );
-        }
         window.postMessage(messageCopy, "*");
         if (standAloneDevtools) {
           const newCopy = JSON.parse(JSON.stringify(message));
+          for (const node in methods) {
+            newCopy.data.methods[node] = Object.getOwnPropertyNames(
+              methods[node]
+            );
+          }
           standAloneDevtools.postMessage(newCopy, "*");
         }
       }

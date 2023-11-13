@@ -97,7 +97,7 @@ export default {
     if (port) {
       port.onMessage.addListener(this.handleMessage)
     }
-    window.addEventListener("message", (msg)=>this.handleMessage(msg.data))
+    window.addEventListener("message", (msg) => this.handleMessage(msg.data))
   },
   methods: {
     setMessage() {
@@ -148,17 +148,22 @@ export default {
       })
     },
     openSource() {
-      chrome.devtools.inspectedWindow.getResources(
-        (resources) => {
-          for (const resource of resources) {
-            var canonical = resource.url.replaceAll("-", "").toLowerCase()
-            if (canonical.includes("/" + this.store.selectedNode.toLowerCase() + ".")) {
-              chrome.devtools.panels.openResource(resource.url, 1, function () { })
+      if (chrome.devtools) {
+        chrome.devtools.inspectedWindow.getResources(
+          (resources) => {
+            for (const resource of resources) {
+              var canonical = resource.url.replaceAll("-", "").toLowerCase()
+              if (canonical.includes("/" + this.store.selectedNode.toLowerCase() + ".")) {
+                chrome.devtools.panels.openResource(resource.url, 1, function () { })
+              }
             }
           }
-        }
-      )
+        )
+      }
     }
+  },
+  computed:{
+    standalone(){return !chrome.devtools}
   },
   mounted() {
     const me = this
@@ -184,7 +189,7 @@ export default {
       <pre>{{ serialize(store.traversalReport.data.state[store.selectedNode]) }}</pre>
       <div class="func" v-for="func in store.traversalReport.data.methods[store.selectedNode]"><span>ƒ</span> {{ func }}()
       </div>
-      <b><a @click="openSource">Go to source</a></b>
+      <b><a @click="openSource">Go to source</a></b><span v-if="standalone" style="font-size:smaller;"> (Not available in standalone. Install devtools as an extension.)</span>
     </div>
   </div>
   <img src="/images/octopus-photo.png" id="octo" @click="redraw()" />
