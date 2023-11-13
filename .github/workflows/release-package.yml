@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 19
-          registry-url: 'https://registry.npmjs.org/packages'
+          registry-url: 'https://registry.npmjs.org'
       - run: pnpm install
       - run: pnpm publish --no-git-checks
         env:
