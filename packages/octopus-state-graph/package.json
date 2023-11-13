@@ -37,7 +37,7 @@
     "vitest": "^0.34.6"
   },
   "scripts": {
-    "dev": "pnpm run build -- --watch",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "tsc": "tsc",
     "esbuild-browser": "esbuild src/index.ts --bundle --outfile=dist/browser.js",

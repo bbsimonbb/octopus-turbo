@@ -3,15 +3,21 @@ import Size from './components/Size.vue'
 import Pizza from './components/Pizza.vue'
 import Base from './components/Base.vue'
 import Sidebar from './components/Sidebar.vue'
-import {totalPrice} from "./graph/totalPrice"
-import {pizza} from "./graph/Pizza"
+import { pizza } from "./graph/Pizza"
+import graph from "./graph/bareReactiveGraph";
+
+function popDevtools() {
+  let devtools = window.open("http://localhost:7768", "_blank")
+  if (devtools)
+    graph.registerDevtools(devtools)
+}
 </script>
 
 <template>
   <div id="content">
     <div class="flex-container">
       <div style="height:400px; margin:30px">
-        <img :class="{main:true, veil:!pizza.val?.valid}" :src="pizza.val?.selectedValue?.imageUrl" />
+        <img :class="{ main: true, veil: !pizza.val?.valid }" :src="pizza.val?.selectedValue?.imageUrl" />
       </div>
     </div>
     <div class="flex-container">
@@ -24,18 +30,18 @@ import {pizza} from "./graph/Pizza"
     </div>
   </div>
   <Sidebar></Sidebar>
-      <img src="./assets/vue.svg" id="vue-logo" />
-  <img src="./assets/octopus-photo.png" id="octo" />
+  <img src="./assets/vue.svg" id="vue-logo" />
+  <img src="./assets/octopus-photo.png" id="octo" @click="popDevtools()" />
 </template>
 
 <style>
-
 #octo {
   position: absolute;
   height: 100px;
   bottom: 0;
   right: 0;
 }
+
 #vue-logo {
   position: absolute;
   height: 60px;
@@ -57,7 +63,8 @@ img.main {
   height: 400px;
   transition: opacity ease-in-out 500ms;
 }
-img.main.veil{
+
+img.main.veil {
   opacity: 30%;
 }
 
@@ -82,32 +89,36 @@ img.main.veil{
   border-radius: 10px;
   padding: 0px 8px;
 }
-.container-error{
+
+.container-error {
   position: absolute;
   bottom: -14px;
   right: 8%;
   max-width: 0px;
-  white-space:nowrap;
+  white-space: nowrap;
   overflow: hidden;
   transition: max-width 500ms ease-in-out;
 }
-.container-error.active{
-  max-width:500px
+
+.container-error.active {
+  max-width: 500px
 }
-.container-error div{
+
+.container-error div {
   background-color: white;
   border: 1px solid;
   border-radius: 10px;
   padding: 0px 8px;
-  line-height:26px;
+  line-height: 26px;
 }
 
 .container-error div::before {
   content: '⚠';
-  color:red;
+  color: red;
   font-size: larger;
-  padding:0px 8px;
+  padding: 0px 8px;
 }
+
 .container-title div {
   position: relative;
   top: -3px;
@@ -122,7 +133,7 @@ img.main.veil{
 }
 
 .button.hide {
-  
+
   filter: saturate(30%) brightness(120%) !important;
 }
 
@@ -141,5 +152,4 @@ img.main.veil{
 
 .button:hover:active {
   filter: brightness(80%);
-}
-</style>
+}</style>

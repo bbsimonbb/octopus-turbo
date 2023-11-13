@@ -41,6 +41,7 @@ interface IGraph {
     fullTraversal: () => Promise<void>;
     loadState: (storedState: ISerializedGraph) => Promise<IGraph>;
     saveState: () => ISerializedGraph;
+    registerDevtools: (devtools: Window) => void;
 }
 
 declare function createGraph(stateWrappingFunction?: (any: any) => any): IGraph;

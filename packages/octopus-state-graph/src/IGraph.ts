@@ -11,4 +11,5 @@ export interface IGraph {
   fullTraversal: () => Promise<void>
   loadState: (storedState: ISerializedGraph) => Promise<IGraph> /*IGraph*/
   saveState: () => ISerializedGraph
+  registerDevtools: (devtools: Window)=>void
 }

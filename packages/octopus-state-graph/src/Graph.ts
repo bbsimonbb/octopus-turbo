@@ -310,6 +310,10 @@ export function createGraph(
         }
         //console.log(messageCopy)
         window.postMessage(messageCopy, "*");
+        if (standAloneDevtools) {
+          const newCopy = JSON.parse(JSON.stringify(message));
+          standAloneDevtools.postMessage(newCopy, "*")
+        }
       }
     }
   };
@@ -333,7 +337,7 @@ export function createGraph(
       .replace(/^\[object\s+([a-z]+)\]$/i, "$1")
       .toLowerCase();
   }
-  async function loadState(storedState: ISerializedGraph) {
+  async function loadState(storedState: ISerializedGraph): Promise<IGraph> {
     sortedNodeNames = storedState.topologicalSort;
     resolvedPredecessors = storedState.resolvedPredecessors;
 
@@ -360,6 +364,7 @@ export function createGraph(
       fullTraversal: publicFullTraversal,
       loadState,
       saveState,
+      registerDevtools
     };
   }
   function saveState(): ISerializedGraph {
@@ -376,6 +381,10 @@ export function createGraph(
     }
     return returnVal;
   }
+  let standAloneDevtools: Window
+  function registerDevtools(devtools: Window) {
+    standAloneDevtools = devtools
+  }
   return {
     state,
     methods,
@@ -385,5 +394,6 @@ export function createGraph(
     fullTraversal: publicFullTraversal,
     loadState,
     saveState,
+    registerDevtools
   };
 }

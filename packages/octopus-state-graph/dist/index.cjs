@@ -253,6 +253,10 @@ function createGraph(stateWrappingFunction = (x) => x) {
           );
         }
         window.postMessage(messageCopy, "*");
+        if (standAloneDevtools) {
+          const newCopy = JSON.parse(JSON.stringify(message));
+          standAloneDevtools.postMessage(newCopy, "*");
+        }
       }
     }
   });
@@ -296,7 +300,8 @@ function createGraph(stateWrappingFunction = (x) => x) {
         wrapNode,
         fullTraversal: publicFullTraversal,
         loadState,
-        saveState
+        saveState,
+        registerDevtools
       };
     });
   }
@@ -313,6 +318,10 @@ function createGraph(stateWrappingFunction = (x) => x) {
     }
     return returnVal;
   }
+  let standAloneDevtools;
+  function registerDevtools(devtools) {
+    standAloneDevtools = devtools;
+  }
   return {
     state,
     methods,
@@ -321,7 +330,8 @@ function createGraph(stateWrappingFunction = (x) => x) {
     wrapNode,
     fullTraversal: publicFullTraversal,
     loadState,
-    saveState
+    saveState,
+    registerDevtools
   };
 }
 // Annotate the CommonJS export names for ESM import in node:
