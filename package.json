@@ -5,6 +5,10 @@
     "directory": "packages/octopus-state-graph"
   },
   "packageManager": "pnpm@6.32.4",
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test"
+  },
   "devDependencies": {
     "turbo": "^1.10.16"
   }
