@@ -288,7 +288,7 @@ export function createGraph(
         await executeOneNode(currNodeName);
     }
     if (isBrowser && /:[0-9]+$/gm.test(window.location.origin)) {
-      if (octopusDevtoolsPresent) {
+      if (octopusDevtoolsPresent || standAloneDevtools) {
         const message = {
           source: "octopus",
           topic: "traversalReport",
@@ -301,10 +301,15 @@ export function createGraph(
             initiator: sortedNodeNames[startingFrom],
           },
         };
-        //console.log("graph emitting message")
-        const messageCopy = JSON.parse(JSON.stringify(message));
-        //console.log(messageCopy)
-        window.postMessage(messageCopy, "*");
+        if (octopusDevtoolsPresent) {
+          const messageCopy = JSON.parse(JSON.stringify(message));
+          for (const node in methods) {
+            messageCopy.data.methods[node] = Object.getOwnPropertyNames(
+              methods[node]
+            );
+          }
+          window.postMessage(messageCopy, "*");
+        }
         if (standAloneDevtools) {
           const newCopy = JSON.parse(JSON.stringify(message));
           for (const node in methods) {
