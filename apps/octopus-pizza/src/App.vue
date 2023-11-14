@@ -12,9 +12,10 @@ function popDevtools() {
   if (devtools && !devtools.closed) {
     devtools.focus()
   } else {
-    devtools = window.open("http://localhost:7768", "_blank","popup")
+    const origin = "http://localhost:7768"
+    devtools = window.open(origin, "_blank","popup")
     if (devtools)
-      graph.registerDevtools(devtools)
+      graph.registerDevtools(devtools, origin)
   }
 }
 </script>

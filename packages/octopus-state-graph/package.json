@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "octopus-state-graph",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Directed acyclic graph for managing application state",
   "keywords": [
     "state management",
@@ -37,7 +37,7 @@
     "vitest": "^0.34.6"
   },
   "scripts": {
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch --sourcemap",
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "tsc": "tsc",
     "esbuild-browser": "esbuild src/index.ts --bundle --outfile=dist/browser.js",

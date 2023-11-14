@@ -3,7 +3,6 @@
 // https://color.adobe.com/create/color-wheel#
 import { ITraversalReport } from './ITraversalReport'
 import port from "./port"
-import testData from "./testData"
 import { startCase } from "lodash"
 import cydagre from "cytoscape-dagre";
 import cytoscape from "cytoscape";
