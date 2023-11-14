@@ -11,6 +11,7 @@ coverage
 
 # Transpiled files
 lib/
+dist/
 
 # VS Code
 .vscode
