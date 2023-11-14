@@ -69,7 +69,7 @@ const savedState = JSON.stringify(graph.saveState())
 To integrate with a front-end framework, we just need the framework to observe `val`. In Vue, this is easily accomplished by wrapping `val` in `reactive()`. For react we need to grab mobx, and wrap `val` in `observable()`, and our react components with `observer()`. Additionally, mobx likes you to tag state-modifying functions as actions, so that all actions can complete before the DOM is modified. You should do this at the outermost level, wrapping your handlers with `action()` in your react components. You should also wrap any callbacks you create inside `reup()` and `methods`. All this is demonstrated in the React sample.
 
 ## devtools
-DO NOT MISS the devtools extension (screenshot above). You can visualise the graph of your UI, see in real time what nodes you're interacting with, what value they publish, and navigate directly to the source. It's not in the Chrome store yet, so you'll need to download and build [the project](https://github.com/bbsimonbb/octopus-devtools), then Extensions => Pack extension
+DO NOT MISS the devtools extension (screenshot above). You can visualise the graph of your UI, see in real time what nodes you're interacting with, what value they publish, and navigate directly to the source. Click the octopus to bring up devtools in a popup. It's not in the Chrome store yet, so to install it you'll need to download and build [the project](https://github.com/bbsimonbb/octopus-devtools), then Extensions => Pack extension
 
 
 <img src="./images/octopus-photo.png" style="position:absolute;bottom:0;right:0;height:150px">
