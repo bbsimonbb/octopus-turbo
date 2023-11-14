@@ -4,8 +4,9 @@
 
 ## Get started
 ```
+npm install -g pnpm
 pnpm install
-turbo dev
+pnpm run dev
 ```
 
 <img src="./images/pizza-ui.png" style="width:100%">

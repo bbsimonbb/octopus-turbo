@@ -6,6 +6,7 @@
   },
   "packageManager": "pnpm@6.32.4",
   "scripts": {
+    "dev": "turbo run dev",
     "build": "turbo run build",
     "test": "turbo run test"
   },
