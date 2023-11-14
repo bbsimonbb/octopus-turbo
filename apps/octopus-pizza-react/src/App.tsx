@@ -10,13 +10,15 @@ import { useState } from "react";
 
 const App = observer(() => {
   const [devtools, setDevtools] = useState<Window|null|undefined>(undefined)
+  const devtoolsUrl = "http://localhost:7768"
   function popDevtools() {
     if (devtools && !devtools.closed) {
       devtools.focus()
     } else {
-      setDevtools( window.open("http://localhost:7768", "_blank", "popup"))
-      if (devtools)
-        graph.registerDevtools(devtools)
+      const newDevtools =  window.open(devtoolsUrl, "_blank", "popup")
+      setDevtools(newDevtools)
+      if (newDevtools)
+        graph.registerDevtools(newDevtools, devtoolsUrl)
     }
   }
   return (

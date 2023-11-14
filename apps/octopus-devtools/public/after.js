@@ -22,6 +22,6 @@ window.addEventListener('message', function(event) {
   }
   //console.log("after.js captured message and will resend to service worker")
 
-  chrome.runtime?.sendMessage(message)
-  chrome.tabs?.sendMessage(message)
+  chrome?.runtime?.sendMessage(message)
+  chrome?.tabs?.sendMessage(message)
 });

@@ -387,8 +387,10 @@ export function createGraph(
     return returnVal;
   }
   let standAloneDevtools: Window
-  function registerDevtools(devtools: Window) {
+  let standAloneDevtoolsUrl:string
+  function registerDevtools(devtools: Window, origin:string) {
     standAloneDevtools = devtools
+    standAloneDevtoolsUrl = origin
   }
   return {
     state,

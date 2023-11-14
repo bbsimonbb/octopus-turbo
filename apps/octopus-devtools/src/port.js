@@ -1,5 +1,5 @@
 var backgroundPageConnection
-if (chrome.runtime) {
+if (typeof(chrome) !== "undefined" && chrome.runtime) {
   backgroundPageConnection = chrome.runtime.connect({
     name: "panel",
   })
