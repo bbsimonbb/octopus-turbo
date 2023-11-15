@@ -7,7 +7,7 @@ on:
      - main
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,21 +18,7 @@ jobs:
       - run: pnpm install
       - run: pnpm build
       - run: pnpm test
-
-  publish-gpr:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2.4.0
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 19
-          registry-url: 'https://registry.npmjs.org'
-      - run: pnpm install
       - run: pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
