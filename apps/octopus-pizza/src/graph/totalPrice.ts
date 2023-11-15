@@ -1,8 +1,7 @@
 import graph from "./bareReactiveGraph";
-import { IGraph, INode } from "octopus-state-graph";
-import { IReportingNode } from "octopus-state-graph/lib/INode.mjs";
+import { IReportingNode } from "octopus-state-graph";
 import { IOption } from "../IOption";
-import {ref, reactive} from 'vue'
+import { reactive } from 'vue'
 interface IPricedOption {
   optionPrice: number;
   valid: boolean;
@@ -25,7 +24,7 @@ const node: IReportingNode<any> = {
   val,
   reup(inputs) {
     var totalPrice = 0;
-
+    // only include the price of valid options
     for (const [key, val] of Object.entries(inputs)) {
       totalPrice += (val as IOption).valid
         ? (val as IOption).optionPrice || 0
