@@ -13,7 +13,8 @@ function popDevtools() {
     devtools.focus()
   } else {
     const origin = "http://localhost:7768"
-    devtools = window.open(origin, "_blank","popup")
+    devtools = window.open(origin, "_blank", "popup")
+    window.addEventListener("pagehide", () => { devtools?.close() })
     if (devtools)
       graph.registerDevtools(devtools, origin)
   }

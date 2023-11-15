@@ -16,6 +16,7 @@ const App = observer(() => {
       devtools.focus()
     } else {
       const newDevtools =  window.open(devtoolsUrl, "_blank", "popup")
+      window.addEventListener("pagehide", () => { newDevtools?.close() })
       setDevtools(newDevtools)
       if (newDevtools)
         graph.registerDevtools(newDevtools, devtoolsUrl)
