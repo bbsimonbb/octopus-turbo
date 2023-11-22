@@ -14,8 +14,7 @@ const val: IOption = makeAutoObservable({
       selected: false,
     },
   ],
-  selectedIndex: 0,
-  selectedValue: undefined,
+  selectedIndex: undefined,
   valid: false,
   touched: false,
 });
@@ -27,10 +26,6 @@ const node: INode<IOption, IOptionMethods> = {
       val.selectedIndex = index;
       val.touched = true;
       val.valid = true;
-      val.choices.forEach((el, i) => {
-        el.selected = i === index;
-      });
-      val.selectedValue = val.choices[index];
     },
   },
 };

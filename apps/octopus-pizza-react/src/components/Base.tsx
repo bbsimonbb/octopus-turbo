@@ -10,13 +10,13 @@ export const Base = observer(() => {
   return (
     <>
       <div className="option-container base">
-        {base.val?.choices.map((b: IChoice, index: number) => (
+        {base.val?.choices.map((ch: IChoice, index: number) => (
           <div
-            className={`button ${b.selected ? "selected" : ""}`}
+            className={`button ${index === base.val?.selectedIndex ? "selected" : ""}`}
             onClick={action(() => base.methods?.selectItem(index))}
-            key={b.id}
+            key={ch.id}
           >
-            <div>{b.id}</div>
+            <div>{ch.id}</div>
           </div>
         ))}
         <div className="container-title">

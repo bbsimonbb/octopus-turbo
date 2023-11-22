@@ -11,6 +11,11 @@ import { useState } from "react";
 const App = observer(() => {
   const [devtools, setDevtools] = useState<Window|null|undefined>(undefined)
   const devtoolsUrl = "http://localhost:7768"
+  let pizzaChoice
+  if(pizza.val?.selectedIndex){
+    pizzaChoice = pizza.val?.choices[pizza.val.selectedIndex]
+  } 
+  
   function popDevtools() {
     if (devtools && !devtools.closed) {
       devtools.focus()
@@ -27,7 +32,7 @@ const App = observer(() => {
       <div id="content">
         <div className="flex-container">
           <div style={{ height: "400px", margin: "30px" }}>
-            <img className={`main ${pizza.val?.valid ? "" : "veil"}`} src={pizza.val?.selectedValue?.imageUrl} />
+            <img className={`main ${pizza.val?.valid ? "" : "veil"}`} src={pizzaChoice?.imageUrl} />
           </div>
         </div>
         <div className="flex-container">

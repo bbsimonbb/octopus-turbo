@@ -58,7 +58,7 @@ const val: IPizzaOption = makeAutoObservable({
     },
   ],
   selectedValue: undefined,
-  selectedIndex: -1,
+  selectedIndex: undefined,
   optionPrice: 0,
   valid: false,
   touched: false,
@@ -69,14 +69,25 @@ const node: INode<IPizzaOption> = {
   reup(size: IOption, base: IOption) {
     action(() => {
       if (val) {
-        val.choices.forEach((val) => {
-          val.price =
-            val.basePrice * size?.choices[size?.selectedIndex || 0].coef;
-          val.hide = val.base !== base?.selectedValue?.id;
-        });
-        val.canChoose = !!size?.valid && !!base?.valid;
-        val.optionPrice = val.selectedValue?.price;
-        val.valid = !!val.selectedValue && !val.selectedValue?.hide;
+        if (val.selectedIndex) {
+          const pizzaChoice = val.choices[val.selectedIndex]
+          val.choices.forEach((c) => {
+            c.price =
+              c.basePrice * size?.choices[size?.selectedIndex || 0].coef;
+            if (base.selectedIndex === undefined)
+              c.hide = true
+            else {
+              const baseChoice = base.choices[base.selectedIndex]
+              c.hide = c.base !== baseChoice?.id;
+            }
+          });
+          val.optionPrice = pizzaChoice?.price;
+          val.valid = !!pizzaChoice && !pizzaChoice?.hide;
+        } else {
+          val.optionPrice = 0
+          val.valid = false
+          val.canChoose = !!size?.valid && !!base?.valid;
+        }
       }
     })();
   },
@@ -86,7 +97,6 @@ const node: INode<IPizzaOption> = {
         // can't select pizzas that are hidden
         if (!val.choices[index].hide) {
           val.selectedIndex = index;
-          val.selectedValue = val.choices[index];
           val.choices.forEach((el, i) => {
             el.selected = i === index;
           });

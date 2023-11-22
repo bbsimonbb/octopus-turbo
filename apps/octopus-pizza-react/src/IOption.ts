@@ -5,8 +5,6 @@ export interface IOption<OfType extends IChoice = IChoice> {
   optionPrice?: number;
   defaultIndex?: number;
   selectedIndex?: number;
-  selectedValue?: OfType;
-  selectedValueName?: string;
   hide?: boolean;
   valid?: boolean;
   touched: boolean;
