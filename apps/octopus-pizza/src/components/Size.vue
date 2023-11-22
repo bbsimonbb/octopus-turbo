@@ -8,10 +8,10 @@ import ToastyError from "./ToastyError.vue"
 
 <template>
     <div class="option-container">
-        <div v-for="(option, index) in size.val?.optionValues"
+        <div v-for="(option, index) in size.val?.choices"
             :class="['button',option.selected?'selected':'']"
             @click="size.methods?.selectItem(index)"
-        ><div>{{ option.valueName }}</div></div>
+        ><div>{{ option.id }}</div></div>
         <div class="container-title"><div>size</div></div>
         <ToastyError error-msg="Please choose" :active="(!!doOrder.val?.submitBlocked || !!size.val?.touched) && !size.val?.valid"></ToastyError>
     </div>

@@ -1,6 +1,6 @@
 import { action } from "mobx";
-import { IOptionValue } from "../IOptionValue";
-import { size } from "../graph/Size";
+import { IChoice } from "../IChoice";
+import { size } from "../graph/size";
 import { doOrder } from "../graph/doOrder";
 import { observer } from "mobx-react-lite";
 import { ToastyError } from "./ToastyError";
@@ -11,13 +11,13 @@ export const Size = observer(() => {
   return (
     <>
       <div className="option-container size">
-        {size.val?.optionValues.map((s: IOptionValue, index: number) => (
+        {size.val?.choices.map((s: IChoice, index: number) => (
           <div
             className={`button ${s.selected ? 'selected' : ''}`}
             onClick={action('pickSize', () => size.methods?.selectItem(index))}
-            key={s.valueName}
+            key={s.id}
           >
-            <div>{s.valueName}</div>
+            <div>{s.id}</div>
           </div>
         ))}
 

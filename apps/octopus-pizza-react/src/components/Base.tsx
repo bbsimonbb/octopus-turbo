@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { base } from "../graph/base";
 import { action } from "mobx";
-import { IOptionValue } from "../IOptionValue";
+import { IChoice } from "../IChoice";
 import { doOrder } from "../graph/doOrder";
 import { ToastyError } from "./ToastyError";
 
@@ -10,13 +10,13 @@ export const Base = observer(() => {
   return (
     <>
       <div className="option-container base">
-        {base.val?.optionValues.map((b: IOptionValue, index: number) => (
+        {base.val?.choices.map((b: IChoice, index: number) => (
           <div
             className={`button ${b.selected ? "selected" : ""}`}
             onClick={action(() => base.methods?.selectItem(index))}
-            key={b.valueName}
+            key={b.id}
           >
-            <div>{b.valueName}</div>
+            <div>{b.id}</div>
           </div>
         ))}
         <div className="container-title">

@@ -8,9 +8,9 @@ export interface IPizza extends IOption {
 }
 
   const val: IOption = reactive({
-    optionValues: [
+    choices: [
       {
-        valueName: "4 Stagioni",
+        id: "4 Stagioni",
         base: "bianca",
         basePrice: 6.5,
         price: 0,
@@ -19,7 +19,7 @@ export interface IPizza extends IOption {
         hide: false,
       },
       {
-        valueName: "Gorgonzola",
+        id: "Gorgonzola",
         base: "bianca",
         basePrice: 5.5,
         price: 0,
@@ -28,7 +28,7 @@ export interface IPizza extends IOption {
         hide: false,
       },
       {
-        valueName: "Margherita",
+        id: "Margherita",
         base: "rossa",
         basePrice: 4,
         price: 0,
@@ -37,7 +37,7 @@ export interface IPizza extends IOption {
         hide: false,
       },
       {
-        valueName: "Prosciutto",
+        id: "Prosciutto",
         base: "rossa",
         basePrice: 4.5,
         price: 0,
@@ -57,10 +57,10 @@ export interface IPizza extends IOption {
     val,
     reup(size: IOption, base: IOption) {
       if (val) {
-        val.optionValues.forEach((val) => {
+        val.choices.forEach((val) => {
           val.price =
-            val.basePrice * size?.optionValues[size?.selectedIndex || 0].coef;
-          val.hide = val.base !== base?.selectedValue?.valueName;
+            val.basePrice * size?.choices[size?.selectedIndex || 0].coef;
+          val.hide = val.base !== base?.selectedValue?.id;
         });
         val.canChoose = !!size?.valid && !!base?.valid;
         val.optionPrice = val.selectedValue?.price;
@@ -70,10 +70,10 @@ export interface IPizza extends IOption {
     methods: {
       selectItem(index: number) {
         // can't select pizzas that are hidden
-        if (!val.optionValues[index].hide) {
+        if (!val.choices[index].hide) {
           val.selectedIndex = index;
-          val.selectedValue = val.optionValues[index];
-          val.optionValues.forEach((el, i) => {
+          val.selectedValue = val.choices[index];
+          val.choices.forEach((el, i) => {
             el.selected = i === index;
           });
           val.touched = true;

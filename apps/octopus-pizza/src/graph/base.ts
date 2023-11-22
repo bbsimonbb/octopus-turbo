@@ -4,13 +4,13 @@ import { IOption, IOptionMethods } from "../IOption.js";
 import { reactive } from "vue";
 
 const val: IOption = reactive({
-  optionValues: [
+  choices: [
     {
-      valueName: "bianca",
+      id: "bianca",
       selected: false,
     },
     {
-      valueName: "rossa",
+      id: "rossa",
       selected: false,
     },
   ],
@@ -27,10 +27,10 @@ let node: INode<IOption, IOptionMethods> = {
       val.selectedIndex = index;
       val.touched = true;
       val.valid = true;
-      val.optionValues.forEach((el, i) => {
+      val.choices.forEach((el, i) => {
         el.selected = i === index;
       });
-      val.selectedValue = val.optionValues[index];
+      val.selectedValue = val.choices[index];
     },
   },
 };

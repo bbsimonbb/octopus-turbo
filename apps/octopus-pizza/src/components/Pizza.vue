@@ -22,11 +22,11 @@ const errorMsg = computed(()=>{
 
 <template>
     <div class="option-container">
-        <div v-for="(option, index) in pizza.val?.optionValues" :class="{
+        <div v-for="(option, index) in pizza.val?.choices" :class="{
             'button': true,
             selected: option.selected,
             hide: option.hide
-        }" @click="pizza.methods.selectItem(index)"><div>{{ option.valueName }} €{{ option.price?.toFixed(2) }}</div></div>
+        }" @click="pizza.methods.selectItem(index)"><div>{{ option.id }} €{{ option.price?.toFixed(2) }}</div></div>
         <div class="container-title"><div>choose your pizza</div></div>
         <ToastyError :error-msg="errorMsg" :active="errorActive"></ToastyError>
     </div>

@@ -5,19 +5,19 @@ import { makeAutoObservable} from "mobx"
 
 // size
   const val = makeAutoObservable({
-    optionValues: [
+    choices: [
       {
-        valueName: "small",
+        id: "small",
         coef: 1,
         selected: false,
       },
       {
-        valueName: "medium",
+        id: "medium",
         coef: 1.2,
         selected: false,
       },
       {
-        valueName: "large",
+        id: "large",
         coef: 1.4,
         selected: false,
       },
@@ -33,7 +33,7 @@ import { makeAutoObservable} from "mobx"
         val.selectedIndex = index;
         val.touched = true;
         val.valid = true;
-        val.optionValues.forEach((el, i) => {
+        val.choices.forEach((el, i) => {
           el.selected = i === index;
         });
       },

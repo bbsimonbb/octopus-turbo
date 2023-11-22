@@ -23,15 +23,15 @@ export const Pizza = observer(
     return (
       <>
         <div className="option-container pizza">
-          {pizza.val?.optionValues.map((option, index) => (
+          {pizza.val?.choices.map((option, index) => (
             <div
               className={`button ${option.selected ? "selected" : ""} ${option.hide ? "hide" : ""
                 }`}
               onClick={action('pickSize', () => pizza.methods?.selectItem(index))}
-              key={option.valueName}
+              key={option.id}
             >
               <div>
-                {option.valueName} €{option.price?.toFixed(2)}
+                {option.id} €{option.price?.toFixed(2)}
               </div>
             </div>
           ))}

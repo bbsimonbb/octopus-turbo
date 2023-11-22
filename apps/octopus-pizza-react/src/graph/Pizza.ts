@@ -2,15 +2,26 @@ import { INode } from "octopus-state-graph";
 import { IOption } from "../IOption.js";
 import graph from "./bareReactiveGraph.js";
 import { action, makeAutoObservable } from "mobx";
+import { IChoice } from "../IChoice.js";
 
-export interface IPizza extends IOption {
+
+type pizzaKeys = "4 Stagioni" |
+  "Gorgonzola" |
+  "Margherita" |
+  "Prosciutto"
+
+interface IPizzaChoice extends IChoice {
+  id: pizzaKeys
+  basePrice: number
+}
+export interface IPizzaOption extends IOption<IPizzaChoice> {
   canChoose: boolean;
 }
 
-const val: IOption = makeAutoObservable({
-  optionValues: [
+const val: IPizzaOption = makeAutoObservable({
+  choices: [
     {
-      valueName: "4 Stagioni",
+      id: "4 Stagioni",
       base: "bianca",
       basePrice: 6.5,
       price: 0,
@@ -19,7 +30,7 @@ const val: IOption = makeAutoObservable({
       hide: false,
     },
     {
-      valueName: "Gorgonzola",
+      id: "Gorgonzola",
       base: "bianca",
       basePrice: 5.5,
       price: 0,
@@ -28,7 +39,7 @@ const val: IOption = makeAutoObservable({
       hide: false,
     },
     {
-      valueName: "Margherita",
+      id: "Margherita",
       base: "rossa",
       basePrice: 4,
       price: 0,
@@ -37,7 +48,7 @@ const val: IOption = makeAutoObservable({
       hide: false,
     },
     {
-      valueName: "Prosciutto",
+      id: "Prosciutto",
       base: "rossa",
       basePrice: 4.5,
       price: 0,
@@ -53,15 +64,15 @@ const val: IOption = makeAutoObservable({
   touched: false,
   canChoose: false,
 });
-const node: INode<IOption> = {
+const node: INode<IPizzaOption> = {
   val,
   reup(size: IOption, base: IOption) {
     action(() => {
       if (val) {
-        val.optionValues.forEach((val) => {
+        val.choices.forEach((val) => {
           val.price =
-            val.basePrice * size?.optionValues[size?.selectedIndex || 0].coef;
-          val.hide = val.base !== base?.selectedValue?.valueName;
+            val.basePrice * size?.choices[size?.selectedIndex || 0].coef;
+          val.hide = val.base !== base?.selectedValue?.id;
         });
         val.canChoose = !!size?.valid && !!base?.valid;
         val.optionPrice = val.selectedValue?.price;
@@ -73,10 +84,10 @@ const node: INode<IOption> = {
     selectItem(index: number) {
       action(() => {
         // can't select pizzas that are hidden
-        if (!val.optionValues[index].hide) {
+        if (!val.choices[index].hide) {
           val.selectedIndex = index;
-          val.selectedValue = val.optionValues[index];
-          val.optionValues.forEach((el, i) => {
+          val.selectedValue = val.choices[index];
+          val.choices.forEach((el, i) => {
             el.selected = i === index;
           });
           val.touched = true;

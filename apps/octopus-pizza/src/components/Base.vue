@@ -7,9 +7,9 @@ import {doOrder} from "../graph/doOrder"
 
 <template>
     <div class="option-container">
-        <div v-for="(option, index) in base.val?.optionValues" :class="['button', option.selected ? 'selected' : '']"
+        <div v-for="(option, index) in base.val?.choices" :class="['button', option.selected ? 'selected' : '']"
             @click=" base.methods?.selectItem(index)">
-            <div>{{ option.valueName }}</div>
+            <div>{{ option.id }}</div>
         </div>
         <div class="container-title">
             <div>base</div>

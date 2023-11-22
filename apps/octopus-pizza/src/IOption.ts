@@ -1,7 +1,7 @@
-import { IOptionValue } from "./IOptionValue";
+import { IChoice } from "./IChoice";
 
-export interface IOption<OfType extends IOptionValue = IOptionValue> {
-  optionValues: OfType[];
+export interface IOption<OfType extends IChoice = IChoice> {
+  choices: OfType[];
   optionPrice?: number;
   defaultIndex?: number;
   selectedIndex?: number;

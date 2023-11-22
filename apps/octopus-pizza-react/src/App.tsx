@@ -1,6 +1,6 @@
 import { Size } from "./components/Size";
 import { Pizza } from "./components/Pizza";
-import { pizza } from "./graph/Pizza";
+import { pizza } from "./graph/pizza";
 import "./App.css";
 import { Base } from "./components/Base";
 import { Sidebar } from "./components/Sidebar";
