@@ -68,26 +68,24 @@ const node: INode<IPizzaOption> = {
   val,
   reup(size: IOption, base: IOption) {
     action(() => {
-      if (val) {
-        if (val.selectedIndex) {
-          const pizzaChoice = val.choices[val.selectedIndex]
-          val.choices.forEach((c) => {
-            c.price =
-              c.basePrice * size?.choices[size?.selectedIndex || 0].coef;
-            if (base.selectedIndex === undefined)
-              c.hide = true
-            else {
-              const baseChoice = base.choices[base.selectedIndex]
-              c.hide = c.base !== baseChoice?.id;
-            }
-          });
-          val.optionPrice = pizzaChoice?.price;
-          val.valid = !!pizzaChoice && !pizzaChoice?.hide;
-        } else {
-          val.optionPrice = 0
-          val.valid = false
-          val.canChoose = !!size?.valid && !!base?.valid;
+      val.choices.forEach((c) => {
+        c.price =
+          c.basePrice * size?.choices[size?.selectedIndex || 0].coef;
+        if (base.selectedIndex === undefined)
+          c.hide = true
+        else {
+          const baseChoice = base.choices[base.selectedIndex]
+          c.hide = c.base !== baseChoice?.id;
         }
+      });
+      if (val.selectedIndex) {
+        const pizzaChoice = val.choices[val.selectedIndex]
+        val.optionPrice = pizzaChoice?.price;
+        val.valid = !!pizzaChoice && !pizzaChoice?.hide;
+      } else {
+        val.optionPrice = 0
+        val.valid = false
+        val.canChoose = !!size?.valid && !!base?.valid;
       }
     })();
   },
