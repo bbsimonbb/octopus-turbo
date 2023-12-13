@@ -4,6 +4,8 @@
 
 ## Get started
 ```
+git clone https://github.com/bbsimonbb/octopus-turbo.git
+cd octopus-turbo
 npm install -g pnpm
 pnpm install
 pnpm run dev
@@ -13,7 +15,7 @@ pnpm run dev
 
 ## What am I looking at here?
 
-Not totally sure myself, but...
+Not totally sure myself, but we're going to throw redux, useContext, pinia etc in the bin and start from scratch...
 
 In the apps folder, there are two versions of the same sample UI, one with React, one with Vue. Click around. Simple on the surface, there are a lot of rules to implement...
 

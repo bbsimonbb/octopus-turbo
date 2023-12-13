@@ -4,7 +4,7 @@ import { IGraph } from "./IGraph.js"
 
 export interface INode<ValShape = any, MethodsShape = any, SerializedShape = any> {
   val?: ValShape
-  reup?: (...args: any[]) => boolean | void
+  reup?: (...args: any[]) => boolean | void | Promise<boolean | void>
   methods?: MethodsShape
   options?: INodeOptions
   saveState?: () => SerializedShape
