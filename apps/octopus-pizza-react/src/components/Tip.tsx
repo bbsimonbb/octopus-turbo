@@ -1,6 +1,6 @@
 
 import { tip } from "../graph/tip"
-import { doOrder } from "../graph/doOrder"
+import doOrder from "../graph/doOrder"
 import { observer } from "mobx-react-lite"
 import { useState } from "react"
 import { action } from "mobx"

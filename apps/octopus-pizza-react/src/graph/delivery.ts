@@ -30,4 +30,4 @@ const node = {
     },
   },
 };
-export const delivery = graph.addNode("delivery", node);
+export default graph.addNode("delivery", node);

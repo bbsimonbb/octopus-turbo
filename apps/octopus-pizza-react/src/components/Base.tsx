@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import { base } from "../graph/base";
 import { action } from "mobx";
 import { IChoice } from "../IChoice";
-import { doOrder } from "../graph/doOrder";
+import doOrder from "../graph/doOrder";
 import { ToastyError } from "./ToastyError";
 
 export const Base = observer(() => {

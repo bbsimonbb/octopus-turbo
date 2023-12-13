@@ -1,4 +1,4 @@
-import { doOrder } from "../graph/doOrder";
+import doOrder from "../graph/doOrder";
 import { observer } from "mobx-react-lite";
 import { IOption, IOptionMethods } from "../IOption";
 import { INode } from "octopus-state-graph";

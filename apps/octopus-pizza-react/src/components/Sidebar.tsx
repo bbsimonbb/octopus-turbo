@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { allValid } from "../graph/allValid";
-import { delivery } from "../graph/delivery";
-import { doOrder } from "../graph/doOrder";
+import delivery from "../graph/delivery";
+import doOrder from "../graph/doOrder";
 import { totalPrice } from "../graph/totalPrice";
 import { FormEvent } from "react";
 import { action } from "mobx";
