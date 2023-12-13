@@ -29,4 +29,4 @@ const node = {
     },
   },
 };
-export default graph.addNode("doOrder", node);
+export const doOrder = graph.addNode("doOrder", node);

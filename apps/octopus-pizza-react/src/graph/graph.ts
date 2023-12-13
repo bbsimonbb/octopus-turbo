@@ -2,13 +2,13 @@
 
 import graph from "./bareReactiveGraph"
 import { base } from "./base"
-import delivery from "./delivery"
-import pizza from "./pizza"
-import size from "./size"
+import { delivery } from "./delivery"
+import { pizza } from "./pizza"
+import { size } from "./size"
 import { tip } from "./tip"
 import { totalPrice} from "./totalPrice"
 import {allValid} from "./allValid"
-import doOrder from "./doOrder"
+import { doOrder } from "./doOrder"
 
 const a = allValid.val
 const b = base.val

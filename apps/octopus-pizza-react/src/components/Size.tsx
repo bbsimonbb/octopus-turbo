@@ -1,7 +1,7 @@
 import { action } from "mobx";
 import { IChoice } from "../IChoice";
-import size from "../graph/size";
-import doOrder from "../graph/doOrder";
+import { size } from "../graph/size";
+import { doOrder } from "../graph/doOrder";
 import { observer } from "mobx-react-lite";
 import { ToastyError } from "./ToastyError";
 

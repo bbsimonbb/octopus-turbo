@@ -39,4 +39,4 @@ import { makeAutoObservable} from "mobx"
       },
     },
   };
-  export default graph.addNode("size", node);
+  export const size = graph.addNode("size", node);

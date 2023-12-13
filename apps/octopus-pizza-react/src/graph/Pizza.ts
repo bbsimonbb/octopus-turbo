@@ -104,4 +104,4 @@ const node: INode<IPizzaOption> = {
     },
   },
 };
-export default graph.addNode("pizza", node);
+export const pizza = graph.addNode("pizza", node);
