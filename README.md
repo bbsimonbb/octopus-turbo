@@ -2,6 +2,11 @@
 
 ### Modelling your UI as a directed acyclic graph.
 
+This turborepo contains:
+- octopus-state-graph npm package for your apps
+- two sample applications in React and Vue
+- octopus devtools extensions, available as a popup or to package and install as a Chrome extension.
+
 ## Get started
 ```
 git clone https://github.com/bbsimonbb/octopus-turbo.git
