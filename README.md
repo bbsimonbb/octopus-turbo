@@ -15,7 +15,9 @@ pnpm run dev
 
 ## What am I looking at here?
 
-Not totally sure myself, but we're going to throw redux, useContext, pinia etc in the bin and start from scratch...
+Directed acyclic graphs are muched discussed in comp-sci, but octopus appears to be the first reusable, turnkey, ready-to-wear, off-the-shelf implementation of a DAG for application development, in any language, that I'm aware of.
+
+This is remarkable because DAGs hit a sweet spot in the middle of the three common programming paradigms (OO, event-driven, functional). Let's have a DAG as the top-level structure of our applications. Data-fetching and onChange handlers live in DAG nodes, next to the data they act on. The UI flows out from the DAG with fine-grained reactivity. Our app state is effortlessly consistent, because any outside change (user action, api result) unleashes a graph traversal. Our UI components become much simpler, because they just need to dumbly reflect values in the graph.
 
 In the apps folder, there are two versions of the same sample UI, one with React, one with Vue. Click around. Simple on the surface, there are a lot of rules to implement...
 
