@@ -5,7 +5,7 @@
 This turborepo contains:
 - octopus-state-graph, the source of the [npm package](http://www.npmjs.com/package/octopus-state-graph), ready for use in your apps.
 - two sample applications in React and Vue
-- octopus devtools, as a locally hosted popup, which can also be packaged and installed as a Chrome extension. Let's you visualize the emergent structure and live state of your running application.
+- octopus devtools, as a locally hosted popup, which can also be packaged and installed as a Chrome extension. Visualize the emergent structure and live state of your running application.
 
 ## Get started
 ```
@@ -20,7 +20,7 @@ pnpm run dev
 
 ## What am I looking at here?
 
-Directed acyclic graphs are muched discussed in comp-sci (and implemented internally all over the place), but octopus appears to be the first reusable, turnkey, ready-to-wear, off-the-shelf implementation of a DAG for application development, in any language, that I'm aware of. [^1]
+Directed acyclic graphs are much discussed in comp-sci (and implemented internally all over the place), but octopus appears to be the first reusable, turnkey, ready-to-wear, off-the-shelf implementation of a DAG for application development, in any language, that I'm aware of. [^1]
 
 This is remarkable because DAGs hit a sweet spot in the middle of the three common programming paradigms (OO, event-driven, functional). Let's have a DAG as the top-level structure of our applications. Data-fetching and onChange handlers live in DAG nodes, next to the data they act on. Your app logic and data are cleanly separated from UI. The emergent structure of your app can be visualized and reasoned about. Needless recalculation is eliminated and UI components become much simpler, just dumbly reflecting bound values in the graph.
 
@@ -49,7 +49,9 @@ Secondly, octopus ensures that when a node's `val` changes (when a method return
 
 (There is a ton of scope for optimising traversals. Methods could report if they made a change, or we could detect this. Nodes would then be reupped only if necessary. Going further, a tricky implementation with promises could let different branches of a traversal proceed independently, such that a slow node only delayed downstream branches that depend on it. Stay tuned!)
 
-Nodes can fetch data.  In many situations, it will make much more sense to fetch your data into this persistent, reactive structure, rather than fetching from your UI components that come and go as the user navigates. Unlike a reducer, a graph traversal will happily wait while a network call completes, and downstream nodes will then recalculate taking account of the fresh context. Alternatively, a node can launch a network request and return immediately. Antecedent nodes might go into a waiting state, which you can use to control spinners etc. Then when the fetch returns, a node method handles the return and a new traversal is initiated, clearing the spinners and displaying the fresh data and any cascading effects.
+Nodes can fetch data.  In many situations, it will make much more sense to fetch your data into this persistent, reactive structure, rather than fetching from your UI components that come and go as the user navigates. Unlike a reducer, a graph traversal will happily wait while a network call completes, and downstream nodes will then recalculate taking account of the fresh context. 
+
+Alternatively, a node can launch a network request and return immediately. Antecedent nodes might go into a waiting state, which you can use to control spinners etc. Then when the fetch returns, a node method handles the return and a new traversal is initiated, clearing the spinners and displaying the fresh data and any cascading effects.
 
 So now the picture emerges. Your nodes lie at the intersection of your system and the outside world. Like in OO, they encapsulate a bit of state, and the methods that modify it. Like event-driven systems, they react to upstream changes and their responsibility ends when they publish their value. There's a hat-tip to functional programming and one-way data flow in the notion of a traversal, but this approach is intentionally much less dogmatic. State, both private and published, can accumulate in nodes, and `reup()` functions can be async and impure. And we get to mutualise, in the `reup()` function, the magic sauce that combines some user input with the current state of the system to produce the node's current value, a value to which downstream nodes can then react. All this is done with no funny business. Your `val` is not proxied, there's no expensive change detection and very limited passing around of functions. There are no new concepts. Node code is biblically simple.
 
