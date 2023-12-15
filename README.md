@@ -3,9 +3,9 @@
 ### Modelling your UI as a directed acyclic graph.
 
 This turborepo contains:
-- octopus-state-graph npm package for your apps
+- octopus-state-graph, the source of the [npm package](http://www.npmjs.com/package/octopus-state-graph), ready for use in your apps.
 - two sample applications in React and Vue
-- octopus devtools extensions, available as a popup or to package and install as a Chrome extension.
+- octopus devtools, as a locally hosted popup, which can also be packaged and installed as a Chrome extension. Let's you visualize the emergent structure and live state of your running application.
 
 ## Get started
 ```
@@ -20,9 +20,11 @@ pnpm run dev
 
 ## What am I looking at here?
 
-Directed acyclic graphs are muched discussed in comp-sci, but octopus appears to be the first reusable, turnkey, ready-to-wear, off-the-shelf implementation of a DAG for application development, in any language, that I'm aware of.
+Directed acyclic graphs are muched discussed in comp-sci (and implemented internally all over the place), but octopus appears to be the first reusable, turnkey, ready-to-wear, off-the-shelf implementation of a DAG for application development, in any language, that I'm aware of. [^1]
 
-This is remarkable because DAGs hit a sweet spot in the middle of the three common programming paradigms (OO, event-driven, functional). Let's have a DAG as the top-level structure of our applications. Data-fetching and onChange handlers live in DAG nodes, next to the data they act on. The UI flows out from the DAG with fine-grained reactivity. Our app state is effortlessly consistent, because any outside change (user action, api result) unleashes a graph traversal. Our UI components become much simpler, because they just need to dumbly reflect values in the graph.
+This is remarkable because DAGs hit a sweet spot in the middle of the three common programming paradigms (OO, event-driven, functional). Let's have a DAG as the top-level structure of our applications. Data-fetching and onChange handlers live in DAG nodes, next to the data they act on. Your app logic and data are cleanly separated from UI. The emergent structure of your app can be visualized and reasoned about. Needless recalculation is eliminated and UI components become much simpler, just dumbly reflecting bound values in the graph.
+
+## Sample Apps
 
 In the apps folder, there are two versions of the same sample UI, one with React, one with Vue. Click around. Simple on the surface, there are a lot of rules to implement...
 
@@ -43,7 +45,7 @@ A node has a name, a value (`val`), `methods` and a recalculate function (called
 
 Octopus' role is simple: Firstly, on `build()`, it builds the graph based on the call signatures of all the `reup()` functions, checking that the requested dependencies exist, and that no cycles are created. 
 
-Secondly, octopus ensures that when a node's `val` changes (when a method returns), the graph will be traversed, and all the `reup()` functions starting with that of the changed node, will be called sequentially. (The sequence is determined by the topological sort of the graph.) As such, for any given external change, a node only recalculates if it is downstream of the change, and it only reacalculates once, after it's predecessors have updated.
+Secondly, octopus ensures that when a node's `val` changes (when a method returns), the graph will be traversed, and all the `reup()` functions starting with that of the changed node, will be called sequentially. (The sequence is determined by the topological sort of the graph.) As such, for any given external change, a node only recalculates if it is downstream of the change, and it only reacalculates once, after all it's predecessors have updated.
 
 (There is a ton of scope for optimising traversals. Methods could report if they made a change, or we could detect this. Nodes would then be reupped only if necessary. Going further, a tricky implementation with promises could let different branches of a traversal proceed independently, such that a slow node only delayed downstream branches that depend on it. Stay tuned!)
 
@@ -81,5 +83,6 @@ To integrate with a front-end framework, we just need the framework to observe `
 ## devtools
 DO NOT MISS the devtools extension (screenshot above). You can visualise the graph of your UI, see in real time what nodes you're interacting with, what value they publish, and navigate directly to the source. Click the octopus to bring up devtools in a popup. It's not in the Chrome store yet, so to install it you'll need to download and build [the project](https://github.com/bbsimonbb/octopus-devtools), then Extensions => Pack extension
 
+[^1]: Following [this discussion on hackernews](https://news.ycombinator.com/item?id=38645180), I'm now aware of [Dagger](https://dagger.dev/) and Guice, DI frameworks for java, and [XState](https://xstate.js.org/) state management and orchestration for js/ts. I'm developing this to scratch my own itch, and so development will continue.
 
 <img src="./images/octopus-photo.png" style="position:absolute;bottom:0;right:0;height:150px">
