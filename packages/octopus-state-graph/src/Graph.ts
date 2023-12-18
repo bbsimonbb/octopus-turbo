@@ -88,6 +88,8 @@ export function createGraph(
 
   function addNode(nodeName: string, node: INode) {
     if (!nodeName) throw new Error(`We can't add a node without a name.`);
+    if (!node) throw new Error(`Missing argument "node". addNode() requires a node.`);
+    if (!node.val) throw new Error(`"node" must have a "val" property. If this node publishes nothing, supply an empty object.`);
     nodes[nodeName] = node;
     graph.insert({ name: nodeName });
 

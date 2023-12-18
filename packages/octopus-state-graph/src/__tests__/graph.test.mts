@@ -1,6 +1,5 @@
 import { createGraph } from "../Graph.js"
 import { test, expect } from "vitest"
-import { IStateful } from "../IStateful.js"
 import { INode } from "../INode.js"
 export { }
 
@@ -71,35 +70,18 @@ test("a reporting node picks up its input", async () => {
   expect(targetNodesCount).toBe(1)
 })
 
-test("sinks mustn't put anything in state", async () => {
-  const graph = createGraph()
-  const upstreamVal = { anInt: 0 }
-  const node = {
-    val: upstreamVal,
-    methods: {
-      setVal(newVal) {
-        upstreamVal.anInt = newVal
-      },
-    },
-    saveState: function (): { [key: string]: any } {
-      return { upstreamVal }
-    },
-    loadState: function (state: { [key: string]: any }) {
-      Object.assign(upstreamVal, state.upstreamVal)
-    },
-  } as INode & IStateful
-  const upstreamNode = graph.addNode("upstream", node)
 
-  let sideEffect = 0
-  graph.addNode("downstream", {
-    reup(upstream: any): void {
-      sideEffect = upstream.anInt + 2
-    }
-  })
-  graph.build()
-
-  await upstreamNode.methods.setVal(14)
-  expect(sideEffect).toBe(16)
-  // downstream is a sink, so should not be present in the state
-  expect(Object.entries(graph.state).length).toBe(1)
+/* Pure graphs can have sinks that publish nothing, but if we make
+val optional we impose the obligation to test for val on so much stuff.
+For the rare times you want a sink, create a node with type empty object
+<INode<Record<string, never>>>
+https://www.totaltypescript.com/the-empty-object-type-in-typescript
+*/
+test("nodes must provide a val", () => {
+  function addEmptyNode(){    
+    const graph = createGraph()
+    // @ts-ignore
+    graph.addNode("hasNoValue", {})
+  }
+  expect(() => addEmptyNode()).toThrow()
 })
