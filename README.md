@@ -28,9 +28,9 @@ State management solutions help, but they may misframe the problem by prioritisi
 
 ### The Octopus solution
 
-Octopus invites you to put your shared state _and the logic that acts on it_ in **nodes**. A node has a `val`, `methods` and a recalculate function, `reup()`, _that can reference other nodes in its argument list._ "val" can only be modified by the node's own "methods" and "reup()".
+Octopus invites you to put your shared state _and the logic that acts on it_ in **nodes**. A node has a `val`, `methods` and a recalculate function, `reup()`, _that can reference other nodes in its argument list._ `val` can only be modified by the node's own `methods` and `reup()`.
 
-<div style="padding:0px 20px;font-size:16px;font-style:italic;text-align:center;"> When a "method" returns, "reup()", will be called, and supplied with all the values named in its arg list, then the chain of "reup()"s referencing our node will be called in sequence, and supplied with the "val"s they request.</div>
+> When a `method` returns, `reup()`, will be called, and supplied with all the values named in its arg list, then the chain of `reup()`s referencing our node will be called in sequence, and supplied with the `val`s they request.
 
 ### Under the hood
 
@@ -100,6 +100,6 @@ To integrate with a front-end framework, we just need the framework to observe `
 ## devtools
 DO NOT MISS the devtools extension (screenshot above). You can visualise the graph of your UI, see in real time what nodes you're interacting with, what value they publish, and navigate directly to the source. Click the octopus to bring up devtools in a popup. It's not in the Chrome store yet, so to install it you'll need to download and build [the project](https://github.com/bbsimonbb/octopus-devtools), then Extensions => Pack extension
 
-[^1]: Following [this discussion on hackernews](https://news.ycombinator.com/item?id=38645180), I'm now aware of [Dagger](https://dagger.dev/) and Guice, DI frameworks for java, and [XState](https://xstate.js.org/) state management and orchestration for js/ts. I'm developing this to scratch my own itch, and so development will continue.
+[^1]: In the React space, [Jotai](https://jotai.org/) is perhaps closest in spirit (atoms can take dependencies on other atoms). Following [this discussion on hackernews](https://news.ycombinator.com/item?id=38645180), I'm now aware of [Dagger](https://dagger.dev/) and Guice, DI frameworks for java, and [XState](https://xstate.js.org/) state management and orchestration for js/ts. I'm developing this to scratch my own itch, and the conviction that I'm onto something is only strengthening, so development continues!
 
 <img src="./images/octopus-photo.png" style="position:absolute;bottom:0;right:0;height:150px">
