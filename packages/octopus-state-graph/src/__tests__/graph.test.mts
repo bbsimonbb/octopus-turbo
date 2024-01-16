@@ -78,10 +78,25 @@ For the rare times you want a sink, create a node with type empty object
 https://www.totaltypescript.com/the-empty-object-type-in-typescript
 */
 test("nodes must provide a val", () => {
-  function addEmptyNode(){    
+  function addEmptyNode() {
     const graph = createGraph()
     // @ts-ignore
     graph.addNode("hasNoValue", {})
   }
   expect(() => addEmptyNode()).toThrow()
+})
+
+
+test("Node dispose() methods are called when dispose is called on the graph", async () => {
+  const graph = createGraph()
+  let disposeWasCalled = false
+  graph.addNode("downstream", {
+    val:{},
+    dispose() {
+      disposeWasCalled = true
+    }
+  })
+  graph.build()
+  graph.dispose()
+  expect(disposeWasCalled).toBe(true)
 })

@@ -12,4 +12,5 @@ export interface IGraph {
   loadState: (storedState: ISerializedGraph) => Promise<IGraph> /*IGraph*/
   saveState: () => ISerializedGraph
   registerDevtools: (devtools: Window, origin: string)=>void
+  dispose:()=>Promise<void>
 }

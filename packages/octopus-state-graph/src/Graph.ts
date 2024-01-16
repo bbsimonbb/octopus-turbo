@@ -25,16 +25,15 @@ function getParamNames(func) {
   return result;
 }
 
+
 // https://stackoverflow.com/a/6472397/1585345
 // tried a load of things to decouple graph from Vue. Ideally consumers could make the output reactive when this function
 // returns, but I never succeeded.
-export function createGraph(
-  stateWrappingFunction: (any) => any = (x) => x
-): IGraph {
+export function createGraph(reupWrapper?: (any) => any): IGraph {
   // we pass in Vue.reactive(). Best solution I found for using the output in Vue. Should also work for mobx-react observable.
 
   // radically simple, we need get the reactive proxy in first. This is way to simple unfortunately.
-  const state: any = stateWrappingFunction({});
+  const state: any = {}//stateWrapper ? stateWrapper({}) : {};
   //const state = {};
 
   // Create the graph https://segfaultx64.github.io/typescript-graph/
@@ -155,6 +154,10 @@ export function createGraph(
       if (node.reup) {
         // radically simple !
         resolvedPredecessors[nodeName] = getParamNames(node.reup);
+        // 12/2023. For react, reup() needs to be wrapped in action. Now we've extracted
+        // the predecessors, we can wrap the function.
+        if (reupWrapper)
+          node.reup = reupWrapper(node.reup)
         resolvedPredecessors[nodeName].forEach((predecessor) => {
           graph.addEdge(predecessor, nodeName);
           edges.push({ from: predecessor, to: nodeName });
@@ -181,6 +184,8 @@ export function createGraph(
         graph.addEdge(predecessor, nodeName);
         edges.push({ from: predecessor, to: nodeName });
       });
+      if (reupWrapper)
+        reportingNode.reup = reupWrapper(reportingNode.reup)
     }
     sortedNodeNames = graph.topologicallySortedNodes().map((n) => n.name);
 
@@ -238,7 +243,10 @@ export function createGraph(
       resolvedPredecessors[currNodeName].length
     )
       resolvedPredecessors[currNodeName].forEach((pName) => {
-        predecessorOutput.push(JSON.parse(JSON.stringify(state[pName])));
+        const predecessorState = state[pName]
+        if (!predecessorState)
+          debugger
+        predecessorOutput.push(JSON.parse(JSON.stringify(predecessorState)));
       });
 
     try {
@@ -289,6 +297,7 @@ export function createGraph(
       )
         await executeOneNode(currNodeName);
     }
+    // only send traversal report if we're in the browser, and served from a high port (dev)
     if (isBrowser && /:[0-9]+$/gm.test(window.location.origin)) {
       if (octopusDevtoolsPresent || standAloneDevtools) {
         const message = {
@@ -371,7 +380,8 @@ export function createGraph(
       fullTraversal: publicFullTraversal,
       loadState,
       saveState,
-      registerDevtools
+      registerDevtools,
+      dispose
     };
   }
   function saveState(): ISerializedGraph {
@@ -389,10 +399,26 @@ export function createGraph(
     return returnVal;
   }
   let standAloneDevtools: Window
-  let standAloneDevtoolsUrl:string
-  function registerDevtools(devtools: Window, origin:string) {
+  let standAloneDevtoolsUrl: string
+  function registerDevtools(devtools: Window, origin: string) {
     standAloneDevtools = devtools
     standAloneDevtoolsUrl = origin
+  }
+  async function dispose() {
+    for (let i = 0; i < sortedNodeNames.length; i++) {
+      const currNodeName = sortedNodeNames[i];
+      //console.log(`traversing ${i} - ${currNode}`)
+      // radically simple, a full traversal starts with the node which has just changed. It needs to reup whether or not it has inputs. The others, only if they have inputs.
+      if (
+        nodes[currNodeName].dispose
+      ) {
+        try {
+          await nodes[currNodeName].dispose();
+        } catch (e) {
+          console.error(`Error disposing of ${currNodeName}. Error follows. Disposing continues.`)
+        }
+      }
+    }
   }
   return {
     state,
@@ -403,6 +429,7 @@ export function createGraph(
     fullTraversal: publicFullTraversal,
     loadState,
     saveState,
-    registerDevtools
+    registerDevtools,
+    dispose
   };
 }

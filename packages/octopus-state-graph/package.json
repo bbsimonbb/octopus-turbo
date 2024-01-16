@@ -39,7 +39,7 @@
   },
   "scripts": {
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch --sourcemap",
-    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --dts --sourcemap",
     "tsc": "tsc",
     "esbuild-browser": "esbuild src/index.ts --bundle --outfile=dist/browser.js",
     "build-all": "npm run build && npm run esbuild-browser",

@@ -15,6 +15,7 @@ export interface INode<ValShape = any, MethodsShape = any, SerializedShape = any
   options?: INodeOptions
   saveState?: () => SerializedShape
   loadState?: (state: SerializedShape) => void
+  dispose?: () => void
 }
 
 export interface INodeOptions {
