@@ -96,6 +96,8 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     // about mutations
     //node.val = stateWrappingFunction(node.val);
 
+    // if (reupWrapper && node.reup)
+    //   node.reup = reupWrapper(node.reup)
     if (node.methods) {
       // If a top level property is a function, bind it to the target
       node.methods = new Proxy(node.methods, {
@@ -156,12 +158,10 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
         resolvedPredecessors[nodeName] = getParamNames(node.reup);
         // 12/2023. For react, reup() needs to be wrapped in action. Now we've extracted
         // the predecessors, we can wrap the function.
+        addEdges(nodeName);
+        // mystery for future: this doesn't work if I do it during addNode()
         if (reupWrapper)
           node.reup = reupWrapper(node.reup)
-        resolvedPredecessors[nodeName].forEach((predecessor) => {
-          graph.addEdge(predecessor, nodeName);
-          edges.push({ from: predecessor, to: nodeName });
-        });
       }
     }
     // store initial value. Moved this to build() to give nodes a chance to load serialized state
@@ -180,10 +180,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
             reportingNode.options.dependsOn(targetName, targetVal)
         )
         .map(([key, val]) => key);
-      resolvedPredecessors[nodeName].forEach((predecessor) => {
-        graph.addEdge(predecessor, nodeName);
-        edges.push({ from: predecessor, to: nodeName });
-      });
+      addEdges(nodeName);
       if (reupWrapper)
         reportingNode.reup = reupWrapper(reportingNode.reup)
     }
@@ -199,6 +196,14 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
         wrappersWithoutNodes.join(", ")
       );
   };
+
+  function addEdges(nodeName: string) {
+    resolvedPredecessors[nodeName]?.forEach((predecessor) => {
+      graph.addEdge(predecessor, nodeName);
+      edges.push({ from: predecessor, to: nodeName });
+    });
+  }
+
   // what do we think about this? It makes a copy. Since radically simple, user code mutates val directly, then pass a reference to this object???
   function assignValueToOutput(nodeName: string, value: any): void {
     if (typeof value === "object")
@@ -353,9 +358,10 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       .replace(/^\[object\s+([a-z]+)\]$/i, "$1")
       .toLowerCase();
   }
-  async function loadState(storedState: ISerializedGraph): Promise<IGraph> {
+  async function _loadState(storedState: ISerializedGraph): Promise<IGraph> {
     sortedNodeNames = storedState.topologicalSort;
     resolvedPredecessors = storedState.resolvedPredecessors;
+    sortedNodeNames.forEach(nodeName => addEdges(nodeName))
 
     for (const nodeName of sortedNodeNames) {
       const currNode = nodes[nodeName];
@@ -384,6 +390,21 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       dispose
     };
   }
+
+  async function loadState(storedState: ISerializedGraph): Promise<IGraph> {
+    if (reupWrapper) {
+      const loadedGraph = reupWrapper(_loadState)(storedState)
+      console.log("wrapping reups")
+      for (const nodeName of sortedNodeNames) {
+        const node = nodes[nodeName];
+        if (node.reup)
+          node.reup = reupWrapper(node.reup)
+      }
+      return loadedGraph
+    }
+    else return _loadState(storedState)
+  }
+
   function saveState(): ISerializedGraph {
     const returnVal = {
       resolvedPredecessors,
