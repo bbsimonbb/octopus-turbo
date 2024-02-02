@@ -269,18 +269,6 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       // radically simple. We used to pass the newVal. Now we just pass the node val for modification
       if (nodeWrappers[currNodeName])
         await nodeWrappers[currNodeName].wrappingFunction(currNode.val);
-
-      // check shape
-      // if (state[currNodeName] !== undefined && !compareShape(state[currNodeName], newVal)) {
-      //   console.warn(`Traversing ${currNodeName}, the new shape returned is not equal to the old one.`)
-      //   //console.warn(`Old type ${whatIs(state[currNodeName])}, new type ${whatIs(newVal)}`)
-      //   //console.warn(state[currNodeName])
-      //   //console.warn(newVal)
-      // }
-      // // copy to output
-      // if (isValueNode(currNode)) val(currNodeName, newVal)
-      // else if (newVal !== undefined) console.warn(`${currNodeName} is a sink and should not return a value from onUpstreamChange(). The return value will be ignored.`)
-      // radically simple
       assignValueToOutput(currNodeName, currNode.val)
     } catch (Ex) {
       console.error(`Error executing node ${currNodeName}. Error follows`);
@@ -358,10 +346,19 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       .replace(/^\[object\s+([a-z]+)\]$/i, "$1")
       .toLowerCase();
   }
-  async function _loadState(storedState: ISerializedGraph): Promise<IGraph> {
-    sortedNodeNames = storedState.topologicalSort;
-    resolvedPredecessors = storedState.resolvedPredecessors;
-    sortedNodeNames.forEach(nodeName => addEdges(nodeName))
+  async function _loadState(storedState: ISerializedGraph, currentGraphVersion: number): Promise<IGraph> {
+    if (currentGraphVersion === storedState.savedAtVersion) {
+      sortedNodeNames = storedState.topologicalSort;
+      const sameLength = sortedNodeNames.length === Object.keys(nodes).length
+      const allSerializedPresent = sortedNodeNames.reduce((acc, curr) => acc && !!nodes[curr], true)
+      if (!sameLength || !allSerializedPresent) {
+        throw new Error("The serialized state doesn't match the current graph. Remember to increment the graph version (arg to saveState() and loadState()) to trigger a rebuild.")
+      }
+      resolvedPredecessors = storedState.resolvedPredecessors;
+      sortedNodeNames.forEach(nodeName => addEdges(nodeName))
+    } else {
+      build()
+    }
 
     for (const nodeName of sortedNodeNames) {
       const currNode = nodes[nodeName];
@@ -391,9 +388,9 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     };
   }
 
-  async function loadState(storedState: ISerializedGraph): Promise<IGraph> {
+  async function loadState(storedState: ISerializedGraph, currentGraphVersion: number): Promise<IGraph> {
     if (reupWrapper) {
-      const loadedGraph = reupWrapper(_loadState)(storedState)
+      const loadedGraph = reupWrapper(_loadState)(storedState, currentGraphVersion)
       console.log("wrapping reups")
       for (const nodeName of sortedNodeNames) {
         const node = nodes[nodeName];
@@ -402,14 +399,15 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       }
       return loadedGraph
     }
-    else return _loadState(storedState)
+    else return _loadState(storedState, currentGraphVersion)
   }
 
-  function saveState(): ISerializedGraph {
+  function saveState(currentGraphVersion): ISerializedGraph {
     const returnVal = {
       resolvedPredecessors,
       topologicalSort: sortedNodeNames,
       nodeStates: {},
+      savedAtVersion: currentGraphVersion
     };
 
     for (const nodeName of Object.getOwnPropertyNames(state)) {

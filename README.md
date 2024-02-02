@@ -22,7 +22,7 @@ pnpm run dev
 
 ### The problem
 
-The state _and behaviour_ of our applications have a structure distinct from the structure of the DOM. When we try and shoehorn state-and-behaviour into the DOM tree, shared state ends up arbitrarily in a common ancestor, and behaviour ends up all over the place.
+The state _and behaviour_ of our applications have a structure distinct from the structure of the DOM. When we try and shoehorn state-and-behaviour into the DOM tree, shared state ends up arbitrarily in a common ancestor, behaviour ends up all over the place, and props are used excessively to pass state and behaviour wherever it's needed.
 
 State management solutions help, but they may misframe the problem by prioritising state over behaviour. The functional paradigm that dominates the React space may not be best adapted to modelling UI's, where user input, and network responses, can come from any direction. The various implementations of computed may help, but they fall short if they're only availabe for use in UI components. The distinction between state and computed may be unecessesary. Computed should be able to generate more state, and unleash more computed.
 
