@@ -13,16 +13,16 @@ interface INodeContainer {
 const isBrowser =
   Object.getPrototypeOf(Object.getPrototypeOf(globalThis)) !== Object.prototype;
 
-// https://stackoverflow.com/a/9924463/1585345
 const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
-const ARGUMENT_NAMES = /([^\s,]+)/g;
-function getParamNames(func) {
+const PROPS = /\(\s*{([^}]*)}/
+const PROP_NAMES = /([^\s,]+)/g;
+export function getParamNames(func) {
   const fnStr = func.toString().replace(STRIP_COMMENTS, "");
-  let result = fnStr
-    .slice(fnStr.indexOf("(") + 1, fnStr.indexOf(")"))
-    .match(ARGUMENT_NAMES);
-  if (result === null) result = [];
-  
+  const props = PROPS.exec(fnStr)
+  if (!props) return[];
+  let result = props[1]
+    .match(PROP_NAMES);
+
   return result;
 }
 
@@ -243,27 +243,34 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     const currNode = nodes[currNodeName];
     let predecessorOutput: any = null;
     // radically simple, reup now takes an array. For plain nodes, order will be important!
-    predecessorOutput = [];
+    predecessorOutput = {};
     if (
       resolvedPredecessors[currNodeName] &&
       resolvedPredecessors[currNodeName].length
-    )
+    ){       
       resolvedPredecessors[currNodeName].forEach((pName) => {
         const predecessorState = state[pName]
-        if (!predecessorState)
-          debugger
-        predecessorOutput.push(JSON.parse(JSON.stringify(predecessorState)));
+        // if (!predecessorState)
+        //   debugger
+        Object.defineProperty(predecessorOutput, pName, {
+          value: JSON.parse(JSON.stringify(predecessorState)),
+          configurable: true,
+          enumerable: true,
+          writable: true,
+        });
       });
+    }
+      
 
     try {
       /******************************       CALL THE NODE        ***********************************/
 
       if (!isReportingNode(currNode)) {
-        await currNode.reup(...predecessorOutput);
+        await currNode.reup(predecessorOutput);
       }
       // radically simple, reporting nodes don't know or care about the names of their inputs, we'll give them an array they can iterate over
       else {
-        await currNode.reup(predecessorOutput);
+        await currNode.reup(Object.values(predecessorOutput));
 
       }
       /******************************      CALL THE WRAPPER      ***********************************/

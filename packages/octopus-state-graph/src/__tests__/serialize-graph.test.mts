@@ -29,7 +29,7 @@ test("a graph can be serialized and rehydrated", async () => {
   }
   const downstreamNode = graph.addNode("downstream", {
     val: downstreamVal,
-    reup(upstream) {
+    reup({upstream}) {
       downstreamVal.anInteger = upstream.anInteger + 2
     },
     // downstreamNode is trivial to recalculate, so we won't bother saving state. 
@@ -89,7 +89,7 @@ function add2Nodes(graph) {
   }
   const intermediateNode = graph.addNode("intermediate", {
     val: intermediateVal,
-    reup(upstream) {
+    reup({upstream}) {
       intermediateVal.anInteger = upstream.anInteger + 2
     },
     // intermediateNode is trivial to recalculate, so we won't bother saving state. 
@@ -102,8 +102,8 @@ function add2Nodes(graph) {
 test("a graph rehydrated into a newer version with additional nodes still loads", async () => {
   const graph = createGraph()
   const { upstreamNode, intermediateNode } = add2Nodes(graph)
-  graph.build()
 
+  graph.build()
   await upstreamNode.methods.setVal(14)
   expect(intermediateNode.val.anInteger).toBe(16)
   // intermediate has an initial value, so should be present in the state
@@ -131,7 +131,7 @@ test("a graph rehydrated into a newer version with additional nodes still loads"
     }
     const downstreamNode = graph2.addNode("downstream", {
       val: downstreamVal,
-      reup(upstream, intermediate){
+      reup({upstream, intermediate}){
 console.log(upstreamNode)
       },
       methods: {

@@ -21,7 +21,7 @@ test("a downstream node adds 2 to an upstream", async () => {
     val: {
       downstreamInt: 5
     },
-    reup(upstream) {
+    reup({upstream}) {
       this.val.downstreamInt = upstream.anInteger + 2
       return true
     }
@@ -31,6 +31,7 @@ test("a downstream node adds 2 to an upstream", async () => {
   await upstreamNode.methods.setVal(14)
   expect(graph.state.downstream.downstreamInt).toBe(16)
 })
+
 
 test("a reporting node picks up its input", async () => {
   const graph = createGraph()
