@@ -66,7 +66,7 @@ const val: IPizzaOption = makeAutoObservable({
 });
 const node: INode<IPizzaOption> = {
   val,
-  reup(size: IOption, base: IOption) {
+  reup({ size, base }: { size: IOption; base: IOption }) {
     action(() => {
       val.choices.forEach((c) => {
         c.price =

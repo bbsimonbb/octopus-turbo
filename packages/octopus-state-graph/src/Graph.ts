@@ -14,18 +14,20 @@ const isBrowser =
   Object.getPrototypeOf(Object.getPrototypeOf(globalThis)) !== Object.prototype;
 
 const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
-const PROPS = /\(\s*{([^}]*)}/
-const PROP_NAMES = /([^\s,]+)/g;
+const PROPS = /\(\s*{([^}]*)}/;
+const WHITESPACE = /\s+/g;
 export function getParamNames(func) {
   const fnStr = func.toString().replace(STRIP_COMMENTS, "");
-  const props = PROPS.exec(fnStr)
-  if (!props) return[];
-  let result = props[1]
-    .match(PROP_NAMES);
-
+  const props = PROPS.exec(fnStr);
+  if (!props) return [];
+  const result = props[1]
+    .replaceAll(WHITESPACE, "")
+    .split(",")
+    // rollup will rename the destructuring assignments
+    .map((p) => (p.indexOf(":") !== -1 ? p.substring(0, p.indexOf(":")) : p));
+    console.log(result)
   return result;
 }
-
 
 // https://stackoverflow.com/a/6472397/1585345
 // tried a load of things to decouple graph from Vue. Ideally consumers could make the output reactive when this function
@@ -34,7 +36,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
   // we pass in Vue.reactive(). Best solution I found for using the output in Vue. Should also work for mobx-react observable.
 
   // radically simple, we need get the reactive proxy in first. This is way to simple unfortunately.
-  const state: any = {}//stateWrapper ? stateWrapper({}) : {};
+  const state: any = {}; //stateWrapper ? stateWrapper({}) : {};
   //const state = {};
 
   // Create the graph https://segfaultx64.github.io/typescript-graph/
@@ -88,8 +90,14 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
 
   function addNode(nodeName: string, node: INode) {
     if (!nodeName) throw new Error(`We can't add a node without a name.`);
-    if (!node) throw new Error(`Missing argument "node" for node "${nodeName}". addNode() requires a node.`);
-    if (!node.val) throw new Error(`"node" must have a "val" property. If the node "${nodeName}" publishes nothing, supply an empty object.`);
+    if (!node)
+      throw new Error(
+        `Missing argument "node" for node "${nodeName}". addNode() requires a node.`
+      );
+    if (!node.val)
+      throw new Error(
+        `"node" must have a "val" property. If the node "${nodeName}" publishes nothing, supply an empty object.`
+      );
     nodes[nodeName] = node;
     graph.insert({ name: nodeName });
 
@@ -122,7 +130,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
               // execute the handler
               await target(...argArray);
               // copy the result
-              assignValueToOutput(nodeName, node.val)
+              assignValueToOutput(nodeName, node.val);
               // magic step. Launch a full traversal starting with node itself.
               fullTraversal(sortedNodeNames.indexOf(nodeName));
             },
@@ -161,15 +169,14 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
         // the predecessors, we can wrap the function.
         addEdges(nodeName);
         // mystery for future: this doesn't work if I do it during addNode()
-        if (reupWrapper)
-          node.reup = reupWrapper(node.reup)
+        if (reupWrapper) node.reup = reupWrapper(node.reup);
       }
     }
     // store initial value. Moved this to build() to give nodes a chance to load serialized state
     for (const nodeName in nodes) {
       const currNode = nodes[nodeName];
       // radically simple. We need to give framework a chance to observe the changes, we don't want framework's proxy on the "node's" copy of it's value, which it will continue to modify directly.
-      assignValueToOutput(nodeName, currNode.val)
+      assignValueToOutput(nodeName, currNode.val);
     }
     // reporting nodes. One day we might like to sort these?
     for (const nodeName in reportingNodes) {
@@ -182,8 +189,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
         )
         .map(([key, val]) => key);
       addEdges(nodeName);
-      if (reupWrapper)
-        reportingNode.reup = reupWrapper(reportingNode.reup)
+      if (reupWrapper) reportingNode.reup = reupWrapper(reportingNode.reup);
     }
     sortedNodeNames = graph.topologicallySortedNodes().map((n) => n.name);
 
@@ -194,7 +200,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     if (wrappersWithoutNodes.length)
       console.warn(
         "While building the graph, we can't help but notice that wrappers have been supplied for the following nodes that don't exist... " +
-        wrappersWithoutNodes.join(", ")
+          wrappersWithoutNodes.join(", ")
       );
   };
 
@@ -209,9 +215,10 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
   function assignValueToOutput(nodeName: string, value: any): void {
     if (typeof value === "object")
       //state[nodeName] = Object.assign({}, value)
-      state[nodeName] = JSON.parse(JSON.stringify(value))
+      state[nodeName] = JSON.parse(JSON.stringify(value));
     // sinks don't put anything in state
-    else if (state[nodeName] !== undefined && value !== undefined) state[nodeName] = value
+    else if (state[nodeName] !== undefined && value !== undefined)
+      state[nodeName] = value;
   }
   const wrapNode = (nodeToWrap: string, wrapper: INodeWrapper) => {
     // save wrapping function
@@ -247,9 +254,9 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     if (
       resolvedPredecessors[currNodeName] &&
       resolvedPredecessors[currNodeName].length
-    ){       
+    ) {
       resolvedPredecessors[currNodeName].forEach((pName) => {
-        const predecessorState = state[pName]
+        const predecessorState = state[pName];
         // if (!predecessorState)
         //   debugger
         Object.defineProperty(predecessorOutput, pName, {
@@ -260,7 +267,6 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
         });
       });
     }
-      
 
     try {
       /******************************       CALL THE NODE        ***********************************/
@@ -271,13 +277,12 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       // radically simple, reporting nodes don't know or care about the names of their inputs, we'll give them an array they can iterate over
       else {
         await currNode.reup(Object.values(predecessorOutput));
-
       }
       /******************************      CALL THE WRAPPER      ***********************************/
       // radically simple. We used to pass the newVal. Now we just pass the node val for modification
       if (nodeWrappers[currNodeName])
         await nodeWrappers[currNodeName].wrappingFunction(currNode.val);
-      assignValueToOutput(currNodeName, currNode.val)
+      assignValueToOutput(currNodeName, currNode.val);
     } catch (Ex) {
       console.error(`Error executing node ${currNodeName}. Error follows`);
       console.error(Ex);
@@ -286,8 +291,8 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
 
   const fullTraversal = async (startingFrom = 0) => {
     //console.log(`Full traversal starting from ${sortedNodeNames[startingFrom]}`)
-    if(!sortedNodeNames.length)
-      throw new Error("Graph not built or loaded. We cannot traverse.")
+    if (!sortedNodeNames.length)
+      throw new Error("Graph not built or loaded. We cannot traverse.");
     for (let i = startingFrom; i < sortedNodeNames.length; i++) {
       const currNodeName = sortedNodeNames[i];
       //console.log(`traversing ${i} - ${currNode}`)
@@ -332,7 +337,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
               methods[node]
             );
           }
-          standAloneDevtools.postMessage(newCopy, "*")
+          standAloneDevtools.postMessage(newCopy, "*");
         }
       }
     }
@@ -357,18 +362,26 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       .replace(/^\[object\s+([a-z]+)\]$/i, "$1")
       .toLowerCase();
   }
-  async function _loadState(storedState: ISerializedGraph, currentGraphVersion: number): Promise<IGraph> {
+  async function _loadState(
+    storedState: ISerializedGraph,
+    currentGraphVersion: number
+  ): Promise<IGraph> {
     if (currentGraphVersion === storedState.savedAtVersion) {
       sortedNodeNames = storedState.topologicalSort;
-      const sameLength = sortedNodeNames.length === Object.keys(nodes).length
-      const allSerializedPresent = sortedNodeNames.reduce((acc, curr) => acc && !!nodes[curr], true)
+      const sameLength = sortedNodeNames.length === Object.keys(nodes).length;
+      const allSerializedPresent = sortedNodeNames.reduce(
+        (acc, curr) => acc && !!nodes[curr],
+        true
+      );
       if (!sameLength || !allSerializedPresent) {
-        throw new Error("The serialized state doesn't match the current graph. Remember to increment the graph version (arg to saveState() and loadState()) to trigger a rebuild.")
+        throw new Error(
+          "The serialized state doesn't match the current graph. Remember to increment the graph version (arg to saveState() and loadState()) to trigger a rebuild."
+        );
       }
       resolvedPredecessors = storedState.resolvedPredecessors;
-      sortedNodeNames.forEach(nodeName => addEdges(nodeName))
+      sortedNodeNames.forEach((nodeName) => addEdges(nodeName));
     } else {
-      build()
+      build();
     }
 
     for (const nodeName of sortedNodeNames) {
@@ -395,22 +408,26 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       loadState,
       saveState,
       registerDevtools,
-      dispose
+      dispose,
     };
   }
 
-  async function loadState(storedState: ISerializedGraph, currentGraphVersion: number): Promise<IGraph> {
+  async function loadState(
+    storedState: ISerializedGraph,
+    currentGraphVersion: number
+  ): Promise<IGraph> {
     if (reupWrapper) {
-      const loadedGraph = reupWrapper(_loadState)(storedState, currentGraphVersion)
-      console.log("wrapping reups")
+      const loadedGraph = reupWrapper(_loadState)(
+        storedState,
+        currentGraphVersion
+      );
+      console.log("wrapping reups");
       for (const nodeName of sortedNodeNames) {
         const node = nodes[nodeName];
-        if (node.reup)
-          node.reup = reupWrapper(node.reup)
+        if (node.reup) node.reup = reupWrapper(node.reup);
       }
-      return loadedGraph
-    }
-    else return _loadState(storedState, currentGraphVersion)
+      return loadedGraph;
+    } else return _loadState(storedState, currentGraphVersion);
   }
 
   function saveState(currentGraphVersion): ISerializedGraph {
@@ -418,7 +435,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       resolvedPredecessors,
       topologicalSort: sortedNodeNames,
       nodeStates: {},
-      savedAtVersion: currentGraphVersion
+      savedAtVersion: currentGraphVersion,
     };
 
     for (const nodeName of Object.getOwnPropertyNames(state)) {
@@ -428,24 +445,24 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     }
     return returnVal;
   }
-  let standAloneDevtools: Window
-  let standAloneDevtoolsUrl: string
+  let standAloneDevtools: Window;
+  let standAloneDevtoolsUrl: string;
   function registerDevtools(devtools: Window, origin: string) {
-    standAloneDevtools = devtools
-    standAloneDevtoolsUrl = origin
+    standAloneDevtools = devtools;
+    standAloneDevtoolsUrl = origin;
   }
   async function dispose() {
     for (let i = 0; i < sortedNodeNames.length; i++) {
       const currNodeName = sortedNodeNames[i];
       //console.log(`traversing ${i} - ${currNode}`)
       // radically simple, a full traversal starts with the node which has just changed. It needs to reup whether or not it has inputs. The others, only if they have inputs.
-      if (
-        nodes[currNodeName].dispose
-      ) {
+      if (nodes[currNodeName].dispose) {
         try {
           await nodes[currNodeName].dispose();
         } catch (e) {
-          console.error(`Error disposing of ${currNodeName}. Error follows. Disposing continues.`)
+          console.error(
+            `Error disposing of ${currNodeName}. Error follows. Disposing continues.`
+          );
         }
       }
     }
@@ -460,6 +477,6 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     loadState,
     saveState,
     registerDevtools,
-    dispose
+    dispose,
   };
 }

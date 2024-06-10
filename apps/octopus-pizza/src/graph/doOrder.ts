@@ -10,14 +10,14 @@ const val = reactive({
 });
 const node = {
   val,
-  reup(allValid: IValid) {
+  reup({ allValid }: { allValid: IValid }) {
     canGo = allValid.valid;
   },
   methods: {
     async go() {
       if (canGo) {
-        await alert("Excellent choice! Enjoy your pizza.")
-        window.location.reload()
+        await alert("Excellent choice! Enjoy your pizza.");
+        window.location.reload();
         // reset submit blocked when everything has worked
         val.submitBlocked = false;
       } else {
