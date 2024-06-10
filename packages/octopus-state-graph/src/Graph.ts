@@ -22,6 +22,7 @@ function getParamNames(func) {
     .slice(fnStr.indexOf("(") + 1, fnStr.indexOf(")"))
     .match(ARGUMENT_NAMES);
   if (result === null) result = [];
+  
   return result;
 }
 
@@ -278,11 +279,14 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
 
   const fullTraversal = async (startingFrom = 0) => {
     //console.log(`Full traversal starting from ${sortedNodeNames[startingFrom]}`)
+    if(!sortedNodeNames.length)
+      throw new Error("Graph not built or loaded. We cannot traverse.")
     for (let i = startingFrom; i < sortedNodeNames.length; i++) {
       const currNodeName = sortedNodeNames[i];
       //console.log(`traversing ${i} - ${currNode}`)
       // radically simple, a full traversal starts with the node which has just changed. It needs to reup whether or not it has inputs. The others, only if they have inputs.
       if (
+        nodes[currNodeName] &&
         nodes[currNodeName].reup &&
         (i === startingFrom ||
           (resolvedPredecessors[currNodeName] &&

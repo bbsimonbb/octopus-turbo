@@ -2,12 +2,32 @@
 
 ### State _and Orchestration_ for javascript apps
 
+The state _and behaviour_ of our applications have a logical structure distinct from the structure of the DOM, and this structure, it turns out, **is a directed acyclic graph**. The DOM is a tree. A DAG differs from a tree in that a DAG node can have many parents. Worse, the DOM (and the tree of framework components behind it) represent the visual structure of your rendered page, which has absolutely nothing to do with the logical structure of your app.
+
+When we try and shoehorn state-and-behaviour into the DOM tree, shared state ends up arbitrarily in a common ancestor, and behaviour ends up all over the place. Props are used excessively to pass state and behaviour wherever it's needed, and the logical structure is obscured.
+
+State management solutions will help you get shared state out of the DOM, but, in prioritising state over behaviour while imposing they're own dose of complexity and concepts, they do little to bring the inherent logical structure of your app to light.
+
+### The Octopus solution
+
+Octopus invites you to put your shared state _and the logic that acts on it_ in nodes. Nodes can read other nodes, but not change them. Octopus organises your nodes into a DAG, based on what they read. It checks for cycles. Then when a node changes, it coordinates a traversal of dependent nodes, ensuring that all your state is always consistent, while eliminating needless recalculation.
+
+As such...
+- we can visualize the emergent structure of our apps. Octopus comes with a devtools that lets you see the structure and live state of your running application.
+- developer comfort: node code is biblically simple. There's no learning curve. Nodes have a val, a recalculate function and methods. That's it. This very simple structure can accomodate everything.
+- framework UI components become much simpler. Components directly observe state in octopus, and you can get rid of 90% of your props (and useState(), useContext() and your existing over-engineered state management solution).
+- needless calculation is eliminated. State is always consistent.
+- tiny and performant. The bundle is 13k.
+
+DAGs are much discussed in comp-sci (and implemented internally all over the place), but Octopus appears to be the first reusable, turnkey, ready-to-wear, off-the-shelf implementation of a DAG for application development, in any language, that I'm aware of. [^1]
+
+## Get started
+
 This turborepo contains:
 - octopus-state-graph, the source of the [npm package](http://www.npmjs.com/package/octopus-state-graph), ready for use in your apps.
 - two sample applications in React and Vue
 - octopus devtools, as a locally hosted popup, which can also be packaged and installed as a Chrome extension. Visualize the emergent structure and live state of your running application.
 
-## Get started
 ```
 git clone https://github.com/bbsimonbb/octopus-turbo.git
 cd octopus-turbo
@@ -17,26 +37,6 @@ pnpm run dev
 ```
 
 <img src="./images/pizza-ui.png" style="width:100%">
-
-## What am I looking at here?
-
-### The problem
-
-The state _and behaviour_ of our applications have a structure distinct from the structure of the DOM. When we try and shoehorn state-and-behaviour into the DOM tree, shared state ends up arbitrarily in a common ancestor, behaviour ends up all over the place, and props are used excessively to pass state and behaviour wherever it's needed.
-
-State management solutions help, but they may misframe the problem by prioritising state over behaviour. The functional paradigm that dominates the React space may not be best adapted to modelling UI's, where user input, and network responses, can come from any direction. The various implementations of computed may help, but they fall short if they're only availabe for use in UI components. The distinction between state and computed may be unecessesary. Computed should be able to generate more state, and unleash more computed.
-
-### The Octopus solution
-
-Octopus invites you to put your shared state _and the logic that acts on it_ in **nodes**. A node has a `val`, `methods` and a recalculate function, `reup()`, _that can reference other nodes in its argument list._ `val` can only be modified by the node's own `methods` and `reup()`.
-
-> When a `method` returns, `reup()`, will be called, and supplied with all the values named in its arg list, then the chain of `reup()`s referencing our node will be called in sequence, and supplied with the `val`s they request.
-
-### Under the hood
-
-The structure formed by the `reup()` functions is a Directed Acyclic Graph. (Octopus enforces this, and prevents you from creating cycles.) DAGs are much discussed in comp-sci (and implemented internally all over the place), but Octopus appears to be the first reusable, turnkey, ready-to-wear, off-the-shelf implementation of a DAG for application development, in any language, that I'm aware of. [^1]
-
-This is remarkable because DAGs hit a sweet spot in the middle of the three common programming paradigms (OO, event-driven, functional). Let's have a DAG as the top-level structure of our applications. Data-fetching and onChange handlers live in DAG nodes, next to the data they act on. Your app logic and data are cleanly separated from UI (not just for the sake of it, but because they have their own distinct structure). The emergent logical structure of your app can be visualized and reasoned about. Needless recalculation is eliminated and UI components become much simpler, just dumbly reflecting bound values in the graph.
 
 ## Sample Apps
 
@@ -55,7 +55,7 @@ Like many (all?) UI's, this UI is a directed acyclic graph. It could be modelled
 
 This graph, generated by octopus-state-graph, visualized with octopus devtools, shows you the structure and state of your running application. Essentially, each user control on screen is underpinned by a node in the graph. A node encapsulates a meaningful concept in our subject domain.
 
-As we started to see above, Octopus has essentially two functions: Firstly, on `build()`, it builds the graph based on the call signatures of all the `reup()` functions, checking that the requested dependencies exist, and that no cycles are created. 
+As we started to see above, Octopus has essentially two functions: Firstly, on `build()`, it builds the graph based on the call signatures of all the recalculate functions, checking that the requested dependencies exist, and that no cycles are created. A node's recalculate function is called `reup()` because it's shorter and I'm a huge wire fan.
 
 Secondly, octopus ensures that when a node's `val` changes (when a method returns), the graph will be traversed, and all the `reup()` functions starting with that of the changed node, will be called sequentially. (The sequence is determined by the topological sort of the graph.) As such, for any given external change, a node only recalculates if it is downstream of the change, and it only reacalculates once, after all it's predecessors have updated.
 
@@ -65,9 +65,9 @@ Nodes can fetch data.  In many situations, it will make much more sense to fetch
 
 Alternatively, a node can launch a network request and return immediately. Antecedent nodes might go into a waiting state, which you can use to control spinners etc. Then when the fetch returns, a node method handles the return and a new traversal is initiated, clearing the spinners and displaying the fresh data and any cascading effects.
 
-So now the picture emerges. Your nodes lie at the intersection of your system and the outside world. Like in OO, they encapsulate a bit of state, and the methods that modify it. Like event-driven systems, they can "subscribe" to relevant changes and their responsibility ends when they publish their value. There's a hat-tip to functional programming and one-way data flow in the notion of a traversal, but this approach is intentionally much less dogmatic. State, both private and published, can accumulate in nodes, and `reup()` functions can be async and impure. And we get to mutualise, in the `reup()` function, the magic sauce that combines some user input with the current state of the system to produce the node's current value, a value to which downstream nodes can then react. All this is done with no funny business. Your `val` is not proxied, there's no expensive change detection and very limited passing around of functions. There are no new concepts. Node code is biblically simple.
+So now the picture emerges. DAGs hit a sweet spot in the middle of the three common programming paradigms (OO, event-driven, functional). Your nodes lie at the intersection of your system and the outside world. Like in OO, they encapsulate a bit of state, and the methods that modify it. Like event-driven systems, they can "subscribe" to relevant changes and their responsibility ends when they publish their value. There's a hat-tip to functional programming and one-way data flow in the notion of a traversal, but this approach is intentionally much less dogmatic. State, both private and published, can accumulate in nodes, and `reup()` functions can be async and impure. And we get to mutualise, in the `reup()` function, the magic sauce that combines some user input with the current state of the system to produce the node's current value, a value to which downstream nodes can then react. All this is done with no funny business. Your `val` is not proxied, there's no expensive change detection and very limited passing around of functions. There are no new concepts. Node code is biblically simple.
 
-<!-- Graph-oriented applications, let's call them, have an emergent structure, that we can visualise, and that we can use to optimise traversals and eliminate unnecessary recalculations. When we've added all our nodes, we call build() on the graph. Octopus constructs our graph, checking that there are no cycles, and producing a sequence for traversing, a topological sort. This structure can then be visualised in Octopus devtools. The visualisation reads from left to right, with sources on the left, and sinks on the right. Hovering over a node highlights its predecessors and antecedents. When we interact with our app, we can see in the graph which node has received our user input. Clicking a node in the devtools opens the details pane, displaying the node's current published value and methods, and we can go directly from here to the node source. This makes it very easy to reason about, as they say, the structure and behaviour of our application. -->
+Graph-oriented applications, let's call them, have an emergent structure. When we've added all our nodes, we call build() on the graph. Octopus constructs our graph, checking that there are no cycles, and producing a sequence for traversing, a topological sort. This structure can then be visualised in Octopus devtools. The visualisation reads from left to right, with sources on the left, and sinks on the right. Hovering over a node highlights its predecessors and antecedents. When we interact with our app, the node which has received our user input is highlighted. Clicking a node in the devtools opens the details pane, displaying the node's current published value and methods, and we can go directly from here to the node source. This makes it very easy to reason about, as they say, the structure and behaviour of our application.
 
 ### Reporting nodes
 A super possibility of octopus is reporting nodes. A reporting node chooses its predecessors not by name, but with a filter function. Look at the [totalPrice](./apps/octopus-pizza/src/graph/totalPrice.ts) and [allValid](./apps/octopus-pizza/src/graph/allValid.ts) nodes in the sample applications to see how this is done. Any new node whose published `val` contains a price will automatically contribute to the total.
