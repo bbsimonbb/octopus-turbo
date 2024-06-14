@@ -25,7 +25,7 @@ export function getParamNames(func) {
     .split(",")
     // rollup will rename the destructuring assignments
     .map((p) => (p.indexOf(":") !== -1 ? p.substring(0, p.indexOf(":")) : p));
-    console.log(result)
+    //console.log(result)
   return result;
 }
 
