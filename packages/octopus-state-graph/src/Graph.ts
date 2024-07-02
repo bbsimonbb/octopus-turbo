@@ -262,6 +262,10 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
           nodeWrappers[key].push(wrapper)
         }
       }
+      // once all the wrappers are in for a node, we can sort them
+      if(nodeWrappers[key]){
+        nodeWrappers[key].sort((a,b)=> (a.priority || 0) - (b.priority || 0))
+      }
     })
 
     //check for orphaned wrappers

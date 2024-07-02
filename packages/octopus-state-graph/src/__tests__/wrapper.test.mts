@@ -168,3 +168,79 @@ test("The same wrapper can be added to x nodes chosen with a filter func", async
   expect(graph.state.downstream.anInt).toBe(22);
 });
 
+/**
+ * Wrappers without priority execute in the order they were added
+ */
+test("Wrappers without priority execute in the order they were added", async () => {
+  const graph = createGraph();
+  const val = {
+    anInt: 2,
+  };
+  const upstreamNode = graph.addNode("upstream", {
+    val,
+    methods: {
+      setVal(newVal: number) {
+        val.anInt = newVal;
+      },
+    },
+  });
+
+  graph.wrapNodes("upstream",{
+    wrapperFunc:(val)=>{
+      val.anInt = val.anInt + 4
+    },
+    name: "first add"
+  })
+  graph.wrapNodes("upstream", {
+    wrapperFunc: (val) => {
+      val.anInt = val.anInt * 3;
+    },
+    name: "then multiply"
+  });
+  graph.build();
+
+  await upstreamNode.methods.setVal(4);
+
+  expect(upstreamNode.val.anInt).toBe(24);
+  expect(graph.state.upstream.anInt).toBe(24);
+});
+
+/**
+ * Wrappers with priority execute lowest first
+ */
+test("Wrappers with priority execute lowest first", async () => {
+  const graph = createGraph();
+  const val = {
+    anInt: 2,
+  };
+  const upstreamNode = graph.addNode("upstream", {
+    val,
+    methods: {
+      setVal(newVal: number) {
+        val.anInt = newVal;
+      },
+    },
+  });
+
+  graph.wrapNodes("upstream", {
+    wrapperFunc: (val) => {
+      val.anInt = val.anInt * 3;
+    },
+    name: "then multiply",
+    priority: 2
+  });
+  graph.wrapNodes("upstream",{
+    wrapperFunc:(val)=>{
+      val.anInt = val.anInt + 4
+    },
+    name: "first add",
+    priority: 1
+  })
+  graph.build();
+
+  await upstreamNode.methods.setVal(4);
+
+  expect(upstreamNode.val.anInt).toBe(24);
+  expect(graph.state.upstream.anInt).toBe(24);
+});
+
