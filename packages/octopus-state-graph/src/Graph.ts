@@ -1,10 +1,10 @@
 /* eslint-disable no-debugger */
 import { IGraph } from "./IGraph.js";
 import { INamed, INode, isReportingNode } from "./INode.js";
-import { INodeWrapper } from "./INodeWrapper.js";
 import { DirectedAcyclicGraph } from "typescript-graph";
 import { ISerializedGraph } from "./ISerializedGraph.js";
 import { isStateful, IStateful } from "./IStateful.js";
+import { INodeWrapper } from "./INodeWrapper.js";
 
 interface INodeContainer {
   [nodeName: string]: INode;
@@ -25,7 +25,7 @@ export function getParamNames(func) {
     .split(",")
     // rollup will rename the destructuring assignments
     .map((p) => (p.indexOf(":") !== -1 ? p.substring(0, p.indexOf(":")) : p));
-    //console.log(result)
+  //console.log(result)
   return result;
 }
 
@@ -37,26 +37,38 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
 
   // radically simple, we need get the reactive proxy in first. This is way to simple unfortunately.
   const state: any = {}; //stateWrapper ? stateWrapper({}) : {};
-  //const state = {};
 
   // Create the graph https://segfaultx64.github.io/typescript-graph/
-  //const graph = new DirectedGraph<INode|ISource>((n: INode|ISource) => n.name)
   const graph = new DirectedAcyclicGraph<INamed>((n: INamed) => n.name);
+
   // Not obvious how to address nodes once in the graph, so I'll add them to my own container as well.
-  const nodes: INodeContainer = {};
+  const nodes: Record<string, INode> = {};
   let resolvedPredecessors: { [nodeName: string]: string[] } = {};
 
   // this array will be keyed on nodeName
   const methods = {};
+
   // topological sort permits traversal
   let sortedNodeNames: string[] = [];
   const edges: [{ from: string; to: string }?] = [];
-  //var nodeOnUpstreamChangeHandlers = {}
-  const nodeWrappers = {};
+
+  /**
+   * nodeWrappers is an object with nodeNames for keys, and an array of wrappers
+   * which will be sorted by priority at build time.
+   */
+  const nodeWrappers: Record<string, INodeWrapper[]> = {};
+
+  /**
+   * wrappers can pick their targets with a filtering function, like
+   * reporting nodes. These wrappers will be applied at build time,
+   * when all plain nodes have been added. We'll park them here in the meantime.
+   * (The type is an array of tuples [filteringFunction, wrappingFunction])
+   */
+  const unbuiltReportingWrappers: [Function, INodeWrapper][] = [];
+
   let octopusDevtoolsPresent = false;
   if (isBrowser) {
     window.addEventListener("message", (ev) => {
-      10;
       if (ev?.data?.octopusDevtoolsPresent) {
         //console.log("Octopus devtools has signalled its presence")
         octopusDevtoolsPresent = true;
@@ -101,18 +113,48 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     nodes[nodeName] = node;
     graph.insert({ name: nodeName });
 
-    // radically simple. We need to get the value reactive first, so our framework knows
-    // about mutations
-    //node.val = stateWrappingFunction(node.val);
+    wrapMethodsWithProxy(nodeName, node);
 
-    // if (reupWrapper && node.reup)
-    //   node.reup = reupWrapper(node.reup)
+    return { val: node.val, methods: node.methods };
+  }
+  function wrapANode(target: string, wrapper: INodeWrapper) {
+    if (!nodeWrappers[target])
+      Object.defineProperty(nodeWrappers, target, {
+        value: [],
+        configurable: true,
+        enumerable: true,
+        writable: true,
+      });
+    nodeWrappers[target].push(wrapper);
+  }
+
+  const wrapNodes = (
+    nodesToWrap: string | string[] | Function,
+    wrapper: INodeWrapper
+  ) => {
+    // wrap one node identified by name, we just pop the wrapper directly into the final wrappers object, keyed on the node name
+    if (typeof nodesToWrap === "string") {
+      wrapANode(nodesToWrap, wrapper);
+    }
+    // apply the same wrapper to a number of named nodes
+    else if (typeof nodesToWrap === "object") {
+      for (const target of nodesToWrap) {
+        wrapANode(target, wrapper);
+      }
+    }
+    // "reporting" wrapper. Put to one side and we'll figure out which nodes during build
+    else if (typeof nodesToWrap === "function") {
+      unbuiltReportingWrappers.push([nodesToWrap, wrapper]);
+    }
+  };
+
+  function wrapMethodsWithProxy(nodeName: string, node: INode) {
     if (node.methods) {
       // If a top level property is a function, bind it to the target
       node.methods = new Proxy(node.methods, {
         get(target, property, receiver) {
-          if (typeof target[property] === "function") {
-            return target[property].bind(target);
+          if (typeof target[property as string] === "function") {
+            return target[property as string].bind(target);
           } else {
             return Reflect.get(target, property, receiver);
           }
@@ -127,12 +169,12 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
         ) {
           node.methods[prop] = new Proxy(node.methods[prop], {
             apply: async function (target, thisArg, argArray) {
-              // execute the handler
+              // execute the method
               await target(...argArray);
               // copy the result
               assignValueToOutput(nodeName, node.val);
               // magic step. Launch a full traversal starting with node itself.
-              fullTraversal(sortedNodeNames.indexOf(nodeName));
+              await fullTraversal(sortedNodeNames.indexOf(nodeName));
             },
           });
         }
@@ -142,9 +184,15 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       const newMethods = node.methods;
       methods[nodeName] = { ...methods[nodeName], ...newMethods };
     }
-    return { val: node.val, methods: node.methods };
   }
 
+  /**
+   * BUILD
+   * - add all reporting nodes
+   * - add plain nodes, for each
+   *   - testing as we go if they match reporting nodes
+   *   - testing if they match reporting wrappers
+   */
   const build = () => {
     const reportingNodes = Object.fromEntries(
       Object.entries(nodes).filter(
@@ -175,23 +223,46 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     // store initial value. Moved this to build() to give nodes a chance to load serialized state
     for (const nodeName in nodes) {
       const currNode = nodes[nodeName];
-      // radically simple. We need to give framework a chance to observe the changes, we don't want framework's proxy on the "node's" copy of it's value, which it will continue to modify directly.
+      /** radically simple. We need to give framework a chance to observe the changes, we don't 
+       * want framework's proxy on the "node's" copy of it's value, which it will continue to modify directly.
+       */
       assignValueToOutput(nodeName, currNode.val);
     }
+
     // reporting nodes. One day we might like to sort these?
+    // For each reporting node...
     for (const nodeName in reportingNodes) {
       const reportingNode = reportingNodes[nodeName];
+      // Add to the resolvedPredecessors object...
       resolvedPredecessors[nodeName] = Object.entries(state)
+        // ...those nodes that match the reporting filter function
         .filter(
           ([targetName, targetVal]) =>
             nodeName !== targetName &&
             reportingNode.options.dependsOn(targetName, targetVal)
         )
+        // (just add the names)
         .map(([key, val]) => key);
       addEdges(nodeName);
       if (reupWrapper) reportingNode.reup = reupWrapper(reportingNode.reup);
     }
+
     sortedNodeNames = graph.topologicallySortedNodes().map((n) => n.name);
+
+    /**
+     * Reporting wrappers need to be added to the nodeWrappers object for the nodes that they match
+     */
+    // for each nodeVal
+    Object.entries(state).forEach(([key, val])=>{
+      // for each reporting wrapper
+      for(const [filterFunc, wrapper] of unbuiltReportingWrappers){
+        if(filterFunc(val)){
+          if(!nodeWrappers[key])
+            nodeWrappers[key] = []
+          nodeWrappers[key].push(wrapper)
+        }
+      }
+    })
 
     //check for orphaned wrappers
     const wrappersWithoutNodes = Object.entries(nodeWrappers)
@@ -220,32 +291,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     else if (state[nodeName] !== undefined && value !== undefined)
       state[nodeName] = value;
   }
-  const wrapNode = (nodeToWrap: string, wrapper: INodeWrapper) => {
-    // save wrapping function
-    Object.defineProperty(nodeWrappers, nodeToWrap, {
-      value: wrapper,
-      configurable: true,
-      enumerable: true,
-      writable: true,
-    });
 
-    // add publicMethods to node's
-    if (wrapper.publicMethods) {
-      const newMethods = wrapper.publicMethods;
-      methods[nodeToWrap] = { ...methods[nodeToWrap], ...newMethods };
-    }
-
-    // call the wrapping function with the wrapped node's current value (initial value)
-    // potential gotcha? we're not unleashing a traversal because we're still constructing things, but maybe we should.
-    // can't do this. wrapping function might be async, node might not exist yet
-    // const newVal = wrapper.wrappingFunction(state[nodeToWrap])
-    // assignValueToOutput(nodeToWrap, newVal)
-
-    // return a publishChanges function. Wrappers can also interact with outside world.
-    return (publishVal: any) => {
-      onWrapperChanged(nodeToWrap, publishVal); // this is async, but we don't care about the result (the node doesn't care)
-    };
-  };
   const executeOneNode = async (currNodeName: string) => {
     const currNode = nodes[currNodeName];
     let predecessorOutput: any = null;
@@ -269,19 +315,26 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     }
 
     try {
-      /******************************       CALL THE NODE        ***********************************/
-
-      if (!isReportingNode(currNode)) {
-        await currNode.reup(predecessorOutput);
+      /** ****************************       CALL THE NODE        **********************************
+       * Nodes without a reup may still have wrappers that need to execute. Call reup if it exists.
+      */
+      if (currNode.reup) {
+        if (!isReportingNode(currNode)) {
+          await currNode.reup(predecessorOutput);
+        }
+        // radically simple, reporting nodes don't know or care about the names of their inputs, we'll give them an array they can iterate over
+        else {
+          await currNode.reup(Object.values(predecessorOutput));
+        }
       }
-      // radically simple, reporting nodes don't know or care about the names of their inputs, we'll give them an array they can iterate over
-      else {
-        await currNode.reup(Object.values(predecessorOutput));
-      }
-      /******************************      CALL THE WRAPPER      ***********************************/
-      // radically simple. We used to pass the newVal. Now we just pass the node val for modification
+      /** ****************************      CALL THE WRAPPERS      **********************************
+       * radically simple. We used to pass the newVal. Now we just pass the node val for modification
+       */
       if (nodeWrappers[currNodeName])
-        await nodeWrappers[currNodeName].wrappingFunction(currNode.val);
+        for (const wrapper of nodeWrappers[currNodeName]) {
+          await wrapper.wrapperFunc(currNode.val);
+        }
+
       assignValueToOutput(currNodeName, currNode.val);
     } catch (Ex) {
       console.error(`Error executing node ${currNodeName}. Error follows`);
@@ -299,7 +352,6 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       // radically simple, a full traversal starts with the node which has just changed. It needs to reup whether or not it has inputs. The others, only if they have inputs.
       if (
         nodes[currNodeName] &&
-        nodes[currNodeName].reup &&
         (i === startingFrom ||
           (resolvedPredecessors[currNodeName] &&
             resolvedPredecessors[currNodeName].length > 0))
@@ -403,7 +455,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       methods,
       build,
       addNode,
-      wrapNode,
+      wrapNodes,
       fullTraversal: publicFullTraversal,
       loadState,
       saveState,
@@ -472,7 +524,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     methods,
     build,
     addNode,
-    wrapNode,
+    wrapNodes,
     fullTraversal: publicFullTraversal,
     loadState,
     saveState,

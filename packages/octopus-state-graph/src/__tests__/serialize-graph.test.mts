@@ -56,7 +56,7 @@ test("a graph can be serialized and rehydrated", async () => {
   expect(downstreamNode.val.anInteger).toBe(22)
 
   // loadState should be called on a graph that already has all it's nodes added.
-  graph.loadState(JSON.parse(freezeDried),1)
+  await graph.loadState(JSON.parse(freezeDried),1)
   // upstream has serialized value
   expect(upstreamNode.val.anInteger).toBe(14)
   // downstream has reupped after rehydration
@@ -148,7 +148,7 @@ console.log(upstreamNode)
       },
     })
     // freezeDried is missing downstream!
-    graph2.loadState(JSON.parse(freezeDried), 2)
+    await graph2.loadState(JSON.parse(freezeDried), 2)
     // upstream has serialized value
     expect(upstreamNode.val.anInteger).toBe(14)
     // intermediate has reupped after rehydration

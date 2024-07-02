@@ -1,5 +1,6 @@
 
 export interface INodeWrapper {
-  wrappingFunction: (nodeOutput: any) => any;
-  publicMethods?: any;
+  wrapperFunc:(nodeVal:any)=>void
+  priority?: number
+  name?: string  
 }
