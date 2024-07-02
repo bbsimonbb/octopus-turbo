@@ -244,3 +244,7 @@ test("Wrappers with priority execute lowest first", async () => {
   expect(graph.state.upstream.anInt).toBe(24);
 });
 
+/**
+ * Reporting nodes can be wrapped
+ */
+

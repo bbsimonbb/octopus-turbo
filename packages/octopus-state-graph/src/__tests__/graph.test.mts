@@ -101,3 +101,8 @@ test("Node dispose() methods are called when dispose is called on the graph", as
   graph.dispose()
   expect(disposeWasCalled).toBe(true)
 })
+
+/**
+ * A graph that has a reporting node, that picks up a plain node, 
+ * that depends on the reporting node, WON'T BUILD
+ */
