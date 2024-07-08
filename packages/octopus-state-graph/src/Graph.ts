@@ -14,14 +14,33 @@ const isBrowser =
   Object.getPrototypeOf(Object.getPrototypeOf(globalThis)) !== Object.prototype;
 
 const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
-const PROPS = /\(\s*{([^}]*)}/;
+const PROPS = /\({(?<args>[^}]*)}/;
+const PROPS_2ND_ARG = /\((([^,{]*)|({[^}]*})),{(?<args>[^}]*)}/;
 const WHITESPACE = /\s+/g;
-export function getParamNames(func) {
-  const fnStr = func.toString().replace(STRIP_COMMENTS, "");
-  const props = PROPS.exec(fnStr);
-  if (!props) return [];
-  const result = props[1]
-    .replaceAll(WHITESPACE, "")
+
+/**
+ * Extracts the property names from a destructuring assignment in a function's argument list.
+ * Rollup renaming obliges us to use this destructuring assignment rather than a plain argument list.
+ * reup() functions take just one argument. If a wrapper needs to add predecessors to a node,
+ * the object containing these will be the second argument after the nodeVal
+ * @param func The reup or wrapperFunc from which we needed
+ * @param position 0 default or 1 for wrappers, where the nodeVal is the first arg
+ * @returns
+ */
+export function getParamNames(func: Function, position?: Number) {
+  const fnStr = func
+    .toString()
+    .replaceAll(STRIP_COMMENTS, "")
+    .replaceAll(WHITESPACE, "");
+  let props: RegExpExecArray;
+  if (position === 1) {
+    props = PROPS_2ND_ARG.exec(fnStr);
+  } else {
+    props = PROPS.exec(fnStr);
+  }
+
+  if (!props?.groups?.args) return [];
+  const result = props.groups.args
     .split(",")
     // rollup will rename the destructuring assignments
     .map((p) => (p.indexOf(":") !== -1 ? p.substring(0, p.indexOf(":")) : p));
@@ -223,7 +242,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     // store initial value. Moved this to build() to give nodes a chance to load serialized state
     for (const nodeName in nodes) {
       const currNode = nodes[nodeName];
-      /** radically simple. We need to give framework a chance to observe the changes, we don't 
+      /** radically simple. We need to give framework a chance to observe the changes, we don't
        * want framework's proxy on the "node's" copy of it's value, which it will continue to modify directly.
        */
       assignValueToOutput(nodeName, currNode.val);
@@ -253,21 +272,37 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
      * Reporting wrappers need to be added to the nodeWrappers object for the nodes that they match
      */
     // for each nodeVal
-    Object.entries(state).forEach(([key, val])=>{
+    Object.entries(state).forEach(([key, val]) => {
       // for each reporting wrapper
-      for(const [filterFunc, wrapper] of unbuiltReportingWrappers){
-        if(filterFunc(val)){
-          if(!nodeWrappers[key])
-            nodeWrappers[key] = []
-          nodeWrappers[key].push(wrapper)
+      for (const [filterFunc, wrapper] of unbuiltReportingWrappers) {
+        if (filterFunc(val)) {
+          if (!nodeWrappers[key]) nodeWrappers[key] = [];
+          nodeWrappers[key].push(wrapper);
         }
       }
-      // once all the wrappers are in for a node, we can sort them
-      if(nodeWrappers[key]){
-        nodeWrappers[key].sort((a,b)=> (a.priority || 0) - (b.priority || 0))
-      }
-    })
+    });
 
+    // for every wrapped node...
+    for (const wrappedNode in nodeWrappers) {
+      // once all the wrappers are in for a node, we can sort them...
+      nodeWrappers[wrappedNode].sort(
+        (a, b) => (a.priority || 0) - (b.priority || 0)
+      );
+
+      // ...and add any dependencies from the wrapper to the node
+      for (const wrapper of nodeWrappers[wrappedNode]) {
+        const wrapperPredecessors = getParamNames(wrapper.wrapperFunc, 1);
+        // if both wrapper and node have predecessors, merge the two arrays
+        if (wrapperPredecessors.length && resolvedPredecessors[wrappedNode])
+          resolvedPredecessors[wrappedNode] = Array.from(
+            new Set(
+              resolvedPredecessors[wrappedNode].concat(wrapperPredecessors)
+            )
+          );
+        else if(wrapperPredecessors.length)
+          resolvedPredecessors[wrappedNode] = wrapperPredecessors
+      }
+    }
     //check for orphaned wrappers
     const wrappersWithoutNodes = Object.entries(nodeWrappers)
       .map(([key, val]) => key)
@@ -321,7 +356,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     try {
       /** ****************************       CALL THE NODE        **********************************
        * Nodes without a reup may still have wrappers that need to execute. Call reup if it exists.
-      */
+       */
       if (currNode.reup) {
         if (!isReportingNode(currNode)) {
           await currNode.reup(predecessorOutput);
@@ -336,7 +371,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
        */
       if (nodeWrappers[currNodeName])
         for (const wrapper of nodeWrappers[currNodeName]) {
-          await wrapper.wrapperFunc(currNode.val);
+          await wrapper.wrapperFunc(currNode.val, predecessorOutput);
         }
 
       assignValueToOutput(currNodeName, currNode.val);
