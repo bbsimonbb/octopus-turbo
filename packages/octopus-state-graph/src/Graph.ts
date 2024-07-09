@@ -242,9 +242,6 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     // store initial value. Moved this to build() to give nodes a chance to load serialized state
     for (const nodeName in nodes) {
       const currNode = nodes[nodeName];
-      /** radically simple. We need to give framework a chance to observe the changes, we don't
-       * want framework's proxy on the "node's" copy of it's value, which it will continue to modify directly.
-       */
       assignValueToOutput(nodeName, currNode.val);
     }
 
@@ -275,7 +272,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
     Object.entries(state).forEach(([key, val]) => {
       // for each reporting wrapper
       for (const [filterFunc, wrapper] of unbuiltReportingWrappers) {
-        if (filterFunc(val)) {
+        if (filterFunc(key, val)) {
           if (!nodeWrappers[key]) nodeWrappers[key] = [];
           nodeWrappers[key].push(wrapper);
         }
@@ -299,8 +296,8 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
               resolvedPredecessors[wrappedNode].concat(wrapperPredecessors)
             )
           );
-        else if(wrapperPredecessors.length)
-          resolvedPredecessors[wrappedNode] = wrapperPredecessors
+        else if (wrapperPredecessors.length)
+          resolvedPredecessors[wrappedNode] = wrapperPredecessors;
       }
     }
     //check for orphaned wrappers
@@ -316,8 +313,13 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
 
   function addEdges(nodeName: string) {
     resolvedPredecessors[nodeName]?.forEach((predecessor) => {
-      graph.addEdge(predecessor, nodeName);
-      edges.push({ from: predecessor, to: nodeName });
+      try {
+        graph.addEdge(predecessor, nodeName);
+        edges.push({ from: predecessor, to: nodeName });
+      } catch (err) {
+        const newMessage = `Octopus cannot create edge from ${predecessor} to ${nodeName}\n${err.message}`
+        throw new Error(newMessage)
+      }
     });
   }
 

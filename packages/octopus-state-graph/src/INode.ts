@@ -14,7 +14,7 @@ export interface INode<
 > {
   val: ValShape;
   reup?: (
-    precedents: Record<string, any>
+    precedents: any
   ) => boolean | void | Promise<boolean | void>;
   methods?: MethodsShape;
   options?: INodeOptions;

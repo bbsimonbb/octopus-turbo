@@ -155,7 +155,7 @@ test("The same wrapper can be added to x nodes chosen with a filter func", async
     },
   });
 
-  graph.wrapNodes(target=>!!target.anInt, {
+  graph.wrapNodes((key, val)=>!!val.anInt, {
     wrapperFunc: (val) => {
       val.anInt = val.anInt + 3;
     },
@@ -274,7 +274,7 @@ test("Reporting nodes can be wrapped", async () => {
     }
   });
 
-  graph.wrapNodes(target=>!!target.anInt, {
+  graph.wrapNodes((key, val)=>!!val.anInt, {
     wrapperFunc: (val) => {
       val.anInt = val.anInt + 3;
     },

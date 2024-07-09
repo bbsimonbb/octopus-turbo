@@ -9,7 +9,8 @@
  * one day in devtools.
  */
 export interface INodeWrapper {
-  wrapperFunc: (nodeVal: any, precedessors?: Record<string, any>) => void | Promise<void>;
+  wrapperFunc: (nodeVal: any, precedessors: {[key:string]:any}) => void | Promise<void>;
   priority?: number;
   name?: string;
 }
+export type WrapperFilterFunc = (key:string, val:any)=>boolean
