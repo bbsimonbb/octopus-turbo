@@ -213,93 +213,64 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
    *   - testing if they match reporting wrappers
    */
   const build = () => {
-    const reportingNodes = Object.fromEntries(
-      Object.entries(nodes).filter(
-        ([name, node]) =>
-          node.options && typeof node.options.dependsOn === "function"
-      )
-    ) as { [k: string]: INode };
-    const plainNodes = Object.fromEntries(
-      Object.entries(nodes).filter(
-        ([name, node]) =>
-          !node.options || typeof node.options.dependsOn !== "function"
-      )
-    ) as { [k: string]: INode };
-
-    for (const nodeName in plainNodes) {
-      // for each node, we'll store in the graph the list of dependency names
-      const node = plainNodes[nodeName];
+    for (const nodeName in nodes) {
+      const node = nodes[nodeName];
       if (node.reup) {
         // radically simple !
-        resolvedPredecessors[nodeName] = getParamNames(node.reup);
-        // 12/2023. For react, reup() needs to be wrapped in action. Now we've extracted
-        // the predecessors, we can wrap the function.
-        addEdges(nodeName);
-        // mystery for future: this doesn't work if I do it during addNode()
-        if (reupWrapper) node.reup = reupWrapper(node.reup);
+        if (node.options && typeof node.options.dependsOn === "function") {
+          // predecessors for reporting nodes
+          resolvedPredecessors[nodeName] = Object.entries(nodes)
+            // ...those nodes that match the reporting filter function
+            .filter(
+              ([targetName, targetNode]) =>
+                nodeName !== targetName &&
+                node.options.dependsOn(targetName, targetNode.val)
+            )
+            // (just add the names)
+            .map(([key, val]) => key);
+        } else {
+          // predecessors for plain nodes
+          resolvedPredecessors[nodeName] = getParamNames(node.reup);
+        }
       }
-    }
-    // store initial value. Moved this to build() to give nodes a chance to load serialized state
-    for (const nodeName in nodes) {
-      const currNode = nodes[nodeName];
-      assignValueToOutput(nodeName, currNode.val);
-    }
 
-    // reporting nodes. One day we might like to sort these?
-    // For each reporting node...
-    for (const nodeName in reportingNodes) {
-      const reportingNode = reportingNodes[nodeName];
-      // Add to the resolvedPredecessors object...
-      resolvedPredecessors[nodeName] = Object.entries(state)
-        // ...those nodes that match the reporting filter function
-        .filter(
-          ([targetName, targetVal]) =>
-            nodeName !== targetName &&
-            reportingNode.options.dependsOn(targetName, targetVal)
-        )
-        // (just add the names)
-        .map(([key, val]) => key);
+      // for each reporting wrapper
+      for (const [filterFunc, wrapper] of unbuiltReportingWrappers) {
+        // if the current node matches the filter func
+        if (filterFunc(nodeName, node.val)) {
+          if (!nodeWrappers[nodeName]) nodeWrappers[nodeName] = [];
+          nodeWrappers[nodeName].push(wrapper);
+        }
+      }
+      // once all the wrappers are in for a node, we can add any dependencies from the wrapper to the node
+      if (nodeWrappers[nodeName]) {
+        for (const wrapper of nodeWrappers[nodeName]) {
+          const wrapperPredecessors = getParamNames(wrapper.wrapperFunc, 1);
+          // if both wrapper and node have predecessors, merge the two arrays
+          if (wrapperPredecessors.length && resolvedPredecessors[nodeName])
+            resolvedPredecessors[nodeName] = Array.from(
+              new Set(
+                resolvedPredecessors[nodeName].concat(wrapperPredecessors)
+              )
+            );
+          else if (wrapperPredecessors.length)
+            resolvedPredecessors[nodeName] = wrapperPredecessors;
+        }
+        // ... and sort them...
+        nodeWrappers[nodeName].sort(
+          (a, b) => (a.priority || 0) - (b.priority || 0)
+        );
+      }
+
+      // store initial value. Moved this to build() to give nodes a chance to load serialized state
+      assignValueToOutput(nodeName, node.val);
+
       addEdges(nodeName);
-      if (reupWrapper) reportingNode.reup = reupWrapper(reportingNode.reup);
+      if (node.reup && reupWrapper) node.reup = reupWrapper(node.reup);
     }
 
     sortedNodeNames = graph.topologicallySortedNodes().map((n) => n.name);
 
-    /**
-     * Reporting wrappers need to be added to the nodeWrappers object for the nodes that they match
-     */
-    // for each nodeVal
-    Object.entries(state).forEach(([key, val]) => {
-      // for each reporting wrapper
-      for (const [filterFunc, wrapper] of unbuiltReportingWrappers) {
-        if (filterFunc(key, val)) {
-          if (!nodeWrappers[key]) nodeWrappers[key] = [];
-          nodeWrappers[key].push(wrapper);
-        }
-      }
-    });
-
-    // for every wrapped node...
-    for (const wrappedNode in nodeWrappers) {
-      // once all the wrappers are in for a node, we can sort them...
-      nodeWrappers[wrappedNode].sort(
-        (a, b) => (a.priority || 0) - (b.priority || 0)
-      );
-
-      // ...and add any dependencies from the wrapper to the node
-      for (const wrapper of nodeWrappers[wrappedNode]) {
-        const wrapperPredecessors = getParamNames(wrapper.wrapperFunc, 1);
-        // if both wrapper and node have predecessors, merge the two arrays
-        if (wrapperPredecessors.length && resolvedPredecessors[wrappedNode])
-          resolvedPredecessors[wrappedNode] = Array.from(
-            new Set(
-              resolvedPredecessors[wrappedNode].concat(wrapperPredecessors)
-            )
-          );
-        else if (wrapperPredecessors.length)
-          resolvedPredecessors[wrappedNode] = wrapperPredecessors;
-      }
-    }
     //check for orphaned wrappers
     const wrappersWithoutNodes = Object.entries(nodeWrappers)
       .map(([key, val]) => key)
@@ -317,13 +288,14 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
         graph.addEdge(predecessor, nodeName);
         edges.push({ from: predecessor, to: nodeName });
       } catch (err) {
-        const newMessage = `Octopus cannot create edge from ${predecessor} to ${nodeName}\n${err.message}`
-        throw new Error(newMessage)
+        const newMessage = `Octopus cannot create edge from ${predecessor} to ${nodeName}\n${err.message}`;
+        throw new Error(newMessage);
       }
     });
   }
 
-  // what do we think about this? It makes a copy. Since radically simple, user code mutates val directly, then pass a reference to this object???
+  // what do we think about this? It makes a copy. Since radically simple, user code mutates val directly, 
+  // then pass a reference to this object???
   function assignValueToOutput(nodeName: string, value: any): void {
     if (typeof value === "object")
       //state[nodeName] = Object.assign({}, value)
