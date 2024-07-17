@@ -9,7 +9,7 @@
  * one day in devtools.
  */
 export interface INodeWrapper {
-  wrapperFunc: (nodeVal: any, precedessors: {[key:string]:any}) => void | Promise<void>;
+  wrapperFunc: (nodeVal: any, precedessors: any) => void | Promise<void>;
   priority?: number;
   name?: string;
 }

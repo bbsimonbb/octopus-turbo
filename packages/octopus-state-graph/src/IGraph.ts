@@ -2,6 +2,12 @@ import { INode } from "./INode.js"
 import { ISerializedGraph } from "./ISerializedGraph.js"
 import { INodeWrapper, WrapperFilterFunc } from "./INodeWrapper.js"
 
+
+export interface IGraphOptions{
+  debug?: boolean
+  reupWrapper?: (any) => any
+}
+
 export interface IGraph {
   state: { [nodeName: string]: any }
   methods: any

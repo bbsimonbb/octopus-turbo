@@ -1,5 +1,5 @@
 /* eslint-disable no-debugger */
-import { IGraph } from "./IGraph.js";
+import { IGraph, IGraphOptions } from "./IGraph.js";
 import { INamed, INode, isReportingNode } from "./INode.js";
 import { DirectedAcyclicGraph } from "typescript-graph";
 import { ISerializedGraph } from "./ISerializedGraph.js";
@@ -51,7 +51,8 @@ export function getParamNames(func: Function, position?: Number) {
 // https://stackoverflow.com/a/6472397/1585345
 // tried a load of things to decouple graph from Vue. Ideally consumers could make the output reactive when this function
 // returns, but I never succeeded.
-export function createGraph(reupWrapper?: (any) => any): IGraph {
+export function createGraph(options?:IGraphOptions): IGraph {
+  const {reupWrapper, debug} = options || {}
   // we pass in Vue.reactive(). Best solution I found for using the output in Vue. Should also work for mobx-react observable.
 
   // radically simple, we need get the reactive proxy in first. This is way to simple unfortunately.
@@ -94,14 +95,6 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       }
     });
   }
-  // const onNodeChanged = async (nodeName: string, publishVal: any) => {
-  //   /******************************      CALL THE WRAPPER      ***********************************/
-  //   // todo for radically simple, make this work again with mutation, wrapper will no longer return a val
-  //   //if (nodeWrappers[nodeName] && publishVal) publishVal = nodeWrappers[nodeName](publishVal)
-
-  //   // start traversing from node,
-  //   await fullTraversal(sortedNodeNames.findIndex((el) => el === nodeName) + 1)
-  // }
 
   // wrappers can initiate changes, if for example, management changes
   const onWrapperChanged = async (nodeName: string, publishVal: any) => {
@@ -109,12 +102,8 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       console.warn(
         `onWrapperChanged ${nodeName}, the new shape returned is not equal to the old one. Here are the two values, old one first...`
       );
-      //console.warn(state[nodeName])
-      //console.warn(nodeName)
     }
-    // copy new val to output
-    //state[nodeName] = JSON.parse(JSON.stringify(publishVal))
-    //val(nodeName, publishVal)
+
     // start traversing from node,
     await fullTraversal(sortedNodeNames.findIndex((el) => el === nodeName) + 1);
   };
@@ -207,10 +196,6 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
 
   /**
    * BUILD
-   * - add all reporting nodes
-   * - add plain nodes, for each
-   *   - testing as we go if they match reporting nodes
-   *   - testing if they match reporting wrappers
    */
   const build = () => {
     for (const nodeName in nodes) {
@@ -308,7 +293,7 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
   const executeOneNode = async (currNodeName: string) => {
     const currNode = nodes[currNodeName];
     let predecessorOutput: any = null;
-    // radically simple, reup now takes an array. For plain nodes, order will be important!
+    // radically simple, reup now takes an array. 
     predecessorOutput = {};
     if (
       resolvedPredecessors[currNodeName] &&
@@ -371,8 +356,8 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
       )
         await executeOneNode(currNodeName);
     }
-    // only send traversal report if we're in the browser, and served from a high port (dev)
-    if (isBrowser && /:[0-9]+$/gm.test(window.location.origin)) {
+    // only send traversal report if debug is set
+    if (debug) {
       if (octopusDevtoolsPresent || standAloneDevtools) {
         const message = {
           source: "octopus",
@@ -519,7 +504,6 @@ export function createGraph(reupWrapper?: (any) => any): IGraph {
   async function dispose() {
     for (let i = 0; i < sortedNodeNames.length; i++) {
       const currNodeName = sortedNodeNames[i];
-      //console.log(`traversing ${i} - ${currNode}`)
       // radically simple, a full traversal starts with the node which has just changed. It needs to reup whether or not it has inputs. The others, only if they have inputs.
       if (nodes[currNodeName].dispose) {
         try {

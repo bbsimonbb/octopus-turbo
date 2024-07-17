@@ -1,6 +1,5 @@
 import { createGraph } from "../Graph.js";
 import { test, expect } from "vitest";
-import { INode } from "../INode.js";
 export {};
 
 /**
