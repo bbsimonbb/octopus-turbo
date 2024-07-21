@@ -1,6 +1,6 @@
 import { INode } from "octopus-state-graph";
 import { IOption } from "../IOption.js";
-import graph from "./bareReactiveGraph.js";
+import graph from "../bareReactiveGraph.js";
 import { reactive } from "vue";
 
 export interface IPizza extends IOption {

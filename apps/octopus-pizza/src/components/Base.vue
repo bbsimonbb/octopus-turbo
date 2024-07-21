@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue'
-import {base} from "../graph/base"
-import {doOrder} from "../graph/doOrder"
+import {base, doOrder} from "../nodes"
 
 </script>
 

@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue'
-import {size} from "../graph/Size"
-import {doOrder} from "../graph/doOrder"
+import {size, doOrder} from "../nodes"
 import ToastyError from "./ToastyError.vue"
 
 </script>

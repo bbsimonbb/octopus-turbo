@@ -1,6 +1,6 @@
 import { INode } from "octopus-state-graph";
 import { IOption } from "../IOption";
-import graph from "./bareReactiveGraph";
+import graph from "../bareReactiveGraph";
 import { reactive } from "vue";
 export interface ITip {
   tipAsPct: boolean;

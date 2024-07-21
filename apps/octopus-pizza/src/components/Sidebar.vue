@@ -26,19 +26,16 @@
     </div>
     <div class="order-container">
       <div :class="{
-        button: true,
-        hide: !allValid.val?.valid,
-      }" @click="doOrder.methods?.go()">Place order</div>
+          button: true,
+          hide: !allValid.val?.valid,
+        }" @click="doOrder.methods?.go()">Place order</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ComputedRef, computed, inject, ref } from 'vue'
-import {allValid} from "../graph/allValid"
-import {delivery} from "../graph/delivery"
-import {doOrder} from "../graph/doOrder"
-import {totalPrice} from "../graph/totalPrice"
+import { computed} from 'vue'
+import { allValid, delivery, doOrder, totalPrice } from "../nodes"
 import Tip from "./Tip.vue"
 
 const deliveryCheckbox = computed({

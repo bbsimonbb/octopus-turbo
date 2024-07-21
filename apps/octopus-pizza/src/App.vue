@@ -3,9 +3,8 @@ import Size from './components/Size.vue'
 import Pizza from './components/Pizza.vue'
 import Base from './components/Base.vue'
 import Sidebar from './components/Sidebar.vue'
-import { pizza } from "./graph/Pizza"
-import graph from "./graph/bareReactiveGraph";
-import { reactive } from 'vue'
+import { pizza } from "./nodes"
+import graph from "./bareReactiveGraph";
 
 let devtools: undefined | null | Window
 function popDevtools() {
@@ -37,7 +36,7 @@ function popDevtools() {
       <Pizza></Pizza>
     </div>
   </div>
-  <Sidebar></Sidebar>
+  <Sidebar v-if="pizza.val.selectedIndex != -1"></Sidebar>
   <img src="./assets/vue.svg" id="vue-logo" />
   <img src="./assets/octopus-photo.png" id="octo" @click="popDevtools()" />
 </template>
@@ -162,3 +161,4 @@ img.main.veil {
   filter: brightness(80%);
 }
 </style>
+./bareReactiveGraph./nodes/Pizza

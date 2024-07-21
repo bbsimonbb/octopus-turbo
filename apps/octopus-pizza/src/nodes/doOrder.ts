@@ -1,4 +1,4 @@
-import graph from "./bareReactiveGraph";
+import graph from "../bareReactiveGraph";
 import { IGraph, INode } from "octopus-state-graph";
 import { IValid } from "./allValid";
 import { reactive } from "vue";

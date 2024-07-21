@@ -19,8 +19,7 @@
 
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue';
-import {tip} from "../graph/tip"
-import {doOrder} from "../graph/doOrder"
+import {tip, doOrder} from "../nodes"
 // tipUI has an inner loop. User input is backed by a local variable in the vue component.
 // Only if it parses to a number will we update the graph.
 var _rawUI = ref("")

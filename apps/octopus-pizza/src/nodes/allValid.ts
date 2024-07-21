@@ -1,5 +1,5 @@
 import { reactive } from "vue";
-import graph from "./bareReactiveGraph";
+import graph from "../bareReactiveGraph";
 import { IReportingNode } from "octopus-state-graph";
 
 export interface IValid {

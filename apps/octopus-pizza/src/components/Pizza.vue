@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { doOrder} from '../graph/doOrder'
-import {pizza} from '../graph/Pizza'
+import { pizza, doOrder} from '../nodes'
 import ToastyError from './ToastyError.vue'
 
 

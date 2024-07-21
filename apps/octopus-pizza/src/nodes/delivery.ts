@@ -1,5 +1,5 @@
 import { reactive } from "vue";
-import graph from "./bareReactiveGraph";
+import graph from "../bareReactiveGraph";
 import { IGraph, INode } from "octopus-state-graph";
 
 const val = reactive({

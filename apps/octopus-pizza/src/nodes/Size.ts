@@ -1,7 +1,7 @@
 import { IGraph, INode } from "octopus-state-graph";
 import { IOption } from "../IOption.js";
 import { reactive } from "vue";
-import graph from "./bareReactiveGraph.js"
+import graph from "../bareReactiveGraph.js"
 
 // size
   const val = reactive({
