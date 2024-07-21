@@ -51,8 +51,8 @@ export function getParamNames(func: Function, position?: Number) {
 // https://stackoverflow.com/a/6472397/1585345
 // tried a load of things to decouple graph from Vue. Ideally consumers could make the output reactive when this function
 // returns, but I never succeeded.
-export function createGraph(options?:IGraphOptions): IGraph {
-  const {reupWrapper, debug} = options || {}
+export function createGraph(options?: IGraphOptions): IGraph {
+  const { reupWrapper, debug } = options || {};
   // we pass in Vue.reactive(). Best solution I found for using the output in Vue. Should also work for mobx-react observable.
 
   // radically simple, we need get the reactive proxy in first. This is way to simple unfortunately.
@@ -269,6 +269,7 @@ export function createGraph(options?:IGraphOptions): IGraph {
 
   function addEdges(nodeName: string) {
     resolvedPredecessors[nodeName]?.forEach((predecessor) => {
+      if (predecessor === "$nodeName") return;
       try {
         graph.addEdge(predecessor, nodeName);
         edges.push({ from: predecessor, to: nodeName });
@@ -279,7 +280,7 @@ export function createGraph(options?:IGraphOptions): IGraph {
     });
   }
 
-  // what do we think about this? It makes a copy. Since radically simple, user code mutates val directly, 
+  // what do we think about this? It makes a copy. Since radically simple, user code mutates val directly,
   // then pass a reference to this object???
   function assignValueToOutput(nodeName: string, value: any): void {
     if (typeof value === "object")
@@ -293,14 +294,18 @@ export function createGraph(options?:IGraphOptions): IGraph {
   const executeOneNode = async (currNodeName: string) => {
     const currNode = nodes[currNodeName];
     let predecessorOutput: any = null;
-    // radically simple, reup now takes an array. 
+    // radically simple, reup now takes an array.
     predecessorOutput = {};
     if (
       resolvedPredecessors[currNodeName] &&
       resolvedPredecessors[currNodeName].length
     ) {
       resolvedPredecessors[currNodeName].forEach((pName) => {
-        const predecessorState = state[pName];
+        let predecessorState;
+        // reporting wrappers may need to know the names of the nodes they wrap.
+        // They do this by adding the reserved prop '$nodeName' to the predecessors object
+        if (pName === "$nodeName") predecessorState = currNodeName;
+        else predecessorState = state[pName];
         // if (!predecessorState)
         //   debugger
         Object.defineProperty(predecessorOutput, pName, {

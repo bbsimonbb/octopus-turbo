@@ -362,3 +362,44 @@ test("A wrapper wanting an already added dependency can have it", async () => {
   expect(downstreamNode.val.anInt).toBe(22);
   expect(graph.state.downstream.anInt).toBe(22);
 });
+
+
+/**
+ * A wrapper function can access the name of the node it wraps
+ */
+test("A wrapper can add a dependency", async () => {
+  const graph = createGraph();
+  const val = {
+    anInt: 2,
+  };
+  const upstreamNode = graph.addNode("upstream", {
+    val,
+    methods: {
+      setVal(newVal: number) {
+        val.anInt = newVal;
+      },
+    },
+  });
+
+  const downstreamNode = graph.addNode("downstream", {
+    val: {
+      anInt: 5,
+      amDownstream: true
+    },
+    reup:({})=>{
+    }
+  });
+
+  let nodeName: string
+  graph.wrapNodes((nodeName)=>nodeName === "downstream", {
+    wrapperFunc: (val, {upstream, $nodeName}) => {
+      val.anInt = val.anInt + 3 + upstream.anInt;
+      nodeName = $nodeName
+    },
+  });
+  graph.build();
+
+  await upstreamNode.methods.setVal(14);
+
+  expect(nodeName).toBe("downstream")
+});
