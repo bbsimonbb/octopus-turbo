@@ -1,10 +1,10 @@
 # https://turbo.build/repo/docs/ci/github-actions
-name:  NPM Publish
+name: NPM Publish
 
 on:
   push:
     branches:
-     - main
+      - main
 
 jobs:
   build-and-publish:
@@ -14,15 +14,14 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2.4.0
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 19
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
       - run: pnpm install
       - run: pnpm build
       - run: pnpm test
       - run: pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
