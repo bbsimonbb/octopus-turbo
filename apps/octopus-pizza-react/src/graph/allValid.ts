@@ -1,6 +1,6 @@
 import graph from "./bareReactiveGraph";
 import { IReportingNode } from "octopus-state-graph";
-import { action, makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "mobx";
 
 export interface IValid {
   valid: boolean;
@@ -25,14 +25,12 @@ const node: IReportingNode<IValid, null> = {
     },
   },
   reup(nodes) {
-    action(() => {
-      let allValid = true;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for (const [_, val] of Object.entries(nodes)) {
-        allValid = allValid && !!(val as IValid).valid;
-      }
-      val.valid = allValid;
-    })();
+    let allValid = true;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const [_, val] of Object.entries(nodes)) {
+      allValid = allValid && !!(val as IValid).valid;
+    }
+    val.valid = allValid;
   },
 };
 const allValid = graph.addNode("allValid", node);

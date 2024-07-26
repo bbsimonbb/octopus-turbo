@@ -2,7 +2,7 @@
 import graph from "./bareReactiveGraph";
 import { IReportingNode } from "octopus-state-graph";
 import { IOption } from "../IOption";
-import { action, makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "mobx";
 
 interface IPricedOption {
   optionPrice: number;
@@ -23,17 +23,15 @@ const val = makeAutoObservable({ total: 0 });
 const node: IReportingNode<any> = {
   val,
   reup(inputs: IPricedOption[]) {
-    action(() => {
-      let totalPrice = 0;
+    let totalPrice = 0;
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for (const [key, val] of Object.entries(inputs)) {
-        totalPrice += (val as IOption).valid
-          ? (val as IOption).optionPrice || 0
-          : 0;
-      }
-      val.total = totalPrice;
-    })();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const [key, val] of Object.entries(inputs)) {
+      totalPrice += (val as IOption).valid
+        ? (val as IOption).optionPrice || 0
+        : 0;
+    }
+    val.total = totalPrice;
   },
   options: {
     dependsOn(nodeName, publishedVal) {

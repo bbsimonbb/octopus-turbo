@@ -1,6 +1,6 @@
 import graph from "./bareReactiveGraph";
 import { IValid } from "./allValid";
-import { action, makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "mobx";
 
 let canGo = false;
 const val = makeAutoObservable({
@@ -10,15 +10,13 @@ const val = makeAutoObservable({
 const node = {
   val,
   reup({ allValid }: { allValid: IValid }) {
-    action(() => {
-      canGo = allValid.valid;
-    })();
+    canGo = allValid.valid;
   },
   methods: {
     async go() {
       if (canGo) {
         await alert("Excellent choice! Enjoy your pizza.");
-        window.location.reload()
+        window.location.reload();
         // reset submit blocked when everything has worked
         val.submitBlocked = false;
       } else {

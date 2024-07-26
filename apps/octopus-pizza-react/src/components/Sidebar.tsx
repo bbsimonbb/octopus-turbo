@@ -4,17 +4,18 @@ import { delivery } from "../graph/delivery";
 import { doOrder } from "../graph/doOrder";
 import { totalPrice } from "../graph/totalPrice";
 import { FormEvent } from "react";
-import { action } from "mobx";
 import { Tip } from "./Tip";
 import "./Sidebar.css";
 import { ToastyError } from "./ToastyError";
 
 export const Sidebar = observer(() => {
-  const deliveryAddressOnChange = action((e: FormEvent<HTMLDivElement>) => {
+  const deliveryAddressOnChange = (e: FormEvent<HTMLDivElement>) => {
     const textArea = e.target as HTMLElement;
     delivery.methods?.setDeliveryAddress(textArea.innerText);
-  });
-  const deliveryErrorActive = (!!delivery.val?.touched || !!doOrder.val?.submitBlocked) && !delivery.val?.valid
+  };
+  const deliveryErrorActive =
+    (!!delivery.val?.touched || !!doOrder.val?.submitBlocked) &&
+    !delivery.val?.valid;
   return (
     <>
       <div id="sidebar-right">
@@ -24,9 +25,9 @@ export const Sidebar = observer(() => {
               id="deliveryCheckbox"
               type="checkbox"
               checked={delivery.val?.checked}
-              onClick={action((event) =>
+              onClick={(event) =>
                 delivery.methods?.setChecked(event.currentTarget.checked)
-              )}
+              }
             />{" "}
             delivery 5€
           </div>
@@ -38,10 +39,13 @@ export const Sidebar = observer(() => {
               onInput={deliveryAddressOnChange}
               style={{ height: "60px" }}
               contentEditable
-              onFocus={action(() => delivery.methods?.deliveryOn())}
+              onFocus={() => delivery.methods?.deliveryOn()}
             ></div>
           </div>
-          <ToastyError errorMsg="Please provide a delivery address." active={deliveryErrorActive}></ToastyError>
+          <ToastyError
+            errorMsg="Please provide a delivery address."
+            active={deliveryErrorActive}
+          ></ToastyError>
         </div>
         <Tip></Tip>
         <br />
@@ -59,7 +63,7 @@ export const Sidebar = observer(() => {
         <div className="order-container">
           <div
             className={`button ${!allValid.val?.valid ? "hide" : ""}`}
-            onClick={action(() => doOrder.methods?.go())}
+            onClick={() => doOrder.methods?.go()}
           >
             Place order
           </div>

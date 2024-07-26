@@ -1,18 +1,14 @@
 import { INode } from "octopus-state-graph";
 import { IOption } from "../IOption.js";
 import graph from "./bareReactiveGraph.js";
-import { action, makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "mobx";
 import { IChoice } from "../IChoice.js";
 
-
-type pizzaKeys = "4 Stagioni" |
-  "Gorgonzola" |
-  "Margherita" |
-  "Prosciutto"
+type pizzaKeys = "4 Stagioni" | "Gorgonzola" | "Margherita" | "Prosciutto";
 
 interface IPizzaChoice extends IChoice {
-  id: pizzaKeys
-  basePrice: number
+  id: pizzaKeys;
+  basePrice: number;
 }
 export interface IPizzaOption extends IOption<IPizzaChoice> {
   canChoose: boolean;
@@ -67,40 +63,34 @@ const val: IPizzaOption = makeAutoObservable({
 const node: INode<IPizzaOption> = {
   val,
   reup({ size, base }: { size: IOption; base: IOption }) {
-    action(() => {
-      val.choices.forEach((c) => {
-        c.price =
-          c.basePrice * size?.choices[size?.selectedIndex || 0].coef;
-        if (base.selectedIndex === undefined)
-          c.hide = true
-        else {
-          const baseChoice = base.choices[base.selectedIndex]
-          c.hide = c.base !== baseChoice?.id;
-        }
-      });
-      if (val.selectedIndex) {
-        const pizzaChoice = val.choices[val.selectedIndex]
-        val.optionPrice = pizzaChoice?.price;
-        val.valid = !!pizzaChoice && !pizzaChoice?.hide;
-      } else {
-        val.optionPrice = 0
-        val.valid = false
-        val.canChoose = !!size?.valid && !!base?.valid;
+    val.choices.forEach((c) => {
+      c.price = c.basePrice * size?.choices[size?.selectedIndex || 0].coef;
+      if (base.selectedIndex === undefined) c.hide = true;
+      else {
+        const baseChoice = base.choices[base.selectedIndex];
+        c.hide = c.base !== baseChoice?.id;
       }
-    })();
+    });
+    if (val.selectedIndex) {
+      const pizzaChoice = val.choices[val.selectedIndex];
+      val.optionPrice = pizzaChoice?.price;
+      val.valid = !!pizzaChoice && !pizzaChoice?.hide;
+    } else {
+      val.optionPrice = 0;
+      val.valid = false;
+      val.canChoose = !!size?.valid && !!base?.valid;
+    }
   },
   methods: {
     selectItem(index: number) {
-      action(() => {
-        // can't select pizzas that are hidden
-        if (!val.choices[index].hide) {
-          val.selectedIndex = index;
-          val.choices.forEach((el, i) => {
-            el.selected = i === index;
-          });
-          val.touched = true;
-        }
-      })();
+      // can't select pizzas that are hidden
+      if (!val.choices[index].hide) {
+        val.selectedIndex = index;
+        val.choices.forEach((el, i) => {
+          el.selected = i === index;
+        });
+        val.touched = true;
+      }
     },
   },
 };
