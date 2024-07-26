@@ -71,7 +71,7 @@ const node: INode<IPizzaOption> = {
         c.hide = c.base !== baseChoice?.id;
       }
     });
-    if (val.selectedIndex) {
+    if (val.selectedIndex !== undefined) {
       const pizzaChoice = val.choices[val.selectedIndex];
       val.optionPrice = pizzaChoice?.price;
       val.valid = !!pizzaChoice && !pizzaChoice?.hide;
