@@ -178,7 +178,9 @@ export function createGraph(options?: IGraphOptions): IGraph {
           node.methods[prop] = new Proxy(node.methods[prop], {
             apply: async function (target, thisArg, argArray) {
               // execute the method
-              await target(...argArray);
+              reupWrapper
+                ? await reupWrapper(target(...argArray))
+                : await target(...argArray);
               // copy the result
               assignValueToOutput(nodeName, node.val);
               // magic step. Launch a full traversal starting with node itself.
