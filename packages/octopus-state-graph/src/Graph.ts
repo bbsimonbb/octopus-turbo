@@ -179,7 +179,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
             apply: async function (target, thisArg, argArray) {
               // execute the method
               reupWrapper
-                ? await reupWrapper(target(...argArray))
+                ? await reupWrapper(target)(...argArray)
                 : await target(...argArray);
               // copy the result
               assignValueToOutput(nodeName, node.val);
