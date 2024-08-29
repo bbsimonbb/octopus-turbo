@@ -7,6 +7,7 @@ import { Sidebar } from "./components/Sidebar";
 import { observer } from "mobx-react-lite";
 import graph from "./graph/bareReactiveGraph";
 import { useState } from "react";
+import colour2 from "./testJustAnObject";
 
 const App = observer(() => {
   const [devtools, setDevtools] = useState<Window | null | undefined>(
@@ -40,6 +41,10 @@ const App = observer(() => {
               src={pizzaChoice?.imageUrl}
             />
           </div>
+        </div>
+        <div>
+          <button onClick={colour2.setSelected}>Set</button>
+          {colour2.selectedId}
         </div>
         <div className="flex-container">
           <Size></Size>

@@ -59,7 +59,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
   const state: any = {}; //stateWrapper ? stateWrapper({}) : {};
 
   // Create the graph https://segfaultx64.github.io/typescript-graph/
-  const graph = new DirectedAcyclicGraph<INamed>((n: INamed) => n.name);
+  const tsGraph = new DirectedAcyclicGraph<INamed>((n: INamed) => n.name);
 
   // Not obvious how to address nodes once in the graph, so I'll add them to my own container as well.
   const nodes: Record<string, INode> = {};
@@ -119,12 +119,13 @@ export function createGraph(options?: IGraphOptions): IGraph {
         `"node" must have a "val" property. If the node "${nodeName}" publishes nothing, supply an empty object.`
       );
     nodes[nodeName] = node;
-    graph.insert({ name: nodeName });
+    tsGraph.insert({ name: nodeName });
 
     wrapMethodsWithProxy(nodeName, node);
 
     return { val: node.val, methods: node.methods };
   }
+
   function wrapANode(target: string, wrapper: INodeWrapper) {
     if (!nodeWrappers[target])
       Object.defineProperty(nodeWrappers, target, {
@@ -200,63 +201,63 @@ export function createGraph(options?: IGraphOptions): IGraph {
    * BUILD
    */
   const build = () => {
-    for (const nodeName in nodes) {
-      const node = nodes[nodeName];
+    for (const currNodeName in nodes) {
+      const node = nodes[currNodeName];
       if (node.reup) {
         // radically simple !
         if (node.options && typeof node.options.dependsOn === "function") {
           // predecessors for reporting nodes
-          resolvedPredecessors[nodeName] = Object.entries(nodes)
+          resolvedPredecessors[currNodeName] = Object.entries(nodes)
             // ...those nodes that match the reporting filter function
             .filter(
               ([targetName, targetNode]) =>
-                nodeName !== targetName &&
+                currNodeName !== targetName &&
                 node.options.dependsOn(targetName, targetNode.val)
             )
             // (just add the names)
             .map(([key, val]) => key);
         } else {
           // predecessors for plain nodes
-          resolvedPredecessors[nodeName] = getParamNames(node.reup);
+          resolvedPredecessors[currNodeName] = getParamNames(node.reup);
         }
       }
 
       // for each reporting wrapper
       for (const [filterFunc, wrapper] of unbuiltReportingWrappers) {
         // if the current node matches the filter func
-        if (filterFunc(nodeName, node.val)) {
-          if (!nodeWrappers[nodeName]) nodeWrappers[nodeName] = [];
-          nodeWrappers[nodeName].push(wrapper);
+        if (filterFunc(currNodeName, node.val)) {
+          if (!nodeWrappers[currNodeName]) nodeWrappers[currNodeName] = [];
+          nodeWrappers[currNodeName].push(wrapper);
         }
       }
       // once all the wrappers are in for a node, we can add any dependencies from the wrapper to the node
-      if (nodeWrappers[nodeName]) {
-        for (const wrapper of nodeWrappers[nodeName]) {
+      if (nodeWrappers[currNodeName]) {
+        for (const wrapper of nodeWrappers[currNodeName]) {
           const wrapperPredecessors = getParamNames(wrapper.wrapperFunc, 1);
           // if both wrapper and node have predecessors, merge the two arrays
-          if (wrapperPredecessors.length && resolvedPredecessors[nodeName])
-            resolvedPredecessors[nodeName] = Array.from(
+          if (wrapperPredecessors.length && resolvedPredecessors[currNodeName])
+            resolvedPredecessors[currNodeName] = Array.from(
               new Set(
-                resolvedPredecessors[nodeName].concat(wrapperPredecessors)
+                resolvedPredecessors[currNodeName].concat(wrapperPredecessors)
               )
             );
           else if (wrapperPredecessors.length)
-            resolvedPredecessors[nodeName] = wrapperPredecessors;
+            resolvedPredecessors[currNodeName] = wrapperPredecessors;
         }
         // ... and sort them...
-        nodeWrappers[nodeName].sort(
+        nodeWrappers[currNodeName].sort(
           (a, b) => (a.priority || 0) - (b.priority || 0)
         );
       }
 
       // store initial value. Moved this to build() to give nodes a chance to load serialized state
-      assignValueToOutput(nodeName, node.val);
+      assignValueToOutput(currNodeName, node.val);
 
-      addEdges(nodeName);
+      addEdges(currNodeName);
       if (node.reup && reupWrapper) node.reup = reupWrapper(node.reup);
     }
 
-    sortedNodeNames = graph.topologicallySortedNodes().map((n) => n.name);
+    sortedNodeNames = tsGraph.topologicallySortedNodes().map((n) => n.name);
 
     //check for orphaned wrappers
     const wrappersWithoutNodes = Object.entries(nodeWrappers)
@@ -273,7 +274,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
     resolvedPredecessors[nodeName]?.forEach((predecessor) => {
       if (predecessor === "$nodeName") return;
       try {
-        graph.addEdge(predecessor, nodeName);
+        tsGraph.addEdge(predecessor, nodeName);
         edges.push({ from: predecessor, to: nodeName });
       } catch (err) {
         const newMessage = `Octopus cannot create edge from ${predecessor} to ${nodeName}\n${err.message}`;
