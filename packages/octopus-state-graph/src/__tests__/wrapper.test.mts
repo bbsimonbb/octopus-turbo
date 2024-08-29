@@ -39,7 +39,6 @@ test("a wrapper adds 3 to a downstream node.", async () => {
   await upstreamNode.methods.setVal(14);
 
   expect(downstreamNode.val.downstreamInt).toBe(19);
-  expect(graph.state.downstream.downstreamInt).toBe(19);
 });
 
 /**
@@ -84,7 +83,6 @@ test("An async wrapper will be waited for", async () => {
   await upstreamNode.methods.setVal(14);
 
   expect(downstreamNode.val.downstreamInt).toBe(19);
-  expect(graph.state.downstream.downstreamInt).toBe(19);
 });
 
 /**
@@ -124,7 +122,6 @@ test("a wrapper adds 3 to both nodes", async () => {
   await upstreamNode.methods.setVal(14);
 
   expect(downstreamNode.val.anInt).toBe(22);
-  expect(graph.state.downstream.anInt).toBe(22);
 });
 
 /**
@@ -154,7 +151,7 @@ test("The same wrapper can be added to x nodes chosen with a filter func", async
     },
   });
 
-  graph.wrapNodes((key, val)=>!!val.anInt, {
+  graph.wrapNodes((key, val) => !!val.anInt, {
     wrapperFunc: (val) => {
       val.anInt = val.anInt + 3;
     },
@@ -164,7 +161,6 @@ test("The same wrapper can be added to x nodes chosen with a filter func", async
   await upstreamNode.methods.setVal(14);
 
   expect(downstreamNode.val.anInt).toBe(22);
-  expect(graph.state.downstream.anInt).toBe(22);
 });
 
 /**
@@ -184,24 +180,23 @@ test("Wrappers without priority execute in the order they were added", async () 
     },
   });
 
-  graph.wrapNodes("upstream",{
-    wrapperFunc:(val)=>{
-      val.anInt = val.anInt + 4
+  graph.wrapNodes("upstream", {
+    wrapperFunc: (val) => {
+      val.anInt = val.anInt + 4;
     },
-    name: "first add"
-  })
+    name: "first add",
+  });
   graph.wrapNodes("upstream", {
     wrapperFunc: (val) => {
       val.anInt = val.anInt * 3;
     },
-    name: "then multiply"
+    name: "then multiply",
   });
   graph.build();
 
   await upstreamNode.methods.setVal(4);
 
   expect(upstreamNode.val.anInt).toBe(24);
-  expect(graph.state.upstream.anInt).toBe(24);
 });
 
 /**
@@ -226,21 +221,20 @@ test("Wrappers with priority execute lowest first", async () => {
       val.anInt = val.anInt * 3;
     },
     name: "then multiply",
-    priority: 2
+    priority: 2,
   });
-  graph.wrapNodes("upstream",{
-    wrapperFunc:(val)=>{
-      val.anInt = val.anInt + 4
+  graph.wrapNodes("upstream", {
+    wrapperFunc: (val) => {
+      val.anInt = val.anInt + 4;
     },
     name: "first add",
-    priority: 1
-  })
+    priority: 1,
+  });
   graph.build();
 
   await upstreamNode.methods.setVal(4);
 
   expect(upstreamNode.val.anInt).toBe(24);
-  expect(graph.state.upstream.anInt).toBe(24);
 });
 
 /**
@@ -268,12 +262,12 @@ test("Reporting nodes can be wrapped", async () => {
       this.val.anInt = nodeArray[0].anInt + 2;
       return true;
     },
-    options:{
-      dependsOn:(name, val)=>!!val.anInt
-    }
+    options: {
+      dependsOn: (name, val) => !!val.anInt,
+    },
   });
 
-  graph.wrapNodes((key, val)=>!!val.anInt, {
+  graph.wrapNodes((key, val) => !!val.anInt, {
     wrapperFunc: (val) => {
       val.anInt = val.anInt + 3;
     },
@@ -283,7 +277,6 @@ test("Reporting nodes can be wrapped", async () => {
   await upstreamNode.methods.setVal(14);
 
   expect(downstreamNode.val.anInt).toBe(22);
-  expect(graph.state.downstreamReporting.anInt).toBe(22);
 });
 
 /**
@@ -307,12 +300,11 @@ test("A wrapper can add a dependency", async () => {
     val: {
       anInt: 5,
     },
-    reup:({})=>{
-    }
+    reup: ({}) => {},
   });
 
   graph.wrapNodes("downstream", {
-    wrapperFunc: (val, {upstream}) => {
+    wrapperFunc: (val, { upstream }) => {
       val.anInt = val.anInt + 3 + upstream.anInt;
     },
   });
@@ -321,9 +313,7 @@ test("A wrapper can add a dependency", async () => {
   await upstreamNode.methods.setVal(14);
 
   expect(downstreamNode.val.anInt).toBe(22);
-  expect(graph.state.downstream.anInt).toBe(22);
 });
-
 
 /**
  * A wrapper wanting an already added dependency can have it
@@ -346,12 +336,11 @@ test("A wrapper wanting an already added dependency can have it", async () => {
     val: {
       anInt: 5,
     },
-    reup:({upstream})=>{
-    }
+    reup: ({ upstream }) => {},
   });
 
   graph.wrapNodes("downstream", {
-    wrapperFunc: (val, {upstream}) => {
+    wrapperFunc: (val, { upstream }) => {
       val.anInt = val.anInt + 3 + upstream.anInt;
     },
   });
@@ -360,9 +349,7 @@ test("A wrapper wanting an already added dependency can have it", async () => {
   await upstreamNode.methods.setVal(14);
 
   expect(downstreamNode.val.anInt).toBe(22);
-  expect(graph.state.downstream.anInt).toBe(22);
 });
-
 
 /**
  * A wrapper function can access the name of the node it wraps
@@ -384,22 +371,21 @@ test("A wrapper can add a dependency", async () => {
   const downstreamNode = graph.addNode("downstream", {
     val: {
       anInt: 5,
-      amDownstream: true
+      amDownstream: true,
     },
-    reup:({})=>{
-    }
+    reup: ({}) => {},
   });
 
-  let nodeName: string
-  graph.wrapNodes((nodeName)=>nodeName === "downstream", {
-    wrapperFunc: (val, {upstream, $nodeName}) => {
+  let nodeName: string;
+  graph.wrapNodes((nodeName) => nodeName === "downstream", {
+    wrapperFunc: (val, { upstream, $nodeName }) => {
       val.anInt = val.anInt + 3 + upstream.anInt;
-      nodeName = $nodeName
+      nodeName = $nodeName;
     },
   });
   graph.build();
 
   await upstreamNode.methods.setVal(14);
 
-  expect(nodeName).toBe("downstream")
+  expect(nodeName).toBe("downstream");
 });

@@ -5,7 +5,12 @@ import { DirectedAcyclicGraph } from "typescript-graph";
 import { ISerializedGraph } from "./ISerializedGraph.js";
 import { isStateful, IStateful } from "./IStateful.js";
 import { INodeWrapper } from "./INodeWrapper.js";
-import { INode2, INodeInternal, JustTheValues } from "./NewTypes.js";
+import {
+  INode2,
+  INodeInternal,
+  JustTheFunctions,
+  JustTheValues,
+} from "./NewTypes.js";
 
 interface INodeContainer {
   [nodeName: string]: INode;
@@ -131,12 +136,13 @@ export function createGraph(options?: IGraphOptions): IGraph {
       ...nodes[nodeName],
       raw: newFormatNode,
       resolvedPredecessors: [],
+      wrappers: [],
     };
     tsGraph.insert({ name: nodeName });
 
     wrapMethodsWithProxy(nodeName, newFormatNode);
 
-    return { val: node.val, methods: node.methods };
+    return { val: node.val, methods: justTheFunctions(newFormatNode) };
   }
 
   function wrapANode(target: string, wrapper: INodeWrapper) {
@@ -311,7 +317,18 @@ export function createGraph(options?: IGraphOptions): IGraph {
     for (const key in node) {
       if (typeof node[key] !== "function") {
         result[key as any as keyof JustTheValues<T>] =
-          node[key as keyof JustTheValues<T>];
+          node[key as any as keyof JustTheValues<T>];
+      }
+    }
+    return result;
+  }
+
+  function justTheFunctions<T>(node: T): JustTheFunctions<T> {
+    const result = {} as JustTheFunctions<T>;
+    for (const key in node) {
+      if (typeof node[key] === "function") {
+        result[key as any as keyof JustTheFunctions<T>] =
+          node[key as any as keyof JustTheFunctions<T>];
       }
     }
     return result;
@@ -332,7 +349,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
         // They do this by adding the reserved prop '$nodeName' to the predecessors object
         if (pName === "$nodeName") predecessorState = currNodeName;
         // just-an-object. The state to pass is the node, minus methods, minus _o
-        else predecessorState = justTheValues(nodes[pName]);
+        else predecessorState = justTheValues(nodes[pName].raw);
         Object.defineProperty(predecessorOutput, pName, {
           value: JSON.parse(JSON.stringify(predecessorState)),
           configurable: true,
