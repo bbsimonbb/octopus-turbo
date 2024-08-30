@@ -10,6 +10,8 @@ import {
   INodeInternal,
   JustTheFunctions,
   JustTheValues,
+  ONode,
+  WithoutKernel,
 } from "./NewTypes.js";
 
 interface INodeContainer {
@@ -109,40 +111,31 @@ export function createGraph(options?: IGraphOptions): IGraph {
   //   await fullTraversal(sortedNodeNames.findIndex((el) => el === nodeName) + 1);
   // };
 
-  function addNode(nodeName: string, node: INode) {
+  function addNode<T extends ONode>(
+    nodeName: string,
+    node: T
+  ): WithoutKernel<T> {
     if (!nodeName) throw new Error(`We can't add a node without a name.`);
     if (!node)
       throw new Error(
         `Missing argument "node" for node "${nodeName}". addNode() requires a node.`
       );
-    if (!node.val)
-      throw new Error(
-        `"node" must have a "val" property. If the node "${nodeName}" publishes nothing, supply an empty object.`
-      );
-
-    let newFormatNode = {
-      ...node.val,
-      ...node.methods,
-      _o: {
-        reup: node.reup,
-        reupFilterFunc: node.options?.dependsOn,
-        saveState: node.saveState,
-        loadState: node.loadState,
-        dispose: node.dispose,
-      },
-    };
     // their might already be an entry for the node name if a wrapper has been added
     nodes[nodeName] = {
       ...nodes[nodeName],
-      raw: newFormatNode,
+      _o: node._o,
+      raw: node,
       resolvedPredecessors: [],
       wrappers: [],
     };
     tsGraph.insert({ name: nodeName });
 
-    wrapMethodsWithProxy(nodeName, newFormatNode);
+    // we've hoisted the kernel into the internal node. Delete it from the original object.
+    // this preserves the reference but is that what we want.
 
-    return { val: node.val, methods: justTheFunctions(newFormatNode) };
+    delete node._o;
+    wrapMethodsWithProxy(nodeName, node);
+    return node;
   }
 
   function wrapANode(target: string, wrapper: INodeWrapper) {
@@ -214,22 +207,22 @@ export function createGraph(options?: IGraphOptions): IGraph {
   const build = () => {
     for (const currNodeName in nodes) {
       const node = nodes[currNodeName];
-      if (node.raw._o.reup) {
+      if (node._o?.reup) {
         // reporting node
-        if (node.raw._o.reupFilterFunc) {
+        if (node._o.reupFilterFunc) {
           // predecessors for reporting nodes
           node.resolvedPredecessors = Object.entries(nodes)
             // ...those nodes that match the reporting filter function
             .filter(
               ([targetName, targetNode]) =>
                 currNodeName !== targetName &&
-                node.raw._o.reupFilterFunc(targetName, targetNode)
+                node._o.reupFilterFunc(targetName, targetNode)
             )
             // (just add the names)
             .map(([key, val]) => key);
         } else {
           // predecessors for plain nodes
-          node.resolvedPredecessors = getParamNames(node.raw._o.reup);
+          node.resolvedPredecessors = getParamNames(node._o.reup);
         }
       }
 
@@ -270,7 +263,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
 
       addEdges(currNodeName);
       // just-an-object: this looks like a vestige of when there used to be just one wrapper ???????????????????
-      //if (node.raw._o.reup && reupWrapper) node.raw._o.reup = reupWrapper(node.reup);
+      //if (node._o.reup && reupWrapper) node._o.reup = reupWrapper(node.reup);
     }
 
     sortedNodeNames = tsGraph.topologicallySortedNodes().map((n) => n.name);
@@ -334,6 +327,17 @@ export function createGraph(options?: IGraphOptions): IGraph {
     return result;
   }
 
+  function withoutKernel<T>(node: T): JustTheFunctions<T> {
+    const result = {} as JustTheFunctions<T>;
+    for (const key in node) {
+      if (typeof node[key] === "function") {
+        result[key as any as keyof JustTheFunctions<T>] =
+          node[key as any as keyof JustTheFunctions<T>];
+      }
+    }
+    return result;
+  }
+
   const executeOneNode = async (currNodeName: string) => {
     const currNode = nodes[currNodeName];
     let predecessorOutput: any = null;
@@ -363,13 +367,13 @@ export function createGraph(options?: IGraphOptions): IGraph {
       /** ****************************       CALL THE NODE        **********************************
        * Nodes without a reup may still have wrappers that need to execute. Call reup if it exists.
        */
-      if (currNode.raw._o.reup) {
-        if (!currNode.raw._o.reupFilterFunc) {
-          await currNode.raw._o.reup(predecessorOutput);
+      if (currNode._o?.reup) {
+        if (!currNode._o.reupFilterFunc) {
+          await currNode._o.reup(predecessorOutput);
         }
         // radically simple, reporting nodes don't know or care about the names of their inputs, we'll give them an array they can iterate over
         else {
-          await currNode.raw._o.reup(Object.values(predecessorOutput));
+          await currNode._o.reup(Object.values(predecessorOutput));
         }
       }
       /** ****************************      CALL THE WRAPPERS      **********************************
@@ -486,8 +490,8 @@ export function createGraph(options?: IGraphOptions): IGraph {
 
     for (const nodeName of sortedNodeNames) {
       const currNode = nodes[nodeName];
-      if (isStateful(currNode.raw._o)) {
-        currNode.raw._o.loadState(storedState.nodeStates[nodeName]);
+      if (isStateful(currNode._o)) {
+        currNode._o.loadState(storedState.nodeStates[nodeName]);
       }
       // for sources, initialValue is the only way of getting a value out, so we'll read it
       // after loading state.
@@ -524,21 +528,20 @@ export function createGraph(options?: IGraphOptions): IGraph {
       console.log("wrapping reups");
       for (const nodeName of sortedNodeNames) {
         const node = nodes[nodeName];
-        if (node.raw._o.reup) node.raw._o.reup = reupWrapper(node.raw._o.reup);
+        if (node._o.reup) node._o.reup = reupWrapper(node._o.reup);
       }
       return loadedGraph;
     } else return _loadState(storedState, currentGraphVersion);
   }
   function objectMap(obj, func) {
-    return Object.fromEntries(
-      Object.entries(obj).map(([k, v]) => [k, func(v)])
-    );
+    const entries = Object.entries(obj);
+    return Object.fromEntries(entries.map(([k, v]) => [k, func(v)]));
   }
   function saveState(currentGraphVersion): ISerializedGraph {
-    const resolvedPredecessors = objectMap(nodes, ([key, val]) => [
-      key,
-      val.resolvedPredecessors,
-    ]);
+    const resolvedPredecessors = objectMap(
+      nodes,
+      (val) => val.resolvedPredecessors
+    );
     const returnVal = {
       resolvedPredecessors,
       topologicalSort: sortedNodeNames,
@@ -548,8 +551,8 @@ export function createGraph(options?: IGraphOptions): IGraph {
 
     for (const nodeName of Object.getOwnPropertyNames(nodes)) {
       const currNode = nodes[nodeName];
-      if (isStateful(currNode.raw._o))
-        returnVal.nodeStates[nodeName] = currNode.raw._o.saveState();
+      if (isStateful(currNode._o))
+        returnVal.nodeStates[nodeName] = currNode._o.saveState();
     }
     return returnVal;
   }
@@ -563,9 +566,9 @@ export function createGraph(options?: IGraphOptions): IGraph {
     for (let i = 0; i < sortedNodeNames.length; i++) {
       const currNodeName = sortedNodeNames[i];
       // radically simple, a full traversal starts with the node which has just changed. It needs to reup whether or not it has inputs. The others, only if they have inputs.
-      if (nodes[currNodeName].raw._o.dispose) {
+      if (nodes[currNodeName]._o.dispose) {
         try {
-          await nodes[currNodeName].raw._o.dispose();
+          await nodes[currNodeName]._o.dispose();
         } catch (e) {
           console.error(
             `Error disposing of ${currNodeName}. Error follows. Disposing continues.`
