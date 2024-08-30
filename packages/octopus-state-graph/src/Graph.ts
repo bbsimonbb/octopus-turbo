@@ -216,7 +216,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
             .filter(
               ([targetName, targetNode]) =>
                 currNodeName !== targetName &&
-                node._o.reupFilterFunc(targetName, targetNode)
+                node._o.reupFilterFunc(targetName, targetNode.raw)
             )
             // (just add the names)
             .map(([key, val]) => key);
@@ -229,7 +229,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
       // for each reporting wrapper
       for (const [filterFunc, wrapper] of unbuiltReportingWrappers) {
         // if the current node matches the filter func
-        if (filterFunc(currNodeName, node)) {
+        if (filterFunc(currNodeName, node.raw)) {
           nodes[currNodeName].wrappers.push(wrapper);
         }
       }
