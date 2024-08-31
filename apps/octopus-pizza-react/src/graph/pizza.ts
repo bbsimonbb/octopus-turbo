@@ -1,4 +1,3 @@
-import { INode } from "octopus-state-graph";
 import { IOption } from "../IOption.js";
 import graph from "./bareReactiveGraph.js";
 import { makeAutoObservable } from "mobx";
@@ -14,7 +13,7 @@ export interface IPizzaOption extends IOption<IPizzaChoice> {
   canChoose: boolean;
 }
 
-const val: IPizzaOption = makeAutoObservable({
+const node = {
   choices: [
     {
       id: "4 Stagioni",
@@ -54,44 +53,41 @@ const val: IPizzaOption = makeAutoObservable({
     },
   ],
   selectedValue: undefined,
-  selectedIndex: undefined,
+  selectedIndex: -1,
   optionPrice: 0,
   valid: false,
   touched: false,
   canChoose: false,
-});
-const node: INode<IPizzaOption> = {
-  val,
-  reup({ size, base }: { size: IOption; base: IOption }) {
-    val.choices.forEach((c) => {
-      c.price = c.basePrice * size?.choices[size?.selectedIndex || 0].coef;
-      if (base.selectedIndex === undefined) c.hide = true;
-      else {
-        const baseChoice = base.choices[base.selectedIndex];
-        c.hide = c.base !== baseChoice?.id;
-      }
-    });
-    if (val.selectedIndex !== undefined) {
-      const pizzaChoice = val.choices[val.selectedIndex];
-      val.optionPrice = pizzaChoice?.price;
-      val.valid = !!pizzaChoice && !pizzaChoice?.hide;
-    } else {
-      val.optionPrice = 0;
-      val.valid = false;
-      val.canChoose = !!size?.valid && !!base?.valid;
+  selectItem(index: number) {
+    // can't select pizzas that are hidden
+    if (!node.choices[index].hide) {
+      node.selectedIndex = index;
+      node.choices.forEach((el, i) => {
+        el.selected = i === index;
+      });
+      node.touched = true;
     }
   },
-  methods: {
-    selectItem(index: number) {
-      // can't select pizzas that are hidden
-      if (!val.choices[index].hide) {
-        val.selectedIndex = index;
-        val.choices.forEach((el, i) => {
-          el.selected = i === index;
-        });
-        val.touched = true;
+  _o: {
+    reup({ size, base }: { size: IOption; base: IOption }) {
+      node.choices.forEach((c) => {
+        c.price = c.basePrice * size?.choices[size?.selectedIndex || 0].coef;
+        if (base.selectedIndex === -1) c.hide = true;
+        else {
+          const baseChoice = base.choices[base.selectedIndex];
+          c.hide = c.base !== baseChoice?.id;
+        }
+      });
+      if (node.selectedIndex !== undefined) {
+        const pizzaChoice = node.choices[node.selectedIndex];
+        node.optionPrice = pizzaChoice?.price;
+        node.valid = !!pizzaChoice && !pizzaChoice?.hide;
+      } else {
+        node.optionPrice = 0;
+        node.valid = false;
+        node.canChoose = !!size?.valid && !!base?.valid;
       }
     },
   },
 };
-export const pizza = graph.addNode("pizza", node);
+export const pizza = makeAutoObservable(graph.addNode("pizza", node));

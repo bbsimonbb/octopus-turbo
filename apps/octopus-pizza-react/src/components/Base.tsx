@@ -6,16 +6,16 @@ import { ToastyError } from "./ToastyError";
 
 export const Base = observer(() => {
   const errorActive =
-    (!!doOrder.val?.submitBlocked || !!base.val?.touched) && !base.val?.valid;
+    (!!doOrder.submitBlocked || !!base.touched) && !base.valid;
   return (
     <>
       <div className="option-container base">
-        {base.val?.choices.map((ch: IChoice, index: number) => (
+        {base.choices.map((ch: IChoice, index: number) => (
           <div
             className={`button ${
-              index === base.val?.selectedIndex ? "selected" : ""
+              index === base.selectedIndex ? "selected" : ""
             }`}
-            onClick={() => base.methods?.selectItem(index)}
+            onClick={() => base.selectItem(index)}
             key={ch.id}
           >
             <div>{ch.id}</div>

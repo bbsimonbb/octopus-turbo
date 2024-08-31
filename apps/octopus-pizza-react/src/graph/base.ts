@@ -1,9 +1,8 @@
 import graph from "./bareReactiveGraph";
-import { INode } from "octopus-state-graph";
-import { IOption, IOptionMethods } from "../IOption.js";
-import {makeAutoObservable} from "mobx"
+import { ONode } from "octopus-state-graph";
+import { makeAutoObservable } from "mobx";
 
-const val: IOption = makeAutoObservable({
+const node: ONode = {
   choices: [
     {
       id: "bianca",
@@ -17,17 +16,11 @@ const val: IOption = makeAutoObservable({
   selectedIndex: undefined,
   valid: false,
   touched: false,
-});
-
-const node: INode<IOption, IOptionMethods> = {
-  val,
-  methods: {
-    selectItem(index: number) {
-      val.selectedIndex = index;
-      val.touched = true;
-      val.valid = true;
-    },
+  selectItem(index: number) {
+    node.selectedIndex = index;
+    node.touched = true;
+    node.valid = true;
   },
 };
-const base = graph.addNode("base", node);
+const base = makeAutoObservable(graph.addNode("base", node));
 export { base };

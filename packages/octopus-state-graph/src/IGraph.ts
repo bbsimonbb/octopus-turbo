@@ -1,4 +1,3 @@
-import { INode } from "./INode.js";
 import { ISerializedGraph } from "./ISerializedGraph.js";
 import { INodeWrapper, WrapperFilterFunc } from "./INodeWrapper.js";
 import { INode2, WithoutKernel } from "./NewTypes.js";

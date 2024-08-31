@@ -11,11 +11,10 @@ import { ToastyError } from "./ToastyError";
 export const Sidebar = observer(() => {
   const deliveryAddressOnChange = (e: FormEvent<HTMLDivElement>) => {
     const textArea = e.target as HTMLElement;
-    delivery.methods?.setDeliveryAddress(textArea.innerText);
+    delivery.setDeliveryAddress(textArea.innerText);
   };
   const deliveryErrorActive =
-    (!!delivery.val?.touched || !!doOrder.val?.submitBlocked) &&
-    !delivery.val?.valid;
+    (!!delivery.touched || !!doOrder.submitBlocked) && !delivery.valid;
   return (
     <>
       <div id="sidebar-right">
@@ -24,9 +23,9 @@ export const Sidebar = observer(() => {
             <input
               id="deliveryCheckbox"
               type="checkbox"
-              checked={delivery.val?.checked}
+              checked={delivery.checked}
               onClick={(event) =>
-                delivery.methods?.setChecked(event.currentTarget.checked)
+                delivery.setChecked(event.currentTarget.checked)
               }
             />{" "}
             delivery 5€
@@ -39,7 +38,7 @@ export const Sidebar = observer(() => {
               onInput={deliveryAddressOnChange}
               style={{ height: "60px" }}
               contentEditable
-              onFocus={() => delivery.methods?.deliveryOn()}
+              onFocus={() => delivery.deliveryOn()}
             ></div>
           </div>
           <ToastyError
@@ -54,16 +53,14 @@ export const Sidebar = observer(() => {
           style={{ justifyContent: "flex-end" }}
         >
           <div className="container-title">total</div>
-          <div className="amount">
-            {totalPrice.val?.total.toFixed(2)}&nbsp;€
-          </div>
+          <div className="amount">{totalPrice.total.toFixed(2)}&nbsp;€</div>
           <br />
           <br />
         </div>
         <div className="order-container">
           <div
-            className={`button ${!allValid.val?.valid ? "hide" : ""}`}
-            onClick={() => doOrder.methods?.go()}
+            className={`button ${!allValid.valid ? "hide" : ""}`}
+            onClick={() => doOrder.go()}
           >
             Place order
           </div>

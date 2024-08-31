@@ -6,15 +6,15 @@ import { ToastyError } from "./ToastyError";
 
 export const Size = observer(() => {
   const errorActive =
-    (!!doOrder.val?.submitBlocked || !!size.val?.touched) && !size.val?.valid;
+    (!!doOrder.submitBlocked || !!size.touched) && !size.valid;
 
   return (
     <>
       <div className="option-container size">
-        {size.val?.choices.map((s: IChoice, index: number) => (
+        {size.choices.map((s: IChoice, index: number) => (
           <div
             className={`button ${s.selected ? "selected" : ""}`}
-            onClick={() => size.methods?.selectItem(index)}
+            onClick={() => size.selectItem(index)}
             key={s.id}
           >
             <div>{s.id}</div>

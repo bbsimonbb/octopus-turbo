@@ -10,14 +10,14 @@ import { totalPrice } from "./totalPrice";
 import { allValid } from "./allValid";
 import { doOrder } from "./doOrder";
 
-const a = allValid.val;
-const b = base.val;
-const d = delivery.val;
-const o = doOrder.val;
-const t = totalPrice.val;
-const ti = tip.val;
-const p = pizza.val;
-const s = size.val;
+// const a = allValid;
+// const b = base.val;
+// const d = delivery.val;
+// const o = doOrder.val;
+// const t = totalPrice.val;
+// const ti = tip.val;
+// const p = pizza.val;
+// const s = size.val;
 
 export default function () {
   graph.build();

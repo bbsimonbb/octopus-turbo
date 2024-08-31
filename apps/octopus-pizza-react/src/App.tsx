@@ -15,8 +15,8 @@ const App = observer(() => {
   );
   const devtoolsUrl = "http://localhost:7768";
   let pizzaChoice;
-  if (pizza.val?.selectedIndex) {
-    pizzaChoice = pizza.val?.choices[pizza.val.selectedIndex];
+  if (pizza.selectedIndex) {
+    pizzaChoice = pizza.choices[pizza.selectedIndex];
   }
 
   function popDevtools() {
@@ -37,14 +37,10 @@ const App = observer(() => {
         <div className="flex-container">
           <div style={{ height: "400px", margin: "30px" }}>
             <img
-              className={`main ${pizza.val?.valid ? "" : "veil"}`}
+              className={`main ${pizza.valid ? "" : "veil"}`}
               src={pizzaChoice?.imageUrl}
             />
           </div>
-        </div>
-        <div>
-          <button onClick={colour2.setSelected}>Set</button>
-          {colour2.selectedId}
         </div>
         <div className="flex-container">
           <Size></Size>

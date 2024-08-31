@@ -10,10 +10,9 @@ export const Tip = observer(() => {
   const [rawUi, setRawUi] = useState("");
   const [amountActive, setAmountActive] = useState(false);
   const tipErrorActive =
-    (!!doOrder.val?.submitBlocked || !!tip.val?.touched) && !tip.val?.valid;
+    (!!doOrder.submitBlocked || !!tip.touched) && !tip.valid;
   function tipAmountInputOnFocus() {
-    if (tip.val?.parsedUserInput)
-      setRawUi(tip.val?.parsedUserInput?.toFixed(2));
+    if (tip.parsedUserInput) setRawUi(tip.parsedUserInput?.toFixed(2));
     setAmountActive(true);
   }
   function tipAmountInputOnBlur() {
@@ -41,14 +40,14 @@ export const Tip = observer(() => {
       } else {
         // if empty string, display it
         if (!rawUi) return rawUi;
-        else return tip.val?.parsedUserInput?.toFixed(2);
+        else return tip.parsedUserInput?.toFixed(2);
       }
     },
     set value(newVal: string | undefined) {
       setRawUi(newVal || "");
       const parsedUI = parseFloat(newVal || "");
       // keyup handler ensures only numbers are entered
-      tip.methods.tipAmountOnChange(isNaN(parsedUI) ? null : parsedUI);
+      tip.tipAmountOnChange(isNaN(parsedUI) ? null : parsedUI);
     },
   };
 
@@ -63,13 +62,13 @@ export const Tip = observer(() => {
           type="radio"
           id="tipAsPct"
           name="tipPercent"
-          checked={tip.val?.tipAsPct}
-          onChange={() => tip.methods.setTipAsPct(true)}
+          checked={tip.tipAsPct}
+          onChange={() => tip.setTipAsPct(true)}
         />
         <label htmlFor="tipAsPct">10%</label>
-        {tip.val?.tipAsPct ? (
+        {tip.tipAsPct ? (
           <span style={{ fontSize: "smaller", paddingLeft: "10px" }}>
-            ({tip.val?.optionPrice.toFixed(2)} €)
+            ({tip.optionPrice.toFixed(2)} €)
           </span>
         ) : null}
         <br />
@@ -77,8 +76,8 @@ export const Tip = observer(() => {
         <input
           type="radio"
           name="tipPercent"
-          checked={!tip.val?.tipAsPct}
-          onChange={() => tip.methods.setTipAsPct(false)}
+          checked={!tip.tipAsPct}
+          onChange={() => tip.setTipAsPct(false)}
         />
         &nbsp;
         <input

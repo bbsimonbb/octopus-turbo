@@ -1,6 +1,6 @@
 /* eslint-disable no-debugger */
 import { IGraph, IGraphOptions } from "./IGraph.js";
-import { INamed, INode, isReportingNode } from "./INode.js";
+import { INamed } from "./INode.js";
 import { DirectedAcyclicGraph } from "typescript-graph";
 import { ISerializedGraph } from "./ISerializedGraph.js";
 import { isStateful, IStateful } from "./IStateful.js";
@@ -13,10 +13,6 @@ import {
   ONode,
   WithoutKernel,
 } from "./NewTypes.js";
-
-interface INodeContainer {
-  [nodeName: string]: INode;
-}
 
 const isBrowser =
   Object.getPrototypeOf(Object.getPrototypeOf(globalThis)) !== Object.prototype;

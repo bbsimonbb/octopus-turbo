@@ -1,30 +1,29 @@
 import graph from "./bareReactiveGraph";
 import { IValid } from "./allValid";
 import { makeAutoObservable } from "mobx";
+import { ONode } from "octopus-state-graph";
 
+// some private state
 let canGo = false;
-const val = makeAutoObservable({
+const node: ONode = {
   // this force displaying of error messages
   submitBlocked: false,
-});
-const node = {
-  val,
-  reup({ allValid }: { allValid: IValid }) {
-    canGo = allValid.valid;
+  async go() {
+    if (canGo) {
+      await alert("Excellent choice! Enjoy your pizza.");
+      window.location.reload();
+      // reset submit blocked when everything has worked
+      node.submitBlocked = false;
+    } else {
+      alert("There are some problems with your order.");
+      // remember that submission has been tried
+      node.submitBlocked = true;
+    }
   },
-  methods: {
-    async go() {
-      if (canGo) {
-        await alert("Excellent choice! Enjoy your pizza.");
-        window.location.reload();
-        // reset submit blocked when everything has worked
-        val.submitBlocked = false;
-      } else {
-        alert("There are some problems with your order.");
-        // remember that submission has been tried
-        val.submitBlocked = true;
-      }
+  _o: {
+    reup({ allValid }: { allValid: IValid }) {
+      canGo = allValid.valid;
     },
   },
 };
-export const doOrder = graph.addNode("doOrder", node);
+export const doOrder = makeAutoObservable(graph.addNode("doOrder", node));
