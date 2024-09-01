@@ -11,7 +11,7 @@ test("a graph can be serialized and rehydrated", async () => {
     setVal(newVal: number) {
       upstreamNode.anInteger = newVal;
     },
-    _o: {
+    kernel: {
       saveState: function () {
         return upstreamNode.anInteger;
       },
@@ -23,7 +23,7 @@ test("a graph can be serialized and rehydrated", async () => {
 
   const downstreamNode = graph.addNode("downstream", {
     anInteger: 0,
-    _o: {
+    kernel: {
       reup({ upstream }) {
         downstreamNode.anInteger = upstream.anInteger + 2;
       },
@@ -63,7 +63,7 @@ function add2Nodes(graph: IGraph) {
     setVal(newVal: number) {
       upstreamNode.anInteger = newVal;
     },
-    _o: {
+    kernel: {
       saveState: function () {
         return upstreamNode.anInteger;
       },
@@ -75,7 +75,7 @@ function add2Nodes(graph: IGraph) {
 
   const intermediateNode = graph.addNode("intermediate", {
     anInteger: 0,
-    _o: {
+    kernel: {
       reup({ upstream }) {
         intermediateNode.anInteger = upstream.anInteger + 2;
       },
@@ -116,7 +116,7 @@ test("a graph rehydrated into a newer version with additional nodes still loads"
       setVal(newVal: number) {
         downstreamNode.anInteger = newVal;
       },
-      _o: {
+      kernel: {
         reup({ upstream, intermediate }) {
           console.log(upstreamNode);
         },

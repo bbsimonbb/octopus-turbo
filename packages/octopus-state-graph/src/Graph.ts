@@ -119,7 +119,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
     // their might already be an entry for the node name if a wrapper has been added
     nodes[nodeName] = {
       ...nodes[nodeName],
-      _o: node._o,
+      kernel: node.kernel,
       raw: node,
       resolvedPredecessors: [],
       wrappers: [],
@@ -129,7 +129,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
     // we've hoisted the kernel into the internal node. Delete it from the original object.
     // this preserves the reference but is that what we want.
 
-    delete node._o;
+    delete node.kernel;
     wrapMethodsWithProxy(nodeName, node);
     return node;
   }
@@ -203,22 +203,22 @@ export function createGraph(options?: IGraphOptions): IGraph {
   const build = () => {
     for (const currNodeName in nodes) {
       const node = nodes[currNodeName];
-      if (node._o?.reup) {
+      if (node.kernel?.reup) {
         // reporting node
-        if (node._o.reupFilterFunc) {
+        if (node.kernel.reupFilterFunc) {
           // predecessors for reporting nodes
           node.resolvedPredecessors = Object.entries(nodes)
             // ...those nodes that match the reporting filter function
             .filter(
               ([targetName, targetNode]) =>
                 currNodeName !== targetName &&
-                node._o.reupFilterFunc(targetName, targetNode.raw)
+                node.kernel.reupFilterFunc(targetName, targetNode.raw)
             )
             // (just add the names)
             .map(([key, val]) => key);
         } else {
           // predecessors for plain nodes
-          node.resolvedPredecessors = getParamNames(node._o.reup);
+          node.resolvedPredecessors = getParamNames(node.kernel.reup);
         }
       }
 
@@ -258,8 +258,8 @@ export function createGraph(options?: IGraphOptions): IGraph {
       //assignValueToOutput(currNodeName, node.val);
 
       addEdges(currNodeName);
-      if (node._o?.reup && reupWrapper)
-        node._o.reup = reupWrapper(node._o.reup);
+      if (node.kernel?.reup && reupWrapper)
+        node.kernel.reup = reupWrapper(node.kernel.reup);
     }
 
     sortedNodeNames = tsGraph.topologicallySortedNodes().map((n) => n.name);
@@ -348,7 +348,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
         // reporting wrappers may need to know the names of the nodes they wrap.
         // They do this by adding the reserved prop '$nodeName' to the predecessors object
         if (pName === "$nodeName") predecessorState = currNodeName;
-        // just-an-object. The state to pass is the node, minus methods, minus _o
+        // just-an-object. The state to pass is the node, minus methods, minus kernel
         else predecessorState = justTheValues(nodes[pName].raw);
         Object.defineProperty(predecessorOutput, pName, {
           value: JSON.parse(JSON.stringify(predecessorState)),
@@ -363,13 +363,13 @@ export function createGraph(options?: IGraphOptions): IGraph {
       /** ****************************       CALL THE NODE        **********************************
        * Nodes without a reup may still have wrappers that need to execute. Call reup if it exists.
        */
-      if (currNode._o?.reup) {
-        if (!currNode._o.reupFilterFunc) {
-          await currNode._o.reup(predecessorOutput);
+      if (currNode.kernel?.reup) {
+        if (!currNode.kernel.reupFilterFunc) {
+          await currNode.kernel.reup(predecessorOutput);
         }
         // radically simple, reporting nodes don't know or care about the names of their inputs, we'll give them an array they can iterate over
         else {
-          await currNode._o.reup(Object.values(predecessorOutput));
+          await currNode.kernel.reup(Object.values(predecessorOutput));
         }
       }
       /** ****************************      CALL THE WRAPPERS      **********************************
@@ -493,8 +493,8 @@ export function createGraph(options?: IGraphOptions): IGraph {
 
     for (const nodeName of sortedNodeNames) {
       const currNode = nodes[nodeName];
-      if (isStateful(currNode._o)) {
-        currNode._o.loadState(storedState.nodeStates[nodeName]);
+      if (isStateful(currNode.kernel)) {
+        currNode.kernel.loadState(storedState.nodeStates[nodeName]);
       }
       // for sources, initialValue is the only way of getting a value out, so we'll read it
       // after loading state.
@@ -531,7 +531,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
       console.log("wrapping reups");
       for (const nodeName of sortedNodeNames) {
         const node = nodes[nodeName];
-        if (node._o.reup) node._o.reup = reupWrapper(node._o.reup);
+        if (node.kernel.reup) node.kernel.reup = reupWrapper(node.kernel.reup);
       }
       return loadedGraph;
     } else return _loadState(storedState, currentGraphVersion);
@@ -554,8 +554,8 @@ export function createGraph(options?: IGraphOptions): IGraph {
 
     for (const nodeName of Object.getOwnPropertyNames(nodes)) {
       const currNode = nodes[nodeName];
-      if (isStateful(currNode._o))
-        returnVal.nodeStates[nodeName] = currNode._o.saveState();
+      if (isStateful(currNode.kernel))
+        returnVal.nodeStates[nodeName] = currNode.kernel.saveState();
     }
     return returnVal;
   }
@@ -569,9 +569,9 @@ export function createGraph(options?: IGraphOptions): IGraph {
     for (let i = 0; i < sortedNodeNames.length; i++) {
       const currNodeName = sortedNodeNames[i];
       // radically simple, a full traversal starts with the node which has just changed. It needs to reup whether or not it has inputs. The others, only if they have inputs.
-      if (nodes[currNodeName]._o.dispose) {
+      if (nodes[currNodeName].kernel.dispose) {
         try {
-          await nodes[currNodeName]._o.dispose();
+          await nodes[currNodeName].kernel.dispose();
         } catch (e) {
           console.error(
             `Error disposing of ${currNodeName}. Error follows. Disposing continues.`

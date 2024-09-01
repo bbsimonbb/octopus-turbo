@@ -13,7 +13,7 @@ test("a downstream node adds 2 to an upstream", async () => {
 
   const downstreamNode = graph.addNode("downstream", {
     downstreamInt: 5,
-    _o: {
+    kernel: {
       reup({ upstream }) {
         downstreamNode.downstreamInt = upstream.anInteger + 2;
         return true;
@@ -37,7 +37,7 @@ test("a reporting node picks up its input", async () => {
   });
   graph.addNode("downstream", {
     anInt: 0,
-    _o: {
+    kernel: {
       reup(nodeArray) {
         targetNodesCount = nodeArray.length;
       },
@@ -57,7 +57,7 @@ test("Node dispose() methods are called when dispose is called on the graph", as
   const graph = createGraph();
   let disposeWasCalled = false;
   graph.addNode("downstream", {
-    _o: {
+    kernel: {
       dispose() {
         disposeWasCalled = true;
       },

@@ -11,7 +11,7 @@ export interface IGraph {
   /**
    *
    * @param nodeName  must be a valid javascript identifier
-   * @param node an object with functions, values and a kernel, _o.
+   * @param node an object with functions, values and a kernel, kernel.
    * @returns the node. We remove the kernel, whose methods are only for octopus. We proxy the methods, so we can trigger
    * a traversal after they're called.
    */

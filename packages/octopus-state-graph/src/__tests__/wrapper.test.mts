@@ -17,7 +17,7 @@ test("a wrapper adds 3 to a downstream node.", async () => {
 
   const downstreamNode = graph.addNode("downstream", {
     downstreamInt: 5,
-    _o: {
+    kernel: {
       reup({ upstream }) {
         downstreamNode.downstreamInt = upstream.anInteger + 2;
         return true;
@@ -51,7 +51,7 @@ test("An async wrapper will be waited for", async () => {
 
   const downstreamNode = graph.addNode("downstream", {
     downstreamInt: 5,
-    _o: {
+    kernel: {
       reup({ upstream }) {
         downstreamNode.downstreamInt = upstream.anInteger + 2;
         return true;
@@ -90,7 +90,7 @@ test("a wrapper adds 3 to both nodes", async () => {
 
   const downstreamNode = graph.addNode("downstream", {
     anInt: 5,
-    _o: {
+    kernel: {
       reup({ upstream }) {
         downstreamNode.anInt = upstream.anInt + 2;
         return true;
@@ -124,7 +124,7 @@ test("The same wrapper can be added to x nodes chosen with a filter func", async
 
   const downstreamNode = graph.addNode("downstream", {
     anInt: 5,
-    _o: {
+    kernel: {
       reup({ upstream }) {
         downstreamNode.anInt = upstream.anInt + 2;
         return true;
@@ -222,7 +222,7 @@ test("Reporting nodes can be wrapped", async () => {
 
   const downstreamNode = graph.addNode("downstreamReporting", {
     anInt: 5,
-    _o: {
+    kernel: {
       reup(nodeArray) {
         downstreamNode.anInt = nodeArray[0].anInt + 2;
         return true;
@@ -257,7 +257,7 @@ test("A wrapper can add a dependency", async () => {
 
   const downstreamNode = graph.addNode("downstream", {
     anInt: 5,
-    _o: {
+    kernel: {
       reup: ({}) => {},
     },
   });
@@ -318,7 +318,7 @@ test("A wrapper can add a dependency", async () => {
   const downstreamNode = graph.addNode("downstream", {
     anInt: 5,
     amDownstream: true,
-    _o: {
+    kernel: {
       reup: ({}) => {},
     },
   });
