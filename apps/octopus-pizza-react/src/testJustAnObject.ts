@@ -49,7 +49,8 @@ function addNode2<T>(node: T): Values<T> {
   const result = {} as Values<T>;
   for (const key in node) {
     if (typeof node[key] !== "function") {
-      result[key as keyof Values<T>] = node[key as keyof Values<T>];
+      result[key as any as keyof Values<T>] =
+        node[key as any as keyof Values<T>];
     }
   }
   return result;
