@@ -22,8 +22,8 @@ const allValid = makeAutoObservable(
       valid: false,
     },
     {
-      reupFilterFunc(nodeName, publishedVal) {
-        return isIValid(publishedVal);
+      reupFilterFunc(nodeName, node) {
+        return isIValid(node);
       },
       reup(nodes) {
         let returnVal = true;

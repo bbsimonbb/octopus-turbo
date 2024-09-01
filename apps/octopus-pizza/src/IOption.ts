@@ -1,10 +1,10 @@
-import { IChoice } from "./IChoice";
+import { IChoice } from "./IOptionValue";
 
 export interface IOption<OfType extends IChoice = IChoice> {
   choices: OfType[];
   optionPrice?: number;
   defaultIndex?: number;
-  selectedIndex?: number;
+  selectedIndex: number;
   selectedValue?: OfType;
   selectedValueName?: string;
   hide?: boolean;

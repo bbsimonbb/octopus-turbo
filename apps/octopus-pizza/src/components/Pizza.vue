@@ -1,37 +1,41 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { pizza, doOrder} from '../nodes'
+import { pizza, doOrder } from '../nodes'
 import ToastyError from './ToastyError.vue'
 
 
-const errorActive = computed(()=>{
-    return !!pizza.val?.canChoose && !pizza.val?.valid && (doOrder.val?.submitBlocked || pizza.val?.touched)
+const errorActive = computed(() => {
+    return !!pizza.canChoose && !pizza.valid && (doOrder.submitBlocked || pizza.touched)
 })
 
-const errorMsg = computed(()=>{
-    if(pizza.val?.valid)
-    return ""
-    else if(!!pizza.val?.selectedValue)
-    return "Your choice is not compatible with your base"
+const errorMsg = computed(() => {
+    if (pizza.valid)
+        return ""
+    else if (!!(pizza.selectedIndex + 1))
+        return "Your choice is not compatible with your base"
     else
-    return "Please choose"
+        return "Please choose"
 })
 
 </script>
 
 <template>
     <div class="option-container">
-        <div v-for="(option, index) in pizza.val?.choices" :class="{
+        <div v-for="(option, index) in pizza.choices" :class="{
             'button': true,
             selected: option.selected,
             hide: option.hide
-        }" @click="pizza.methods.selectItem(index)"><div>{{ option.id }} €{{ option.price?.toFixed(2) }}</div></div>
-        <div class="container-title"><div>choose your pizza</div></div>
+        }" @click="pizza.selectItem(index)">
+            <div>{{ option.id }} €{{ option.price?.toFixed(2) }}</div>
+        </div>
+        <div class="container-title">
+            <div>choose your pizza</div>
+        </div>
         <ToastyError :error-msg="errorMsg" :active="errorActive"></ToastyError>
     </div>
 </template>
 
-<style >
+<style>
 .option-container {
     color: var(--color-orange)
 }

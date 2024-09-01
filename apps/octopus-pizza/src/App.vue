@@ -24,7 +24,7 @@ function popDevtools() {
   <div id="content">
     <div class="flex-container">
       <div style="height:400px; margin:30px">
-        <img :class="{ main: true, veil: !pizza.val?.valid }" :src="pizza.val?.selectedValue?.imageUrl" />
+        <img :class="{ main: true, veil: !pizza.valid }" :src="pizza.choices[pizza.selectedIndex]?.imageUrl" />
       </div>
     </div>
     <div class="flex-container">
@@ -36,7 +36,7 @@ function popDevtools() {
       <Pizza></Pizza>
     </div>
   </div>
-  <Sidebar v-if="pizza.val.selectedIndex != -1"></Sidebar>
+  <Sidebar></Sidebar>
   <img src="./assets/vue.svg" id="vue-logo" />
   <img src="./assets/octopus-photo.png" id="octo" @click="popDevtools()" />
 </template>

@@ -20,6 +20,9 @@ const base = makeAutoObservable(
       base.selectedIndex = index;
       base.touched = true;
       base.valid = true;
+      base.choices.forEach((el, i) => {
+        el.selected = i === index;
+      });
     },
   })
 );

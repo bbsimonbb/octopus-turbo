@@ -1,10 +1,9 @@
-import { IGraph, INode } from "octopus-state-graph";
-import { IOption } from "../IOption.js";
 import { reactive } from "vue";
-import graph from "../bareReactiveGraph.js"
+import graph from "../bareReactiveGraph";
 
 // size
-  const val = reactive({
+export const size = reactive(
+  graph.addNode("size", {
     choices: [
       {
         id: "small",
@@ -25,18 +24,13 @@ import graph from "../bareReactiveGraph.js"
     selectedIndex: 0,
     touched: false,
     valid: false,
-  });
-  let node: INode<IOption> = {
-    val,
-    methods: {
-      selectItem(index: number) {
-        val.selectedIndex = index;
-        val.touched = true;
-        val.valid = true;
-        val.choices.forEach((el, i) => {
-          el.selected = i === index;
-        });
-      },
+    selectItem(index: number) {
+      size.selectedIndex = index;
+      size.touched = true;
+      size.valid = true;
+      size.choices.forEach((el, i) => {
+        el.selected = i === index;
+      });
     },
-  };
-  export const size = graph.addNode("size", node);
+  })
+);

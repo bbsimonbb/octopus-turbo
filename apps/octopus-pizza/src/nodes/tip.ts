@@ -1,52 +1,49 @@
-import { INode } from "octopus-state-graph";
+import { reactive } from "vue";
 import { IOption } from "../IOption";
 import graph from "../bareReactiveGraph";
-import { reactive } from "vue";
+
 export interface ITip {
   tipAsPct: boolean;
   optionPrice: number;
   valid: boolean;
   touched: boolean;
   parsedUserInput: number | null;
+  setTipAsPct: (tipAsPct: boolean) => void;
+  tipAmountOnChange: (newVal: number | null) => void;
 }
-class Inputs {
-  pizza: IOption | null = null;
-}
-const val: ITip = reactive({
+
+const node: ITip = {
   tipAsPct: true,
   optionPrice: 0,
   valid: true,
   touched: false,
   parsedUserInput: null,
-});
-const node: INode<ITip> = {
-  val,
-  reup({ pizza }: { pizza: IOption }) {
-    if (val) {
-      if (val.tipAsPct) {
-        val.optionPrice = pizza?.valid ? (pizza?.optionPrice || 0) * 0.1 : 0;
-        val.valid = true;
-      } else {
-        if (val.parsedUserInput === null) {
-          val.optionPrice = 0;
-          val.valid = false;
-        } else {
-          val.optionPrice = val.parsedUserInput || 0;
-          val.valid = true;
-        }
-      }
-    }
+  setTipAsPct(tipAsPct: boolean): void {
+    node.tipAsPct = tipAsPct;
+    node.touched = true;
   },
-  methods: {
-    setTipAsPct(tipAsPct: boolean): void {
-      val.tipAsPct = tipAsPct;
-      val.touched = true;
-    },
-    tipAmountOnChange(newVal: number | null): void {
-      val.parsedUserInput = newVal;
-      val.tipAsPct = false;
-      val.touched = true;
-    },
+  tipAmountOnChange(newVal: number | null): void {
+    node.parsedUserInput = newVal;
+    node.tipAsPct = false;
+    node.touched = true;
   },
 };
-export const tip = graph.addNode("tip", node);
+
+export const tip = reactive(
+  graph.addNode("tip", node, {
+    reup({ pizza }: { pizza: IOption }) {
+      if (node.tipAsPct) {
+        node.optionPrice = pizza?.valid ? (pizza?.optionPrice || 0) * 0.1 : 0;
+        node.valid = true;
+      } else {
+        if (node.parsedUserInput === null) {
+          node.optionPrice = 0;
+          node.valid = false;
+        } else {
+          node.optionPrice = node.parsedUserInput || 0;
+          node.valid = true;
+        }
+      }
+    },
+  })
+);

@@ -7,7 +7,6 @@ import { Sidebar } from "./components/Sidebar";
 import { observer } from "mobx-react-lite";
 import graph from "./graph/bareReactiveGraph";
 import { useState } from "react";
-import colour2 from "./testJustAnObject";
 
 const App = observer(() => {
   const [devtools, setDevtools] = useState<Window | null | undefined>(
@@ -15,7 +14,7 @@ const App = observer(() => {
   );
   const devtoolsUrl = "http://localhost:7768";
   let pizzaChoice;
-  if (pizza.selectedIndex) {
+  if (pizza.selectedIndex + 1) {
     pizzaChoice = pizza.choices[pizza.selectedIndex];
   }
 

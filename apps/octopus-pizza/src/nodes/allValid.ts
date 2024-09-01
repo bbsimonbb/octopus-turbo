@@ -1,11 +1,11 @@
 import { reactive } from "vue";
 import graph from "../bareReactiveGraph";
-import { IReportingNode } from "octopus-state-graph";
 
 export interface IValid {
   valid: boolean;
 }
-function isIValid(someObject: any) {
+
+function isIValid(someObject: IValid) {
   return someObject.valid !== undefined;
 }
 
@@ -14,22 +14,26 @@ dependsOn is a function that will examine each node already added and return tru
 Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
-const val: IValid = reactive( { valid: false });
 
-const node: IReportingNode<IValid,null> = {
-  val,
-  options: {
-    dependsOn(nodeName, publishedVal) {
-      return isIValid(publishedVal);
+const allValid = reactive(
+  graph.addNode(
+    "allValid",
+    {
+      valid: false,
     },
-  },
-  reup(nodes) {
-    var allValid = true;
-    for (const [key, val] of Object.entries(nodes)) {
-      allValid = allValid && !!(val as IValid).valid;
+    {
+      reupFilterFunc(nodeName, node) {
+        return isIValid(node);
+      },
+      reup(nodes) {
+        let returnVal = true;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const [_, val] of Object.entries(nodes)) {
+          returnVal = returnVal && !!(val as IValid).valid;
+        }
+        allValid.valid = returnVal;
+      },
     }
-    val.valid = allValid;
-  },
-};
-const allValid = graph.addNode("allValid", node);
+  )
+);
 export { allValid };

@@ -12,7 +12,7 @@ export const Pizza = observer(
 
     const errorMsg = pizza.valid
       ? ""
-      : pizza.selectedIndex !== undefined
+      : pizza.selectedIndex !== -1
       ? "Your choice is not compatible with your base"
       : "Please choose";
 

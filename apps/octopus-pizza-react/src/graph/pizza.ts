@@ -81,15 +81,15 @@ export const pizza = makeAutoObservable(
             c.hide = c.base !== baseChoice?.id;
           }
         });
-        if (pizza.selectedIndex !== undefined) {
+        if (pizza.selectedIndex !== -1) {
           const pizzaChoice = pizza.choices[pizza.selectedIndex];
           pizza.optionPrice = pizzaChoice?.price;
           pizza.valid = !!pizzaChoice && !pizzaChoice?.hide;
         } else {
           pizza.optionPrice = 0;
           pizza.valid = false;
-          pizza.canChoose = !!size?.valid && !!base?.valid;
         }
+        pizza.canChoose = !!size.valid && !!base.valid;
       },
     }
   )

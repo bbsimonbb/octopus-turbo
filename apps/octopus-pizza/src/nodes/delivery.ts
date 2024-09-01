@@ -1,32 +1,32 @@
 import { reactive } from "vue";
 import graph from "../bareReactiveGraph";
-import { IGraph, INode } from "octopus-state-graph";
 
-const val = reactive({
-  checked: false,
-  optionPrice: 0,
-  deliveryAddress: "",
-  valid: true,
-  touched: false,
-});
-const node = {
-  val,
-  reup() {
-    val.optionPrice = this.val.checked ? 5 : 0;
-    val.valid = !this.val.checked || !!this.val.deliveryAddress;
-  },
-  methods: {
-    setChecked(newVal: boolean) {
-      val.checked = newVal;
+export const delivery = reactive(
+  graph.addNode(
+    "delivery",
+    {
+      checked: false,
+      optionPrice: 0,
+      deliveryAddress: "",
+      valid: true,
+      touched: false,
+      setChecked(newVal: boolean) {
+        delivery.checked = newVal;
+      },
+      setDeliveryAddress(newVal: string) {
+        delivery.deliveryAddress = newVal;
+        delivery.touched = true;
+        if (newVal) delivery.checked = true;
+      },
+      deliveryOn() {
+        delivery.checked = true;
+      },
     },
-    setDeliveryAddress(newVal: string) {
-      val.deliveryAddress = newVal;
-      val.touched = true;
-      if (newVal) val.checked = true;
-    },
-    deliveryOn() {
-      val.checked = true;
-    },
-  },
-};
-export const delivery = graph.addNode("delivery", node);
+    {
+      reup() {
+        delivery.optionPrice = delivery.checked ? 5 : 0;
+        delivery.valid = !delivery.checked || !!delivery.deliveryAddress;
+      },
+    }
+  )
+);

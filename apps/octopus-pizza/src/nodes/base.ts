@@ -1,38 +1,30 @@
-import graph from "../bareReactiveGraph";
-import { INode } from "octopus-state-graph";
-import { IOption, IOptionMethods } from "../IOption.js";
 import { reactive } from "vue";
+import graph from "../bareReactiveGraph";
 
-const val: IOption = reactive({
-  choices: [
-    {
-      id: "bianca",
-      selected: false,
-    },
-    {
-      id: "rossa",
-      selected: false,
-    },
-  ],
-  selectedIndex: 0,
-  selectedValue: undefined,
-  valid: false,
-  touched: false,
-});
-
-let node: INode<IOption, IOptionMethods> = {
-  val,
-  methods: {
+const base = reactive(
+  graph.addNode("base", {
+    choices: [
+      {
+        id: "bianca",
+        selected: false,
+      },
+      {
+        id: "rossa",
+        selected: false,
+      },
+    ],
+    selectedIndex: -1,
+    valid: false,
+    touched: false,
     selectItem(index: number) {
-      val.selectedIndex = index;
-      val.touched = true;
-      val.valid = true;
-      val.choices.forEach((el, i) => {
+      base.selectedIndex = index;
+      base.touched = true;
+      base.valid = true;
+      base.choices.forEach((el, i) => {
         el.selected = i === index;
       });
-      val.selectedValue = val.choices[index];
     },
-  },
-};
-const base = graph.addNode("base", node);
+  })
+);
+
 export { base };
