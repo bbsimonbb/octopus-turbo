@@ -13,81 +13,84 @@ export interface IPizzaOption extends IOption<IPizzaChoice> {
   canChoose: boolean;
 }
 
-const node = {
-  choices: [
+export const pizza = makeAutoObservable(
+  graph.addNode(
+    "pizza",
     {
-      id: "4 Stagioni",
-      base: "bianca",
-      basePrice: 6.5,
-      price: 0,
-      imageUrl: "stagioni4.avif",
-      selected: false,
-      hide: false,
-    },
-    {
-      id: "Gorgonzola",
-      base: "bianca",
-      basePrice: 5.5,
-      price: 0,
-      imageUrl: "gorgonzola.jpg",
-      selected: false,
-      hide: false,
-    },
-    {
-      id: "Margherita",
-      base: "rossa",
-      basePrice: 4,
-      price: 0,
-      imageUrl: "margherita.webp",
-      selected: false,
-      hide: false,
-    },
-    {
-      id: "Prosciutto",
-      base: "rossa",
-      basePrice: 4.5,
-      price: 0,
-      imageUrl: "prosciutto.webp",
-      selected: false,
-      hide: false,
-    },
-  ],
-  selectedValue: undefined,
-  selectedIndex: -1,
-  optionPrice: 0,
-  valid: false,
-  touched: false,
-  canChoose: false,
-  selectItem(index: number) {
-    // can't select pizzas that are hidden
-    if (!node.choices[index].hide) {
-      node.selectedIndex = index;
-      node.choices.forEach((el, i) => {
-        el.selected = i === index;
-      });
-      node.touched = true;
-    }
-  },
-  _o: {
-    reup({ size, base }: { size: IOption; base: IOption }) {
-      node.choices.forEach((c) => {
-        c.price = c.basePrice * size?.choices[size?.selectedIndex || 0].coef;
-        if (base.selectedIndex === -1) c.hide = true;
-        else {
-          const baseChoice = base.choices[base.selectedIndex];
-          c.hide = c.base !== baseChoice?.id;
+      choices: [
+        {
+          id: "4 Stagioni",
+          base: "bianca",
+          basePrice: 6.5,
+          price: 0,
+          imageUrl: "stagioni4.avif",
+          selected: false,
+          hide: false,
+        },
+        {
+          id: "Gorgonzola",
+          base: "bianca",
+          basePrice: 5.5,
+          price: 0,
+          imageUrl: "gorgonzola.jpg",
+          selected: false,
+          hide: false,
+        },
+        {
+          id: "Margherita",
+          base: "rossa",
+          basePrice: 4,
+          price: 0,
+          imageUrl: "margherita.webp",
+          selected: false,
+          hide: false,
+        },
+        {
+          id: "Prosciutto",
+          base: "rossa",
+          basePrice: 4.5,
+          price: 0,
+          imageUrl: "prosciutto.webp",
+          selected: false,
+          hide: false,
+        },
+      ],
+      selectedIndex: -1,
+      optionPrice: 0,
+      valid: false,
+      touched: false,
+      canChoose: false,
+      selectItem(index: number) {
+        // can't select pizzas that are hidden
+        if (!pizza.choices[index].hide) {
+          pizza.selectedIndex = index;
+          pizza.choices.forEach((el, i) => {
+            el.selected = i === index;
+          });
+          pizza.touched = true;
         }
-      });
-      if (node.selectedIndex !== undefined) {
-        const pizzaChoice = node.choices[node.selectedIndex];
-        node.optionPrice = pizzaChoice?.price;
-        node.valid = !!pizzaChoice && !pizzaChoice?.hide;
-      } else {
-        node.optionPrice = 0;
-        node.valid = false;
-        node.canChoose = !!size?.valid && !!base?.valid;
-      }
+      },
     },
-  },
-};
-export const pizza = makeAutoObservable(graph.addNode("pizza", node));
+    {
+      reup({ size, base }: { size: IOption; base: IOption }) {
+        pizza.choices.forEach((c) => {
+          c.price = c.basePrice * size?.choices[size?.selectedIndex || 0].coef;
+          if (base.selectedIndex === -1) c.hide = true;
+          else {
+            const baseChoice = base.choices[base.selectedIndex];
+            c.hide = c.base !== baseChoice?.id;
+          }
+        });
+        if (pizza.selectedIndex !== undefined) {
+          const pizzaChoice = pizza.choices[pizza.selectedIndex];
+          pizza.optionPrice = pizzaChoice?.price;
+          pizza.valid = !!pizzaChoice && !pizzaChoice?.hide;
+        } else {
+          pizza.optionPrice = 0;
+          pizza.valid = false;
+          pizza.canChoose = !!size?.valid && !!base?.valid;
+        }
+      },
+    }
+  )
+);

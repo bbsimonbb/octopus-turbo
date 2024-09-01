@@ -1,6 +1,6 @@
 import { ISerializedGraph } from "./ISerializedGraph.js";
 import { INodeWrapper, WrapperFilterFunc } from "./INodeWrapper.js";
-import { INode2, WithoutKernel } from "./NewTypes.js";
+import { INodeKernel } from "./NewTypes.js";
 
 export interface IGraphOptions {
   debug?: boolean;
@@ -15,10 +15,11 @@ export interface IGraph {
    * @returns the node. We remove the kernel, whose methods are only for octopus. We proxy the methods, so we can trigger
    * a traversal after they're called.
    */
-  addNode: <T extends INode2 & Record<string, any>>(
+  addNode<T extends object>(
     nodeName: string,
-    node: T
-  ) => WithoutKernel<T>;
+    node: T,
+    kernel?: INodeKernel<unknown>
+  ): T;
   /**
    * A node can have zero, one or many wrappers. The wrappers will be sorted by order of priority, then called after the node's
    * reup() returns.

@@ -6,12 +6,10 @@ import { ISerializedGraph } from "./ISerializedGraph.js";
 import { isStateful, IStateful } from "./IStateful.js";
 import { INodeWrapper } from "./INodeWrapper.js";
 import {
-  INode2,
   INodeInternal,
+  INodeKernel,
   JustTheFunctions,
   JustTheValues,
-  ONode,
-  WithoutKernel,
 } from "./NewTypes.js";
 
 const isBrowser =
@@ -107,10 +105,11 @@ export function createGraph(options?: IGraphOptions): IGraph {
   //   await fullTraversal(sortedNodeNames.findIndex((el) => el === nodeName) + 1);
   // };
 
-  function addNode<T extends ONode>(
+  function addNode<T extends object>(
     nodeName: string,
-    node: T
-  ): WithoutKernel<T> {
+    node: T,
+    kernel?: INodeKernel<unknown>
+  ): T {
     if (!nodeName) throw new Error(`We can't add a node without a name.`);
     if (!node)
       throw new Error(
@@ -119,7 +118,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
     // their might already be an entry for the node name if a wrapper has been added
     nodes[nodeName] = {
       ...nodes[nodeName],
-      kernel: node.kernel,
+      kernel: kernel,
       raw: node,
       resolvedPredecessors: [],
       wrappers: [],
@@ -129,7 +128,6 @@ export function createGraph(options?: IGraphOptions): IGraph {
     // we've hoisted the kernel into the internal node. Delete it from the original object.
     // this preserves the reference but is that what we want.
 
-    delete node.kernel;
     wrapMethodsWithProxy(nodeName, node);
     return node;
   }
@@ -160,7 +158,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
     }
   };
 
-  function wrapMethodsWithProxy(nodeName: string, node: INode2) {
+  function wrapMethodsWithProxy(nodeName: string, node: object) {
     // If a top level property is a function, bind it to the target
     // just-an-object: don't know if this ever worked. To bind functions, you need to proxy
     // the object that contains them. Don't want to do this unless I need to.

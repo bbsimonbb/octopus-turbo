@@ -24,7 +24,7 @@ export const Sidebar = observer(() => {
               id="deliveryCheckbox"
               type="checkbox"
               checked={delivery.checked}
-              onClick={(event) =>
+              onChange={(event) =>
                 delivery.setChecked(event.currentTarget.checked)
               }
             />{" "}

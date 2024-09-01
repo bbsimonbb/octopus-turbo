@@ -1,29 +1,32 @@
-import { ONode } from "octopus-state-graph";
 import graph from "./bareReactiveGraph";
 import { makeAutoObservable } from "mobx";
 
-const node: ONode = {
-  checked: false,
-  optionPrice: 0,
-  deliveryAddress: "",
-  valid: true,
-  touched: false,
-  setChecked(newVal: boolean) {
-    node.checked = newVal;
-  },
-  setDeliveryAddress(newVal: string) {
-    node.deliveryAddress = newVal;
-    node.touched = true;
-    if (newVal) node.checked = true;
-  },
-  deliveryOn() {
-    node.checked = true;
-  },
-  _o: {
-    reup() {
-      node.optionPrice = node.checked ? 5 : 0;
-      node.valid = !node.checked || !!node.deliveryAddress;
+export const delivery = makeAutoObservable(
+  graph.addNode(
+    "delivery",
+    {
+      checked: false,
+      optionPrice: 0,
+      deliveryAddress: "",
+      valid: true,
+      touched: false,
+      setChecked(newVal: boolean) {
+        delivery.checked = newVal;
+      },
+      setDeliveryAddress(newVal: string) {
+        delivery.deliveryAddress = newVal;
+        delivery.touched = true;
+        if (newVal) delivery.checked = true;
+      },
+      deliveryOn() {
+        delivery.checked = true;
+      },
     },
-  },
-};
-export const delivery = makeAutoObservable(graph.addNode("delivery", node));
+    {
+      reup() {
+        delivery.optionPrice = delivery.checked ? 5 : 0;
+        delivery.valid = !delivery.checked || !!delivery.deliveryAddress;
+      },
+    }
+  )
+);

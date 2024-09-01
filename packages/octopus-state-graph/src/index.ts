@@ -4,7 +4,7 @@ import { IGraph } from "./IGraph.js";
 import { INodeWrapper, WrapperFilterFunc } from "./INodeWrapper.js";
 import { IStateful } from "./IStateful.js";
 import { ISerializedGraph } from "./ISerializedGraph.js";
-import { INode2, JustTheFunctions, JustTheValues, ONode } from "./NewTypes.js";
+import { JustTheFunctions, JustTheValues } from "./NewTypes.js";
 export { createGraph };
 export type {
   IGraph,
@@ -12,8 +12,6 @@ export type {
   INodeWrapper,
   IStateful,
   WrapperFilterFunc,
-  INode2,
   JustTheFunctions,
   JustTheValues,
-  ONode,
 };

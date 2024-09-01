@@ -2,7 +2,6 @@
 import graph from "./bareReactiveGraph";
 import { IOption } from "../IOption";
 import { makeAutoObservable } from "mobx";
-import { ONode } from "octopus-state-graph";
 
 interface IPricedOption {
   optionPrice: number;
@@ -19,23 +18,27 @@ Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
 
-const node: ONode = {
-  total: 0,
-  _o: {
-    reup(inputs: IPricedOption[]) {
-      let totalPrice = 0;
+export const totalPrice = makeAutoObservable(
+  graph.addNode(
+    "totalPrice",
+    {
+      total: 0,
+    },
+    {
+      reup(inputs: IPricedOption[]) {
+        let returnVal = 0;
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for (const [key, val] of Object.entries(inputs)) {
-        totalPrice += (val as IOption).valid
-          ? (val as IOption).optionPrice || 0
-          : 0;
-      }
-      node.total = totalPrice;
-    },
-    reupFilterFunc(nodeName, publishedVal) {
-      return isPricedOption(publishedVal);
-    },
-  },
-};
-export const totalPrice = makeAutoObservable(graph.addNode("totalPrice", node));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const [key, val] of Object.entries(inputs)) {
+          returnVal += (val as IOption).valid
+            ? (val as IOption).optionPrice || 0
+            : 0;
+        }
+        totalPrice.total = returnVal;
+      },
+      reupFilterFunc(nodeName, publishedVal) {
+        return isPricedOption(publishedVal);
+      },
+    }
+  )
+);

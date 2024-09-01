@@ -5,32 +5,37 @@ export {};
 
 test("a graph can be serialized and rehydrated", async () => {
   const graph = createGraph();
-  const upstreamVal = {};
-  const upstreamNode = graph.addNode("upstream", {
-    anInteger: 0,
-    setVal(newVal: number) {
-      upstreamNode.anInteger = newVal;
+  const upstreamNode = graph.addNode(
+    "upstream",
+    {
+      anInteger: 0,
+      setVal(newVal: number) {
+        upstreamNode.anInteger = newVal;
+      },
     },
-    kernel: {
+    {
       saveState: function () {
         return upstreamNode.anInteger;
       },
       loadState: function (state) {
         upstreamNode.anInteger = state;
       },
-    },
-  });
+    }
+  );
 
-  const downstreamNode = graph.addNode("downstream", {
-    anInteger: 0,
-    kernel: {
+  const downstreamNode = graph.addNode(
+    "downstream",
+    {
+      anInteger: 0,
+      // downstreamNode is trivial to recalculate, so we won't bother saving state.
+      // graph.loadState does a full traversal after calling loadState() on all nodes
+    },
+    {
       reup({ upstream }) {
         downstreamNode.anInteger = upstream.anInteger + 2;
       },
-    },
-    // downstreamNode is trivial to recalculate, so we won't bother saving state.
-    // graph.loadState does a full traversal after calling loadState() on all nodes
-  });
+    }
+  );
   graph.build();
 
   await upstreamNode.setVal(14);
@@ -58,31 +63,37 @@ test("a graph can be serialized and rehydrated", async () => {
 });
 
 function add2Nodes(graph: IGraph) {
-  const upstreamNode = graph.addNode("upstream", {
-    anInteger: 0,
-    setVal(newVal: number) {
-      upstreamNode.anInteger = newVal;
+  const upstreamNode = graph.addNode(
+    "upstream",
+    {
+      anInteger: 0,
+      setVal(newVal: number) {
+        upstreamNode.anInteger = newVal;
+      },
     },
-    kernel: {
+    {
       saveState: function () {
         return upstreamNode.anInteger;
       },
       loadState: function (state) {
         upstreamNode.anInteger = state;
       },
-    },
-  });
+    }
+  );
 
-  const intermediateNode = graph.addNode("intermediate", {
-    anInteger: 0,
-    kernel: {
+  const intermediateNode = graph.addNode(
+    "intermediate",
+    {
+      anInteger: 0,
+      // intermediateNode is trivial to recalculate, so we won't bother saving state.
+      // graph.loadState does a full traversal after calling loadState() on all nodes
+    },
+    {
       reup({ upstream }) {
         intermediateNode.anInteger = upstream.anInteger + 2;
       },
-    },
-    // intermediateNode is trivial to recalculate, so we won't bother saving state.
-    // graph.loadState does a full traversal after calling loadState() on all nodes
-  });
+    }
+  );
   return { upstreamNode, intermediateNode };
 }
 
@@ -111,12 +122,15 @@ test("a graph rehydrated into a newer version with additional nodes still loads"
     const graph2 = createGraph();
     const { upstreamNode, intermediateNode } = add2Nodes(graph2);
 
-    const downstreamNode = graph2.addNode("downstream", {
-      anInteger: 0,
-      setVal(newVal: number) {
-        downstreamNode.anInteger = newVal;
+    const downstreamNode = graph2.addNode(
+      "downstream",
+      {
+        anInteger: 0,
+        setVal(newVal: number) {
+          downstreamNode.anInteger = newVal;
+        },
       },
-      kernel: {
+      {
         reup({ upstream, intermediate }) {
           console.log(upstreamNode);
         },
@@ -126,8 +140,8 @@ test("a graph rehydrated into a newer version with additional nodes still loads"
         loadState: function (state) {
           downstreamNode.anInteger = state;
         },
-      },
-    });
+      }
+    );
     // freezeDried is missing downstream!
     await graph2.loadState(JSON.parse(freezeDried), 2);
     // upstream has serialized value

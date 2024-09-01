@@ -1,5 +1,4 @@
 import graph from "./bareReactiveGraph";
-import { ONode } from "octopus-state-graph";
 import { makeAutoObservable } from "mobx";
 
 export interface IValid {
@@ -16,21 +15,25 @@ Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
 
-const node: ONode = {
-  valid: false,
-  _o: {
-    reupFilterFunc(nodeName, publishedVal) {
-      return isIValid(publishedVal);
+const allValid = makeAutoObservable(
+  graph.addNode(
+    "allValid",
+    {
+      valid: false,
     },
-    reup(nodes: ONode[]) {
-      let allValid = true;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for (const [_, val] of Object.entries(nodes)) {
-        allValid = allValid && !!(val as IValid).valid;
-      }
-      node.valid = allValid;
-    },
-  },
-};
-const allValid = makeAutoObservable(graph.addNode("allValid", node));
+    {
+      reupFilterFunc(nodeName, publishedVal) {
+        return isIValid(publishedVal);
+      },
+      reup(nodes) {
+        let returnVal = true;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const [_, val] of Object.entries(nodes)) {
+          returnVal = returnVal && !!(val as IValid).valid;
+        }
+        allValid.valid = returnVal;
+      },
+    }
+  )
+);
 export { allValid };

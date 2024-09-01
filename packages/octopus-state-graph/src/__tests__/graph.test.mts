@@ -11,15 +11,18 @@ test("a downstream node adds 2 to an upstream", async () => {
     },
   });
 
-  const downstreamNode = graph.addNode("downstream", {
-    downstreamInt: 5,
-    kernel: {
+  const downstreamNode = graph.addNode(
+    "downstream",
+    {
+      downstreamInt: 5,
+    },
+    {
       reup({ upstream }) {
         downstreamNode.downstreamInt = upstream.anInteger + 2;
         return true;
       },
-    },
-  });
+    }
+  );
   graph.build();
 
   await upstreamNode.setVal(14);
@@ -35,17 +38,20 @@ test("a reporting node picks up its input", async () => {
       upstream.anInt = newVal;
     },
   });
-  graph.addNode("downstream", {
-    anInt: 0,
-    kernel: {
+  graph.addNode(
+    "downstream",
+    {
+      anInt: 0,
+    },
+    {
       reup(nodeArray) {
         targetNodesCount = nodeArray.length;
       },
       reupFilterFunc(nodeName, nodeVal) {
         return true; // grab everything
       },
-    },
-  });
+    }
+  );
   graph.build();
 
   await upstream.setInt(14);
@@ -56,13 +62,15 @@ test("a reporting node picks up its input", async () => {
 test("Node dispose() methods are called when dispose is called on the graph", async () => {
   const graph = createGraph();
   let disposeWasCalled = false;
-  graph.addNode("downstream", {
-    kernel: {
+  graph.addNode(
+    "downstream",
+    {},
+    {
       dispose() {
         disposeWasCalled = true;
       },
-    },
-  });
+    }
+  );
   graph.build();
   graph.dispose();
   expect(disposeWasCalled).toBe(true);
