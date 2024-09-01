@@ -258,8 +258,8 @@ export function createGraph(options?: IGraphOptions): IGraph {
       //assignValueToOutput(currNodeName, node.val);
 
       addEdges(currNodeName);
-      // just-an-object: this looks like a vestige of when there used to be just one wrapper ???????????????????
-      //if (node._o.reup && reupWrapper) node._o.reup = reupWrapper(node.reup);
+      if (node._o?.reup && reupWrapper)
+        node._o.reup = reupWrapper(node._o.reup);
     }
 
     sortedNodeNames = tsGraph.topologicallySortedNodes().map((n) => n.name);
@@ -404,6 +404,13 @@ export function createGraph(options?: IGraphOptions): IGraph {
     }
     // only send traversal report if debug is set
     if (debug) {
+      const state = objectMap(nodes, (aNode) => {
+        return justTheValues(aNode.raw);
+      });
+      const methods = objectMap(nodes, (aNode) => {
+        const entries = Object.entries(justTheFunctions(aNode.raw));
+        return entries.map(([k, v]) => k);
+      });
       if (octopusDevtoolsPresent || standAloneDevtools) {
         const message = {
           source: "octopus",
@@ -412,8 +419,8 @@ export function createGraph(options?: IGraphOptions): IGraph {
           data: {
             sortedNodeNames,
             edges,
-            // state,
-            // methods,
+            state,
+            methods,
             initiator: sortedNodeNames[startingFrom],
           },
         };
