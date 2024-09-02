@@ -108,7 +108,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
   function addNode<T extends object>(
     nodeName: string,
     node: T,
-    kernel?: INodeKernel<unknown>
+    kernel?: INodeKernel
   ): T {
     if (!nodeName) throw new Error(`We can't add a node without a name.`);
     if (!node)

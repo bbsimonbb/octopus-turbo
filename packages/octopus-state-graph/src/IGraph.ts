@@ -15,11 +15,7 @@ export interface IGraph {
    * @returns the node. We remove the kernel, whose methods are only for octopus. We proxy the methods, so we can trigger
    * a traversal after they're called.
    */
-  addNode<T extends object>(
-    nodeName: string,
-    node: T,
-    kernel?: INodeKernel<unknown>
-  ): T;
+  addNode<T extends object>(nodeName: string, node: T, kernel?: INodeKernel): T;
   /**
    * A node can have zero, one or many wrappers. The wrappers will be sorted by order of priority, then called after the node's
    * reup() returns.

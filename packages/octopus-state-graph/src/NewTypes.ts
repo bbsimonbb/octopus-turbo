@@ -1,16 +1,16 @@
 import { INodeWrapper } from "./INodeWrapper";
 
-export interface INodeKernel<SerializedShape> {
+export interface INodeKernel {
   reup?: (precedents: any) => boolean | void | Promise<boolean | void>;
   reupFilterFunc?: (nodeName: string, nodeValue: any) => boolean | object;
-  saveState?: () => SerializedShape;
-  loadState?: (state: SerializedShape) => void;
+  saveState?: () => any;
+  loadState?: (state: any) => void;
   dispose?: () => void;
 }
 
 export interface INodeInternal {
   raw?: object; // may not be present initially if wrapper registered before node
-  kernel?: INodeKernel<unknown>; // not present if wrapper added before node
+  kernel?: INodeKernel; // not present if wrapper added before node
   resolvedPredecessors: string[];
   wrappers: INodeWrapper[];
 }
