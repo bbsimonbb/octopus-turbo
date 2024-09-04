@@ -351,3 +351,51 @@ test("A wrapper can add a dependency", async () => {
 
   expect(nodeName).toBe("downstream");
 });
+
+/**
+ * Reporting wrappers are rehydrated
+ */
+
+test("Reporting wrappers are rehydrated", async () => {
+  function add2NodesAndWrap(graph) {
+    const upstreamNode = graph.addNode("upstream", {
+      anInt: 2,
+      setVal(newVal: number) {
+        upstreamNode.anInt = newVal;
+      },
+    });
+
+    const downstreamNode = graph.addNode(
+      "downstream",
+      {
+        anInt: 5,
+      },
+      {
+        reup({ upstream }) {
+          downstreamNode.anInt = upstream.anInt + 2;
+          return true;
+        },
+      }
+    );
+
+    graph.wrapNodes((key, val) => !!val.anInt, {
+      wrapperFunc: (val) => {
+        val.anInt = val.anInt + 3;
+      },
+    });
+    return [upstreamNode, downstreamNode];
+  }
+
+  const graph = createGraph();
+  add2NodesAndWrap(graph);
+  graph.build();
+  const dehydrated = graph.saveState(1);
+
+  const graph2 = createGraph();
+  const [upstreamNode, downstreamNode] = add2NodesAndWrap(graph2);
+  graph2.loadState(dehydrated, 1);
+
+  await upstreamNode.setVal(14);
+
+  expect(downstreamNode.anInt).toBe(22);
+});

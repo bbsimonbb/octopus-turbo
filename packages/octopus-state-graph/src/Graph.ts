@@ -125,9 +125,6 @@ export function createGraph(options?: IGraphOptions): IGraph {
     };
     tsGraph.insert({ name: nodeName });
 
-    // we've hoisted the kernel into the internal node. Delete it from the original object.
-    // this preserves the reference but is that what we want.
-
     wrapMethodsWithProxy(nodeName, node);
     return node;
   }
@@ -467,7 +464,12 @@ export function createGraph(options?: IGraphOptions): IGraph {
     storedState: ISerializedGraph,
     currentGraphVersion: number
   ): Promise<IGraph> {
-    if (currentGraphVersion === storedState.savedAtVersion) {
+    /**
+     * The idea was to serialize resolved predecessors, but what about reporting wrappers. We decide which nodes they go on
+     * during build(), and this is not easily serializable because we put the function directly in the wrappers array. We don't have
+     * a name for them. If this is to work again, we need to identify wrappers by name, like we do for nodes. There is a test for this.
+     */
+    if (false && currentGraphVersion === storedState.savedAtVersion) {
       sortedNodeNames = storedState.topologicalSort;
       const sameLength = sortedNodeNames.length === Object.keys(nodes).length;
       const allSerializedPresent = sortedNodeNames.reduce(
@@ -479,6 +481,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
           "The serialized state doesn't match the current graph. Remember to increment the graph version (arg to saveState() and loadState()) to trigger a rebuild."
         );
       }
+
       for (const [key, val] of Object.entries(
         storedState.resolvedPredecessors
       )) {
@@ -529,7 +532,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
       console.log("wrapping reups");
       for (const nodeName of sortedNodeNames) {
         const node = nodes[nodeName];
-        if (node.kernel.reup) node.kernel.reup = reupWrapper(node.kernel.reup);
+        if (node.kernel?.reup) node.kernel.reup = reupWrapper(node.kernel.reup);
       }
       return loadedGraph;
     } else return _loadState(storedState, currentGraphVersion);
@@ -567,7 +570,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
     for (let i = 0; i < sortedNodeNames.length; i++) {
       const currNodeName = sortedNodeNames[i];
       // radically simple, a full traversal starts with the node which has just changed. It needs to reup whether or not it has inputs. The others, only if they have inputs.
-      if (nodes[currNodeName].kernel.dispose) {
+      if (nodes[currNodeName].kernel?.dispose) {
         try {
           await nodes[currNodeName].kernel.dispose();
         } catch (e) {
