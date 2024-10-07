@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "octopus-state-graph",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Directed acyclic graph for managing application state",
   "keywords": [
     "state management",

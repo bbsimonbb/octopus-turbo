@@ -77,6 +77,41 @@ test("Node dispose() methods are called when dispose is called on the graph", as
 });
 
 /**
+ * A function in an object in a node can be called in a downstream node
+ */
+test("A function in an object in a node can be called in a downstream node", async () => {
+  const graph = createGraph();
+  let wasCalled = false;
+  const upstreamNode = graph.addNode("upstream", {
+    anInteger: 1,
+    setVal(newVal: number) {
+      upstreamNode.anInteger = newVal;
+    },
+    anObj: {
+      aFunc() {
+        wasCalled = true;
+      },
+    },
+  });
+
+  const downstreamNode = graph.addNode(
+    "downstream",
+    {
+      downstreamInt: 5,
+    },
+    {
+      reup({ upstream }) {
+        upstream.anObj.aFunc();
+      },
+    }
+  );
+  graph.build();
+
+  await upstreamNode.setVal(14);
+  expect(wasCalled).toBe(true);
+});
+
+/**
  * A graph that has a reporting node, that picks up a plain node,
  * that depends on the reporting node, WON'T BUILD
  */

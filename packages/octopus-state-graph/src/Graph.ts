@@ -346,7 +346,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
         // just-an-object. The state to pass is the node, minus methods, minus kernel
         else predecessorState = justTheValues(nodes[pName].raw);
         Object.defineProperty(predecessorOutput, pName, {
-          value: JSON.parse(JSON.stringify(predecessorState)),
+          value: predecessorState,
           configurable: true,
           enumerable: true,
           writable: true,
