@@ -394,7 +394,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
         nodes[currNodeName].resolvedPredecessors.length === 0 && // and no predecessors
         startingFrom !== 0 // and this is not a full traversal
       )
-        break;
+        continue;
       await executeOneNode(currNodeName);
     }
     // only send traversal report if debug is set
