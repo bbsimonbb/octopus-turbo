@@ -185,7 +185,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
             // copy the result
             //assignValueToOutput(nodeName, node.val);
             // magic step. Launch a full traversal starting with node itself.
-            await fullTraversal(sortedNodeNames.indexOf(nodeName));
+            await traverse(sortedNodeNames.indexOf(nodeName));
           },
         });
       }
@@ -382,20 +382,20 @@ export function createGraph(options?: IGraphOptions): IGraph {
     }
   };
 
-  const fullTraversal = async (startingFrom = 0) => {
+  const traverse = async (startingFrom = 0) => {
     //console.log(`Full traversal starting from ${sortedNodeNames[startingFrom]}`)
     if (!sortedNodeNames.length)
       throw new Error("Graph not built or loaded. We cannot traverse.");
     for (let i = startingFrom; i < sortedNodeNames.length; i++) {
       const currNodeName = sortedNodeNames[i];
       //console.log(`traversing ${i} - ${currNode}`)
-      // radically simple, a full traversal starts with the node which has just changed. It needs to reup whether or not it has inputs. The others, only if they have inputs.
       if (
-        nodes[currNodeName] &&
-        (i === startingFrom ||
-          nodes[currNodeName].resolvedPredecessors.length > 0)
+        i !== startingFrom && // not the initiating node
+        nodes[currNodeName].resolvedPredecessors.length === 0 && // and no predecessors
+        startingFrom !== 0 // and this is not a full traversal
       )
-        await executeOneNode(currNodeName);
+        break;
+      await executeOneNode(currNodeName);
     }
     // only send traversal report if debug is set
     if (debug) {
@@ -442,7 +442,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
   };
   // we'll expose this version with no parameter
   async function publicFullTraversal() {
-    await fullTraversal();
+    await traverse();
     return;
   }
   function compareShape(a, b) {
@@ -504,7 +504,7 @@ export function createGraph(options?: IGraphOptions): IGraph {
     // after state has been loaded, we traverse. Everything will
     // reup, taking account of loaded values. Recalculation
     // needs to be async
-    await fullTraversal();
+    await traverse();
 
     return {
       // state,
