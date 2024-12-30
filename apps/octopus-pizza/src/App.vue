@@ -3,9 +3,8 @@ import Size from './components/Size.vue'
 import Pizza from './components/Pizza.vue'
 import Base from './components/Base.vue'
 import Sidebar from './components/Sidebar.vue'
-import { pizza } from "./graph/Pizza"
-import graph from "./graph/bareReactiveGraph";
-import { reactive } from 'vue'
+import { pizza } from "./nodes"
+import graph from "./bareReactiveGraph";
 
 let devtools: undefined | null | Window
 function popDevtools() {
@@ -25,7 +24,7 @@ function popDevtools() {
   <div id="content">
     <div class="flex-container">
       <div style="height:400px; margin:30px">
-        <img :class="{ main: true, veil: !pizza.val?.valid }" :src="pizza.val?.selectedValue?.imageUrl" />
+        <img :class="{ main: true, veil: !pizza.valid }" :src="pizza.choices[pizza.selectedIndex]?.imageUrl" />
       </div>
     </div>
     <div class="flex-container">
@@ -162,3 +161,4 @@ img.main.veil {
   filter: brightness(80%);
 }
 </style>
+./bareReactiveGraph./nodes/Pizza

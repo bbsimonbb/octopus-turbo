@@ -5,26 +5,29 @@ import "./App.css";
 import { Base } from "./components/Base";
 import { Sidebar } from "./components/Sidebar";
 import { observer } from "mobx-react-lite";
-import graph from "./graph/bareReactiveGraph"
+import graph from "./graph/bareReactiveGraph";
 import { useState } from "react";
 
 const App = observer(() => {
-  const [devtools, setDevtools] = useState<Window|null|undefined>(undefined)
-  const devtoolsUrl = "http://localhost:7768"
-  let pizzaChoice
-  if(pizza.val?.selectedIndex){
-    pizzaChoice = pizza.val?.choices[pizza.val.selectedIndex]
-  } 
-  
+  const [devtools, setDevtools] = useState<Window | null | undefined>(
+    undefined
+  );
+  const devtoolsUrl = "http://localhost:7768";
+  let pizzaChoice;
+  if (pizza.selectedIndex + 1) {
+    pizzaChoice = pizza.choices[pizza.selectedIndex];
+  }
+
   function popDevtools() {
     if (devtools && !devtools.closed) {
-      devtools.focus()
+      devtools.focus();
     } else {
-      const newDevtools =  window.open(devtoolsUrl, "_blank", "popup")
-      window.addEventListener("pagehide", () => { newDevtools?.close() })
-      setDevtools(newDevtools)
-      if (newDevtools)
-        graph.registerDevtools(newDevtools, devtoolsUrl)
+      const newDevtools = window.open(devtoolsUrl, "_blank", "popup");
+      window.addEventListener("pagehide", () => {
+        newDevtools?.close();
+      });
+      setDevtools(newDevtools);
+      if (newDevtools) graph.registerDevtools(newDevtools, devtoolsUrl);
     }
   }
   return (
@@ -32,7 +35,10 @@ const App = observer(() => {
       <div id="content">
         <div className="flex-container">
           <div style={{ height: "400px", margin: "30px" }}>
-            <img className={`main ${pizza.val?.valid ? "" : "veil"}`} src={pizzaChoice?.imageUrl} />
+            <img
+              className={`main ${pizza.valid ? "" : "veil"}`}
+              src={pizzaChoice?.imageUrl}
+            />
           </div>
         </div>
         <div className="flex-container">
@@ -46,7 +52,7 @@ const App = observer(() => {
       <Sidebar></Sidebar>
       <img src="./react.svg" id="react-logo" />
       <img src="./mobx.png" id="mobx-logo" />
-      <img src="./octopus-photo.png" id="octo" onClick={()=>popDevtools()}/>
+      <img src="./octopus-photo.png" id="octo" onClick={() => popDevtools()} />
     </>
   );
 });

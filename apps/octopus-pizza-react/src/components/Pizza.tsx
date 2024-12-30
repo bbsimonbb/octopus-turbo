@@ -1,33 +1,30 @@
 import { doOrder } from "../graph/doOrder";
 import { observer } from "mobx-react-lite";
 import { IOption, IOptionMethods } from "../IOption";
-import { INode } from "octopus-state-graph";
-import { action } from "mobx";
 import { ToastyError } from "./ToastyError";
 
-
 export const Pizza = observer(
-  ({ pizza }: { pizza: INode<IOption, IOptionMethods> }) => {
+  ({ pizza }: { pizza: IOption & IOptionMethods }) => {
     const errorActive =
-      !!pizza.val?.canChoose &&
-      !pizza.val?.valid &&
-      (doOrder.val?.submitBlocked || pizza.val?.touched);
+      !!pizza.canChoose &&
+      !pizza.valid &&
+      (doOrder.submitBlocked || pizza.touched);
 
-
-    const errorMsg = pizza.val?.valid
+    const errorMsg = pizza.valid
       ? ""
-      : pizza.val?.selectedIndex !== undefined
-        ? "Your choice is not compatible with your base"
-        : "Please choose";
+      : pizza.selectedIndex !== -1
+      ? "Your choice is not compatible with your base"
+      : "Please choose";
 
     return (
       <>
         <div className="option-container pizza">
-          {pizza.val?.choices.map((option, index) => (
+          {pizza.choices.map((option, index) => (
             <div
-              className={`button ${option.selected ? "selected" : ""} ${option.hide ? "hide" : ""
-                }`}
-              onClick={action('pickSize', () => pizza.methods?.selectItem(index))}
+              className={`button ${option.selected ? "selected" : ""} ${
+                option.hide ? "hide" : ""
+              }`}
+              onClick={() => pizza.selectItem(index)}
               key={option.id}
             >
               <div>

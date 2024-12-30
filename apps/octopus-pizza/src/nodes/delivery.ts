@@ -1,7 +1,7 @@
-import graph from "./bareReactiveGraph";
-import { makeAutoObservable } from "mobx";
+import { reactive } from "vue";
+import graph from "../bareReactiveGraph";
 
-export const delivery = makeAutoObservable(
+export const delivery = reactive(
   graph.addNode(
     "delivery",
     {

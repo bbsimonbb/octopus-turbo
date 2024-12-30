@@ -1,105 +1,117 @@
-import { createGraph } from "../Graph.js"
-import { test, expect } from "vitest"
-import { IStateful } from "../IStateful.js"
-import { INode } from "../INode.js"
-export { }
+import { createGraph } from "../Graph.js";
+import { test, expect } from "vitest";
+export {};
 
 test("a downstream node adds 2 to an upstream", async () => {
-  const graph = createGraph()
-  const val = {
-    anInteger: 0,
-  }
+  const graph = createGraph();
   const upstreamNode = graph.addNode("upstream", {
-    val,
-    methods: {
-      setVal(newVal: number) {
-        val.anInteger = newVal
-      }
-    }
-  })
-
-  const downstreamNode = graph.addNode("downstream", {
-    val: {
-      downstreamInt: 5
+    anInteger: 1,
+    setVal(newVal: number) {
+      upstreamNode.anInteger = newVal;
     },
-    reup(upstream) {
-      this.val.downstreamInt = upstream.anInteger + 2
-      return true
-    }
-  })
-  graph.build()
+  });
 
-  await upstreamNode.methods.setVal(14)
-  expect(graph.state.downstream.downstreamInt).toBe(16)
-})
+  const downstreamNode = graph.addNode(
+    "downstream",
+    {
+      downstreamInt: 5,
+    },
+    {
+      reup({ upstream }) {
+        downstreamNode.downstreamInt = upstream.anInteger + 2;
+        return true;
+      },
+    }
+  );
+  graph.build();
+
+  await upstreamNode.setVal(14);
+  expect(downstreamNode.downstreamInt).toBe(16);
+});
 
 test("a reporting node picks up its input", async () => {
-  const graph = createGraph()
-  let targetNodesCount = 0
-  let upstream: INode
-  {
-    const val = {
+  const graph = createGraph();
+  let targetNodesCount = 0;
+  let upstream = graph.addNode("upstream", {
+    anInt: 0,
+    setInt(newVal) {
+      upstream.anInt = newVal;
+    },
+  });
+  graph.addNode(
+    "downstream",
+    {
       anInt: 0,
-    }
-    upstream = graph.addNode("upstream", {
-      val,
-      methods: {
-        setInt(newVal) { val.anInt = newVal }
-      }
-    })
-  }
-  {
-    const val = {
-      anInt: 0
-    }
-    graph.addNode("downstream", {
-      val,
+    },
+    {
       reup(nodeArray) {
-        targetNodesCount = nodeArray.length
+        targetNodesCount = nodeArray.length;
       },
-      options: {
-        dependsOn(nodeName, nodeVal) {
-          return true // grab everything
-        }
-      }
-    })
-  }
-  graph.build()
-
-  await upstream.methods.setInt(14)
-
-  expect(targetNodesCount).toBe(1)
-})
-
-test("sinks mustn't put anything in state", async () => {
-  const graph = createGraph()
-  const upstreamVal = { anInt: 0 }
-  const node = {
-    val: upstreamVal,
-    methods: {
-      setVal(newVal) {
-        upstreamVal.anInt = newVal
+      reupFilterFunc(nodeName, nodeVal) {
+        return true; // grab everything
       },
-    },
-    saveState: function (): { [key: string]: any } {
-      return { upstreamVal }
-    },
-    loadState: function (state: { [key: string]: any }) {
-      Object.assign(upstreamVal, state.upstreamVal)
-    },
-  } as INode & IStateful
-  const upstreamNode = graph.addNode("upstream", node)
-
-  let sideEffect = 0
-  graph.addNode("downstream", {
-    reup(upstream: any): void {
-      sideEffect = upstream.anInt + 2
     }
-  })
-  graph.build()
+  );
+  graph.build();
 
-  await upstreamNode.methods.setVal(14)
-  expect(sideEffect).toBe(16)
-  // downstream is a sink, so should not be present in the state
-  expect(Object.entries(graph.state).length).toBe(1)
-})
+  await upstream.setInt(14);
+
+  expect(targetNodesCount).toBe(1);
+});
+
+test("Node dispose() methods are called when dispose is called on the graph", async () => {
+  const graph = createGraph();
+  let disposeWasCalled = false;
+  graph.addNode(
+    "downstream",
+    {},
+    {
+      dispose() {
+        disposeWasCalled = true;
+      },
+    }
+  );
+  graph.build();
+  graph.dispose();
+  expect(disposeWasCalled).toBe(true);
+});
+
+/**
+ * A function in an object in a node can be called in a downstream node
+ */
+test("A function in an object in a node can be called in a downstream node", async () => {
+  const graph = createGraph();
+  let wasCalled = false;
+  const upstreamNode = graph.addNode("upstream", {
+    anInteger: 1,
+    setVal(newVal: number) {
+      upstreamNode.anInteger = newVal;
+    },
+    anObj: {
+      aFunc() {
+        wasCalled = true;
+      },
+    },
+  });
+
+  const downstreamNode = graph.addNode(
+    "downstream",
+    {
+      downstreamInt: 5,
+    },
+    {
+      reup({ upstream }) {
+        upstream.anObj.aFunc();
+      },
+    }
+  );
+  graph.build();
+
+  await upstreamNode.setVal(14);
+  expect(wasCalled).toBe(true);
+});
+
+/**
+ * A graph that has a reporting node, that picks up a plain node,
+ * that depends on the reporting node, WON'T BUILD
+ */

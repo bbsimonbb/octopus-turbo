@@ -1,5 +1,5 @@
-import graph from "./bareReactiveGraph";
-import { makeAutoObservable } from "mobx";
+import { reactive } from "vue";
+import graph from "../bareReactiveGraph";
 
 export interface IValid {
   valid: boolean;
@@ -15,7 +15,7 @@ Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
 
-const allValid = makeAutoObservable(
+const allValid = reactive(
   graph.addNode(
     "allValid",
     {

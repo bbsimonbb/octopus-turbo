@@ -1,10 +1,10 @@
-import graph from "./bareReactiveGraph";
+import { reactive } from "vue";
+import graph from "../bareReactiveGraph";
 import { IValid } from "./allValid";
-import { makeAutoObservable } from "mobx";
 
 // some private state
 let canGo = false;
-export const doOrder = makeAutoObservable(
+export const doOrder = reactive(
   graph.addNode(
     "doOrder",
     {

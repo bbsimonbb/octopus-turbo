@@ -1,24 +1,25 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue'
-import {size} from "../graph/Size"
-import {doOrder} from "../graph/doOrder"
+import { size, doOrder } from "../nodes"
 import ToastyError from "./ToastyError.vue"
 
 </script>
 
 <template>
     <div class="option-container">
-        <div v-for="(option, index) in size.val?.choices"
-            :class="['button',option.selected?'selected':'']"
-            @click="size.methods?.selectItem(index)"
-        ><div>{{ option.id }}</div></div>
-        <div class="container-title"><div>size</div></div>
-        <ToastyError error-msg="Please choose" :active="(!!doOrder.val?.submitBlocked || !!size.val?.touched) && !size.val?.valid"></ToastyError>
+        <div v-for="(option, index) in size.choices" :class="['button', option.selected ? 'selected' : '']"
+            @click="size.selectItem(index)">
+            <div>{{ option.id }}</div>
+        </div>
+        <div class="container-title">
+            <div>size</div>
+        </div>
+        <ToastyError error-msg="Please choose" :active="(!!doOrder.submitBlocked || !!size.touched) && !size.valid">
+        </ToastyError>
     </div>
 </template>
 
 <style scoped>
-.option-container{
+.option-container {
     color: var(--color-purple)
 }
 </style>

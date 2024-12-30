@@ -1,6 +1,6 @@
+import { reactive } from "vue";
 import { IOption } from "../IOption";
-import graph from "./bareReactiveGraph";
-import { makeAutoObservable } from "mobx";
+import graph from "../bareReactiveGraph";
 
 export interface ITip {
   tipAsPct: boolean;
@@ -29,7 +29,7 @@ const node: ITip = {
   },
 };
 
-export const tip = makeAutoObservable(
+export const tip = reactive(
   graph.addNode("tip", node, {
     reup({ pizza }: { pizza: IOption }) {
       if (node.tipAsPct) {

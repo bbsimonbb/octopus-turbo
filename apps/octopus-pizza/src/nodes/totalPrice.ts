@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import graph from "./bareReactiveGraph";
+import { reactive } from "vue";
 import { IOption } from "../IOption";
-import { makeAutoObservable } from "mobx";
+import graph from "../bareReactiveGraph";
 
 interface IPricedOption {
   optionPrice: number;
@@ -18,7 +18,7 @@ Then, any change in a dependency will trigger onUpstreamChange as usual.
 Here, everything that has an optionPrice is a dependency
 */
 
-export const totalPrice = makeAutoObservable(
+export const totalPrice = reactive(
   graph.addNode(
     "totalPrice",
     {

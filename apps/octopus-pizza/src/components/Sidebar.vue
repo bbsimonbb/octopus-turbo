@@ -7,11 +7,10 @@
       <div>
         <div>delivery address</div>
         <div id="deliveryAddressTextArea" class="text-area" @input="deliveryAddressOnChange" style="height:60px"
-          contenteditable @focus="delivery.methods?.deliveryOn()"></div>
+          contenteditable @focus="delivery.deliveryOn()"></div>
       </div>
 
-      <div
-        :class="{ 'container-error': true, active: (delivery.val?.touched || doOrder.val?.submitBlocked) && !delivery.val?.valid }">
+      <div :class="{ 'container-error': true, active: (delivery.touched || doOrder.submitBlocked) && !delivery.valid }">
         <div>Please provide a delivery address.</div>
       </div>
     </div>
@@ -19,35 +18,32 @@
     <br>
     <div class="option-container" style="justify-content:flex-end">
       <div class="container-title">total</div>
-      <div class="amount">{{ totalPrice.val?.total.toFixed(2) }}&nbsp;€</div>
+      <div class="amount">{{ totalPrice.total.toFixed(2) }}&nbsp;€</div>
       <br>
       <br>
 
     </div>
     <div class="order-container">
       <div :class="{
-        button: true,
-        hide: !allValid.val?.valid,
-      }" @click="doOrder.methods?.go()">Place order</div>
+          button: true,
+          hide: !allValid.valid,
+        }" @click="doOrder.go()">Place order</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ComputedRef, computed, inject, ref } from 'vue'
-import {allValid} from "../graph/allValid"
-import {delivery} from "../graph/delivery"
-import {doOrder} from "../graph/doOrder"
-import {totalPrice} from "../graph/totalPrice"
+import { computed } from 'vue'
+import { allValid, delivery, doOrder, totalPrice } from "../nodes"
 import Tip from "./Tip.vue"
 
 const deliveryCheckbox = computed({
-  get() { return delivery.val?.checked },
-  set(newVal) { delivery.methods?.setChecked(newVal || false) }
+  get() { return delivery.checked },
+  set(newVal) { delivery.setChecked(newVal || false) }
 })
 function deliveryAddressOnChange(e: Event) {
   const textArea = e.target as HTMLElement
-  delivery.methods?.setDeliveryAddress(textArea.innerText)
+  delivery.setDeliveryAddress(textArea.innerText)
 }
 
 </script>

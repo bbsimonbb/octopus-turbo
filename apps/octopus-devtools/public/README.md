@@ -29,4 +29,4 @@ The tab loses its connection to the inspected page after a period of inactivity.
 
 
 
-[^1]: The extension presents traversal reports sent by Octopus state graph. These reports are only sent when the app you're developing is served on some high port, so this extension cannot be used to inspect a deployed application.
+[^1]: The extension presents traversal reports sent by Octopus state graph. These reports are only sent when the app you're developing creates its graph with debug=true, so this extension cannot be used to inspect a deployed application.

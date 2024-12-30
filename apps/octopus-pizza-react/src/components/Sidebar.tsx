@@ -4,17 +4,17 @@ import { delivery } from "../graph/delivery";
 import { doOrder } from "../graph/doOrder";
 import { totalPrice } from "../graph/totalPrice";
 import { FormEvent } from "react";
-import { action } from "mobx";
 import { Tip } from "./Tip";
 import "./Sidebar.css";
 import { ToastyError } from "./ToastyError";
 
 export const Sidebar = observer(() => {
-  const deliveryAddressOnChange = action((e: FormEvent<HTMLDivElement>) => {
+  const deliveryAddressOnChange = (e: FormEvent<HTMLDivElement>) => {
     const textArea = e.target as HTMLElement;
-    delivery.methods?.setDeliveryAddress(textArea.innerText);
-  });
-  const deliveryErrorActive = (!!delivery.val?.touched || !!doOrder.val?.submitBlocked) && !delivery.val?.valid
+    delivery.setDeliveryAddress(textArea.innerText);
+  };
+  const deliveryErrorActive =
+    (!!delivery.touched || !!doOrder.submitBlocked) && !delivery.valid;
   return (
     <>
       <div id="sidebar-right">
@@ -23,10 +23,10 @@ export const Sidebar = observer(() => {
             <input
               id="deliveryCheckbox"
               type="checkbox"
-              checked={delivery.val?.checked}
-              onClick={action((event) =>
-                delivery.methods?.setChecked(event.currentTarget.checked)
-              )}
+              checked={delivery.checked}
+              onChange={(event) =>
+                delivery.setChecked(event.currentTarget.checked)
+              }
             />{" "}
             delivery 5€
           </div>
@@ -38,10 +38,13 @@ export const Sidebar = observer(() => {
               onInput={deliveryAddressOnChange}
               style={{ height: "60px" }}
               contentEditable
-              onFocus={action(() => delivery.methods?.deliveryOn())}
+              onFocus={() => delivery.deliveryOn()}
             ></div>
           </div>
-          <ToastyError errorMsg="Please provide a delivery address." active={deliveryErrorActive}></ToastyError>
+          <ToastyError
+            errorMsg="Please provide a delivery address."
+            active={deliveryErrorActive}
+          ></ToastyError>
         </div>
         <Tip></Tip>
         <br />
@@ -50,16 +53,14 @@ export const Sidebar = observer(() => {
           style={{ justifyContent: "flex-end" }}
         >
           <div className="container-title">total</div>
-          <div className="amount">
-            {totalPrice.val?.total.toFixed(2)}&nbsp;€
-          </div>
+          <div className="amount">{totalPrice.total.toFixed(2)}&nbsp;€</div>
           <br />
           <br />
         </div>
         <div className="order-container">
           <div
-            className={`button ${!allValid.val?.valid ? "hide" : ""}`}
-            onClick={action(() => doOrder.methods?.go())}
+            className={`button ${!allValid.valid ? "hide" : ""}`}
+            onClick={() => doOrder.go()}
           >
             Place order
           </div>
